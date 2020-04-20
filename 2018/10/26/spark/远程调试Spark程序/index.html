@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next gemini" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.1.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.1.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="我们在写Spark程序的时候免不了要对我们的代码进行debug，在代码当中打上断点来查看程序执行过程中各个变量的变化情况。我一般使用Intellij IDEA来写Spark程序，可以直接在其中以local的方式运行Spark程序，也可以在其中打上断点进行调试，但这样做有一些问题：  我们只能对Spark driver端的程序进行打断点debug； Spark很多代码都是惰性执行的，很多代码都需要有">
+<meta name="keywords" content="Spark">
+<meta property="og:type" content="article">
+<meta property="og:title" content="远程调试Spark程序">
+<meta property="og:url" content="http://yoursite.com/2018/10/26/spark/远程调试Spark程序/index.html">
+<meta property="og:site_name" content="Joey&#39;s Notes">
+<meta property="og:description" content="我们在写Spark程序的时候免不了要对我们的代码进行debug，在代码当中打上断点来查看程序执行过程中各个变量的变化情况。我一般使用Intellij IDEA来写Spark程序，可以直接在其中以local的方式运行Spark程序，也可以在其中打上断点进行调试，但这样做有一些问题：  我们只能对Spark driver端的程序进行打断点debug； Spark很多代码都是惰性执行的，很多代码都需要有">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-13T07:47:52.267Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="远程调试Spark程序">
+<meta name="twitter:description" content="我们在写Spark程序的时候免不了要对我们的代码进行debug，在代码当中打上断点来查看程序执行过程中各个变量的变化情况。我一般使用Intellij IDEA来写Spark程序，可以直接在其中以local的方式运行Spark程序，也可以在其中打上断点进行调试，但这样做有一些问题：  我们只能对Spark driver端的程序进行打断点debug； Spark很多代码都是惰性执行的，很多代码都需要有">
+
+
+
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/10/26/spark/远程调试Spark程序/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>远程调试Spark程序 | Joey's Notes</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Joey's Notes</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Joey</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类<span class="badge">3</span></a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/26/spark/远程调试Spark程序/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joey's Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">远程调试Spark程序
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+                
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-26T18:40:25+08:00">2018-10-26</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>我们在写Spark程序的时候免不了要对我们的代码进行debug，在代码当中打上断点来查看程序执行过程中各个变量的变化情况。我一般使用Intellij IDEA来写Spark程序，可以直接在其中以local的方式运行Spark程序，也可以在其中打上断点进行调试，但这样做有一些问题：</p>
+<ol>
+<li>我们只能对Spark driver端的程序进行打断点debug；</li>
+<li>Spark很多代码都是惰性执行的，很多代码都需要有action才能触发，在这之前打断点没有意义，真正的Task执行逻辑位于Executor当中；</li>
+<li>对于某些运算量比较大或者内存消耗比较多的程序来说，本地电脑不能运行；</li>
+<li>这样只能观察代码在local模式下运行的是否正确，无法对在集群中运行的代码进行调试。</li>
+</ol>
+<p>之前所说的几点问题我在之前一般采用比较低效率的方式来进行debug，即在代码当中加入一些log信息，利用log信息来调试代码，这样当Spark程序在集群中运行时，可以在web UI的Executor的stdout和stderr中查看我们留下的log信息。这样做可以解决一些问题，但是十分低效，debug的信息需要添加改动时都需要重新编译程序，并且打印log信息的方式并不能很完整地观察到所有变量的变化情况。但这样做确实解决了一些问题，比如我们可以对Executor真正执行Task逻辑的代码进行调试，也无需考虑惰性执行的过程，Spark的所有RDD的transform的行为都会反映到每个Executor执行的stdout和stderr信息当中；这些代码都可以在服务器集群当中运行进行调试，不用担心本地电脑性能不够的问题，本地电脑只需要打开浏览器查看Spark的web UI即可，或者使用终端来查看一些信息；可以在集群当中调试代码，不需要局限于local模式下。</p>
+<p>但我始终认为这样的debug方式是低效的，并且不是一个正常的程序员应该有的debug方式，之前有想过肯定有具体的方法来解决这样的调试问题，Intellij IDEA当中功能非常多，肯定有这样的功能来解决这个问题。近期又要写一些Spark程序，并且输入数据非常大，计算量也很大，我在本地电脑上根本没办法debug，于是想到了去查找一些资料来解决远程调试Spark程序的问题。其实Intellij IDEA或者Eclipse这样的IED都会有remote debug这样的功能，以Intellij IDEA为例，在Run-Edit Configurations菜单中我们可以添加一个Remote的Configurations，这就是Intellij IDEA为我们提供的远程调试的功能。这里对Spark程序的调试主要分两种——Driver程序调试和Executor程序调试。</p>
+<h4 id="Driver程序调试"><a href="#Driver程序调试" class="headerlink" title="Driver程序调试"></a>Driver程序调试</h4><p>Driver程序在远程进行调试时，需要在spark-submit的参数中增加一个配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--conf spark.driver.extraJavaOptions=-agentlib:jdwp=transport=dt_socket,server=y,<span class="built_in">suspend</span>=y,address=5005</span><br></pre></td></tr></table></figure>
+<a id="more"></a>
+<p>或</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--driver-java-options -agentlib:jdwp=transport=dt_socket,server=y,<span class="built_in">suspend</span>=y,address=5005</span><br></pre></td></tr></table></figure>
+<p>我们队这个参数进行一些说明，首先spark.driver.exetraJavaOptions这个参数允许我们在Spark的driver程序在运行时传入一些额外的Java参数，<code>agentlib:jdwp</code>是Java Debug Wire Protocol选项，是一个远程调试的协议，后面紧跟的是以逗号进行分隔的子选项：</p>
+<ul>
+<li><code>transport</code>定义了远程Debugger及Debuggee之间数据传输协议，可以选择socket和shared memory的方式，一般情况下都是选择socket的方式，即选项的值选择dt_socket</li>
+<li><code>server</code>运行Java程序的进程是否作为服务端与客户端(Debugger)进行通信，通常情况下远程调试都需要有一个服务端和一个客户端，若运行Java程序端为服务端，则调试端为客户端，在调试driver程序时，选择Java程序为服务端，监听远端Debugger的连接，因此值为y(yes)</li>
+<li><code>suspend</code>是否暂停执行直至有客户端(Debugger)成功连接到服务端，调试driver程序时将这个值设置为y(yes)使得driver程序会在刚启动时就暂停住，指到有远端Debugger客户端连接上来才继续执行，确保远端Debugger能在程序开始执行时已经连接完毕</li>
+<li><code>address</code>监听的端口，即服务端socket监听的端口，可以设置为任意可用的没有被占用的端口号，只要确保客户端能够通过这个端口与服务端进行连接即可</li>
+</ul>
+<p>进行了如上设置之后，在我们允许spark-submit指令之后，我们一般能够看到Spark程序暂停住了，并且会显示如下这样一句话：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Listening <span class="keyword">for</span> transport dt_socket at address: 5005</span><br></pre></td></tr></table></figure>
+<p>这时候，我们的Spark程序已经做好准备在等待远程Debugger客户端连接了(一般称之为attach)，接下来就在Intellij IDEA中打开之前所说的那个菜单，点击“+”添加一个新的run/debug configuration，这里选择的是Remote类型，Debugger mode选择Attach to remote JVM，接下来填入Host和port并选择moudle classpath，之后使用这个配置点击debug按钮便可以进行远程调试了。</p>
+<h4 id="Executor程序调试"><a href="#Executor程序调试" class="headerlink" title="Executor程序调试"></a>Executor程序调试</h4><p>一般来说，我们进行Spark程序调试最主要的就是要对Task当中的执行逻辑进行调试，因为Executor中执行的才是真正的并行任务，也是程序最主要的部分。对Executor进行调试时我们一般将允许Java进程的服务器作为客户端，将Debugger所在的机器作为服务端，也就是在调试机器上启动一个socket服务器对指定端口进行监听，而Executor上运行的程序作为客户端与之进行连接。为什么不采用之前的那种模式呢？因为我们需要保证Executor上的程序一开始执行就与Debugger进行了连接，若采用之前的模式，就需要将Executor进行暂停，而Executor暂停会使得driver程序误认为其出现了故障，会不断的重启Executor，无法正常进行调试。一般情况下要这样进行调试需要将Executor设置为只有一个，因为多个Executor同时连接Debugger的服务端会出现问题，若一定要进行集群调试，则在指定Worker启动的时候加入参数，而不是在spark-submit的时候加入参数，首先说下参数：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--conf spark.executor.extraJavaOptions=-agentlib:jdwp=transport=dt_socket,server=n,address=10.0.0.171:5005,<span class="built_in">suspend</span>=n</span><br></pre></td></tr></table></figure>
+<p>参数的具体意思不用多加说明，主要是address这里要写入具体的Debugger的地址以及端口号，如果要指定一个Worker上启动一个Executor来进行调试，可以在使用手动的方式启动该Worker</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spark-class -agentlib:jdwp=transport=dt_socket,server=n,address=10.0.0.171:5005,<span class="built_in">suspend</span>=n org.apache.spark.deploy.worker.Worker spark://10.0.0.1:7077</span><br></pre></td></tr></table></figure>
+<p>只要给该Worker分配一定的资源，确保在这个Worker上启动一个Executor即可。Intellij IDEA的设置上和之前的区别就是将Debugger mode改为Listen to remote JVM，然后首先需要启动Debugger的服务端，即先在Intellij IDEA当中点击debug开启服务，再运行Spark程序，这样远端的Spark Executor上运行的程序会自动进行连接，方便进行debug。这里需要注意的是，debug过程中不要让一行代码停留太长时间，否则driver会认为该Executor出现了故障，会不断进行重启Executor。</p>
+<p>参考资料：</p>
+<ul>
+<li><a href="https://stackoverflow.com/questions/30403685/how-can-i-debug-spark-application-locally" target="_blank" rel="noopener">https://stackoverflow.com/questions/30403685/how-can-i-debug-spark-application-locally</a></li>
+<li><a href="https://stackoverflow.com/questions/29090745/debugging-spark-applications" target="_blank" rel="noopener">https://stackoverflow.com/questions/29090745/debugging-spark-applications</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Spark/" rel="tag"># Spark</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/10/25/spark/spark源码阅读/Spark运行原理/" rel="next" title="Spark运行原理">
+                <i class="fa fa-chevron-left"></i> Spark运行原理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/10/29/Gradle中添加C-C-代码编译打包流程/" rel="prev" title="Gradle中添加C/C++代码编译打包流程">
+                Gradle中添加C/C++代码编译打包流程 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/assets/blogImg/avatar.jpg" alt="Jiayi Liu">
+            
+              <p class="site-author-name" itemprop="name">Jiayi Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">19</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/liujiayi771" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:liujiayi771@gmail.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#Driver程序调试"><span class="nav-number">1.</span> <span class="nav-text">Driver程序调试</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Executor程序调试"><span class="nav-number">2.</span> <span class="nav-text">Executor程序调试</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jiayi Liu</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Gemini</a> v6.1.0</div>
+
+<script src="https://s19.cnzz.com/z_stat.php?id=1273773104&web_id=1273773104" language="JavaScript"></script>
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.1.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+  
+</body>
+</html>
