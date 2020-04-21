@@ -97,18 +97,18 @@
 
 
 
-  <meta name="description" content="最近需要运行一个基于OpenCL开发的软件，服务器上的NVIDIA 1080Ti和Intel CPU都支持OpenCL，安装OpenCL之前可以安装一个clinfo的软件可以看到服务器上目前支持的OpenCL设备。 1sudo apt install clinfo 一般安装NVIDIA的驱动的时候就会有选项选择是否安装OpenCL的驱动，若没有选择那个选项，clinfo是看不到有NVIDIA的cl">
+  <meta name="description" content="最近需要运行一个基于OpenCL开发的软件，服务器上的NVIDIA 1080Ti和Intel CPU都支持OpenCL，安装OpenCL之前可以安装一个clinfo的软件可以看到服务器上目前支持的OpenCL设备。 1sudo apt install clinfo  一般安装NVIDIA的驱动的时候就会有选项选择是否安装OpenCL的驱动，若没有选择那个选项，clinfo是看不到有NVIDIA的c">
 <meta name="keywords" content="Linux">
 <meta property="og:type" content="article">
 <meta property="og:title" content="ubuntu安装OpenCL运行及编译环境">
 <meta property="og:url" content="http://yoursite.com/2019/01/18/ubuntu安装OpenCL运行及编译环境/index.html">
 <meta property="og:site_name" content="Joey&#39;s Notes">
-<meta property="og:description" content="最近需要运行一个基于OpenCL开发的软件，服务器上的NVIDIA 1080Ti和Intel CPU都支持OpenCL，安装OpenCL之前可以安装一个clinfo的软件可以看到服务器上目前支持的OpenCL设备。 1sudo apt install clinfo 一般安装NVIDIA的驱动的时候就会有选项选择是否安装OpenCL的驱动，若没有选择那个选项，clinfo是看不到有NVIDIA的cl">
+<meta property="og:description" content="最近需要运行一个基于OpenCL开发的软件，服务器上的NVIDIA 1080Ti和Intel CPU都支持OpenCL，安装OpenCL之前可以安装一个clinfo的软件可以看到服务器上目前支持的OpenCL设备。 1sudo apt install clinfo  一般安装NVIDIA的驱动的时候就会有选项选择是否安装OpenCL的驱动，若没有选择那个选项，clinfo是看不到有NVIDIA的c">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-03-13T07:47:52.267Z">
+<meta property="og:updated_time" content="2020-04-21T02:51:02.393Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ubuntu安装OpenCL运行及编译环境">
-<meta name="twitter:description" content="最近需要运行一个基于OpenCL开发的软件，服务器上的NVIDIA 1080Ti和Intel CPU都支持OpenCL，安装OpenCL之前可以安装一个clinfo的软件可以看到服务器上目前支持的OpenCL设备。 1sudo apt install clinfo 一般安装NVIDIA的驱动的时候就会有选项选择是否安装OpenCL的驱动，若没有选择那个选项，clinfo是看不到有NVIDIA的cl">
+<meta name="twitter:description" content="最近需要运行一个基于OpenCL开发的软件，服务器上的NVIDIA 1080Ti和Intel CPU都支持OpenCL，安装OpenCL之前可以安装一个clinfo的软件可以看到服务器上目前支持的OpenCL设备。 1sudo apt install clinfo  一般安装NVIDIA的驱动的时候就会有选项选择是否安装OpenCL的驱动，若没有选择那个选项，clinfo是看不到有NVIDIA的c">
 
 
 
@@ -364,15 +364,25 @@
       
         <p>最近需要运行一个基于OpenCL开发的软件，服务器上的NVIDIA 1080Ti和Intel CPU都支持OpenCL，安装OpenCL之前可以安装一个clinfo的软件可以看到服务器上目前支持的OpenCL设备。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install clinfo</span><br></pre></td></tr></table></figure>
+
 <p>一般安装NVIDIA的驱动的时候就会有选项选择是否安装OpenCL的驱动，若没有选择那个选项，clinfo是看不到有NVIDIA的cl设备的，接下来安装的几个软件一般也会将没有选择OpenCL的NVIDIA缺失的库作为依赖安装上，使得基于NVIDIA的cl设备能够正常使用。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install ocl-icd-libopencl1</span><br><span class="line">sudo apt install opencl-headers</span><br></pre></td></tr></table></figure>
+
 <p>若需要在服务器上编译或者调试OpenCL程序，还需要安装</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install ocl-icd-opencl-dev</span><br></pre></td></tr></table></figure>
-<p>要使得CPU也支持运行OpenCL程序，需要去intel官网下载opencl-sdk，地址是:<a href="http://software.intel.com/en-us/vcsource/tools/opencl-sdk" target="_blank" rel="noopener">http://software.intel.com/en-us/vcsource/tools/opencl-sdk</a> ，选择runtime版本进行下载，目前最新的适合ubuntu的地址是： <a href="http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/12526/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz" target="_blank" rel="noopener">http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/12526/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz</a> ，适合CentOS的地址是： <a href="http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/13454/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz" target="_blank" rel="noopener">http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/13454/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz</a> </p>
+
+<p>要使得CPU也支持运行OpenCL程序，需要去intel官网下载opencl-sdk，地址是:</p>
+<p><a href="http://software.intel.com/en-us/vcsource/tools/opencl-sdk" target="_blank" rel="noopener">http://software.intel.com/en-us/vcsource/tools/opencl-sdk</a> </p>
+<p>选择runtime版本进行下载，目前最新的适合ubuntu的地址是： </p>
+<p><a href="http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/12526/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz" target="_blank" rel="noopener">http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/12526/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz</a> </p>
+<p>适合CentOS的地址是： </p>
+<p><a href="http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/13454/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz" target="_blank" rel="noopener">http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/13454/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz</a> </p>
 <p>安装前需要先安装<code>lsb-core</code>，sdk依赖于这个库，版本必须大于4.0</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install lsb-core</span><br></pre></td></tr></table></figure>
+
 <p>CentOS系统为</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install redhat-lsb-core</span><br></pre></td></tr></table></figure>
+
 <p>之后<code>sudo ./install</code>，检查操作系统版本时会提出ubuntu not support，这里可以忽略，这里说的只是不提供支持，而不是不能够使用，intel官方回复说对centos系统提供较好的支持，但ubuntu也是能使用的。</p>
 <blockquote>
 <p>1) The OpenCL™ implemenations themselves provided at the link are supported. Intel® CPU Runtime for OpenCL™ Applications on Ubuntu* OS is supported. This support is distinct from the 2017 SDK support.</p>
