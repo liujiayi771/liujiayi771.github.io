@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://yoursite.com/2019/04/26/CentOS-7%E5%AE%89%E8%A3%85Facebook-folly%E5%BA%93/</loc>
+    
+    <lastmod>2020-04-21T02:52:49.948Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://yoursite.com/2019/01/18/ubuntu%E5%AE%89%E8%A3%85OpenCL%E8%BF%90%E8%A1%8C%E5%8F%8A%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/</loc>
     
     <lastmod>2020-04-21T02:51:02.393Z</lastmod>
@@ -383,13 +390,6 @@
     <loc>http://yoursite.com/2016/10/21/MPI/MPI%E7%9A%84helloworld%E6%95%99%E7%A8%8B/</loc>
     
     <lastmod>2020-03-13T07:47:52.257Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yoursite.com/2019/04/26/CentOS-7%E5%AE%89%E8%A3%85Facebook-folly%E5%BA%93/</loc>
-    
-    <lastmod>2020-03-13T07:47:52.256Z</lastmod>
     
   </url>
   
