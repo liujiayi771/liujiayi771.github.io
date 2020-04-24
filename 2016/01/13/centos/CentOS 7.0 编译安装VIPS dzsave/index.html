@@ -221,7 +221,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -237,7 +237,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -380,14 +380,21 @@
 
       
         <h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>VIPS 是一个能够处理大型图片的很棒的图片处理系统。特别是它能通过dzsave很简单地生成deepzoon图片（.dzi）。从VIPS版本7.40开始，它需要使用libgsf库来激活对dzsave的支持。</p>
-<h2 id="安装libgsf库"><a href="#安装libgsf库" class="headerlink" title="安装libgsf库"></a>安装libgsf库</h2><p>libgsf库的作用在于能够使用dzsave指令，没有安装libgsf的话会报dzsave不存在的错误。安装libgsf之后需要重新编译安装vips才能使用dzsave。<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install libgsf</span><br></pre></td></tr></table></figure></p>
+<h2 id="安装libgsf库"><a href="#安装libgsf库" class="headerlink" title="安装libgsf库"></a>安装libgsf库</h2><p>libgsf库的作用在于能够使用dzsave指令，没有安装libgsf的话会报dzsave不存在的错误。安装libgsf之后需要重新编译安装vips才能使用dzsave。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install libgsf</span><br></pre></td></tr></table></figure>
+
 <p>ubuntu中安装libgsf库的方法为：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install libgsf-1-dev</span><br></pre></td></tr></table></figure>
-<h2 id="安装libjpeg和libpng库"><a href="#安装libjpeg和libpng库" class="headerlink" title="安装libjpeg和libpng库"></a>安装libjpeg和libpng库</h2><p>vips要支持png和jpeg还需要安装libpng和libjpeg，在CentOS中安装的方法为：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install libjpeg libjpeg-devel libpng libpng-devel</span><br></pre></td></tr></table></figure></p>
+
+<h2 id="安装libjpeg和libpng库"><a href="#安装libjpeg和libpng库" class="headerlink" title="安装libjpeg和libpng库"></a>安装libjpeg和libpng库</h2><p>vips要支持png和jpeg还需要安装libpng和libjpeg，在CentOS中安装的方法为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install libjpeg libjpeg-devel libpng libpng-devel</span><br></pre></td></tr></table></figure>
+
 <p>在ubuntu中安装方法为：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install linpng12-0</span><br><span class="line">sudo apt-get install libjpeg-dev</span><br></pre></td></tr></table></figure>
+
 <h2 id="安装VIPS"><a href="#安装VIPS" class="headerlink" title="安装VIPS"></a>安装VIPS</h2><p>简单的编译安装，采用<code>vips dzsave --version</code>来检查dzsave是否安装成功</p>
 <h2 id="使用VIPS"><a href="#使用VIPS" class="headerlink" title="使用VIPS"></a>使用VIPS</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/vips dzsave &lt;source_file&gt; &lt;destination_file&gt; --suffix .png</span><br></pre></td></tr></table></figure>
+
 
       
     </div>
@@ -503,7 +510,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -573,7 +580,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

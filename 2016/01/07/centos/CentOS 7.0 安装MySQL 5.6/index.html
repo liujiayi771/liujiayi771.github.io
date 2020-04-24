@@ -97,18 +97,18 @@
 
 
 
-  <meta name="description" content="1. 安装依赖 使用yum安装一些依赖12yum -y install make gcc gcc-c++ cmake bison-devel ncurses-develyum -y install kernel-devel readline-devel openssl-devel openssl   2. 设置MySQL用户和组 新增mysql用户组 1groupadd mysql  新增mysq">
+  <meta name="description" content="1. 安装依赖 使用yum安装一些依赖12yum -y install make gcc gcc-c++ cmake bison-devel ncurses-develyum -y install kernel-devel readline-devel openssl-devel openssl    2. 设置MySQL用户和组 新增mysql用户组 1groupadd mysql  新增mys">
 <meta name="keywords" content="mysql">
 <meta property="og:type" content="article">
 <meta property="og:title" content="CentOS 7.0 安装MySQL 5.6">
 <meta property="og:url" content="http://yoursite.com/2016/01/07/centos/CentOS 7.0 安装MySQL 5.6/index.html">
 <meta property="og:site_name" content="Joey&#39;s Notes">
-<meta property="og:description" content="1. 安装依赖 使用yum安装一些依赖12yum -y install make gcc gcc-c++ cmake bison-devel ncurses-develyum -y install kernel-devel readline-devel openssl-devel openssl   2. 设置MySQL用户和组 新增mysql用户组 1groupadd mysql  新增mysq">
+<meta property="og:description" content="1. 安装依赖 使用yum安装一些依赖12yum -y install make gcc gcc-c++ cmake bison-devel ncurses-develyum -y install kernel-devel readline-devel openssl-devel openssl    2. 设置MySQL用户和组 新增mysql用户组 1groupadd mysql  新增mys">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2020-03-13T07:47:52.258Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="CentOS 7.0 安装MySQL 5.6">
-<meta name="twitter:description" content="1. 安装依赖 使用yum安装一些依赖12yum -y install make gcc gcc-c++ cmake bison-devel ncurses-develyum -y install kernel-devel readline-devel openssl-devel openssl   2. 设置MySQL用户和组 新增mysql用户组 1groupadd mysql  新增mysq">
+<meta name="twitter:description" content="1. 安装依赖 使用yum安装一些依赖12yum -y install make gcc gcc-c++ cmake bison-devel ncurses-develyum -y install kernel-devel readline-devel openssl-devel openssl    2. 设置MySQL用户和组 新增mysql用户组 1groupadd mysql  新增mys">
 
 
 
@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -382,6 +382,7 @@
       
         <h2 id="1-安装依赖"><a href="#1-安装依赖" class="headerlink" title="1. 安装依赖"></a>1. 安装依赖</h2><ul>
 <li>使用yum安装一些依赖<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">yum -y install make gcc gcc-c++ cmake bison-devel ncurses-devel</span><br><span class="line">yum -y install kernel-devel readline-devel openssl-devel openssl</span><br></pre></td></tr></table></figure>
+
 </li>
 </ul>
 <h2 id="2-设置MySQL用户和组"><a href="#2-设置MySQL用户和组" class="headerlink" title="2. 设置MySQL用户和组"></a>2. 设置MySQL用户和组</h2><ul>
@@ -390,10 +391,12 @@
 </li>
 <li><p>新增mysql用户</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">useradd -r -g mysql mysql</span><br></pre></td></tr></table></figure>
+
 </li>
 </ul>
 <a id="more"></a>
 <h2 id="3-新建MySQL所需要的目录"><a href="#3-新建MySQL所需要的目录" class="headerlink" title="3. 新建MySQL所需要的目录"></a>3. 新建MySQL所需要的目录</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/</span><br><span class="line">mkdir mysql</span><br><span class="line"><span class="built_in">cd</span> mysql/</span><br><span class="line">mkdir data</span><br></pre></td></tr></table></figure>
+
 <h2 id="4-下载安装MySQL"><a href="#4-下载安装MySQL" class="headerlink" title="4. 下载安装MySQL"></a>4. 下载安装MySQL</h2><ul>
 <li><p>下载mySQL安装包</p>
 <ul>
@@ -408,27 +411,34 @@
 </li>
 <li><p>cmake编译指令</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">cmake \</span><br><span class="line">-DCMAKE_INSTALL_PREFIX=/usr/<span class="built_in">local</span>/mysql \</span><br><span class="line">-DMYSQL_DATADIR=/usr/<span class="built_in">local</span>/mysql/data \</span><br><span class="line">-DSYSCONFDIR=/etc \</span><br><span class="line">-DWITH_MYISAM_STORAGE_ENGINE=1 \</span><br><span class="line">-DWITH_INNOBASE_STORAGE_ENGINE=1 \</span><br><span class="line">-DWITH_MEMORY_STORAGE_ENGINE=1 \</span><br><span class="line">-DWITH_READLINE=1 \</span><br><span class="line">-DMYSQL_UNIX_ADDR=/var/lib/mysql/mysql.sock \</span><br><span class="line">-DMYSQL_TCP_PORT=3306 \</span><br><span class="line">-DENABLED_LOCAL_INFILE=1 \</span><br><span class="line">-DWITH_PARTITION_STORAGE_ENGINE=1 \</span><br><span class="line">-DEXTRA_CHARSETS=all \</span><br><span class="line">-DDEFAULT_CHARSET=utf8 \</span><br><span class="line">-DDEFAULT_COLLATION=utf8_general_ci</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
 </li>
 </ul>
 </li>
 </ul>
 <h2 id="5-修改安装目录所有者"><a href="#5-修改安装目录所有者" class="headerlink" title="5. 修改安装目录所有者"></a>5. 修改安装目录所有者</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/mysql</span><br><span class="line">chown -R mysql:mysql .</span><br></pre></td></tr></table></figure>
+
 <h2 id="6-初始化和启动MySQL"><a href="#6-初始化和启动MySQL" class="headerlink" title="6. 初始化和启动MySQL"></a>6. 初始化和启动MySQL</h2><ul>
 <li><p>进入安装目录执行脚本，启动服务</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/mysql</span><br><span class="line">scripts/mysql_install_db --bashdir=/usr/<span class="built_in">local</span>/mysql --datadir=/usr/<span class="built_in">local</span>/mysql/data --user=mysql</span><br><span class="line">cp support-files/mysql.server /etc/init.d/mysql</span><br><span class="line">rm /etc/my.cnf</span><br><span class="line">cp /usr/<span class="built_in">local</span>/mysql/support-files/my-default.cnf /etc/my.cnf</span><br><span class="line">chkconfig mysql on</span><br><span class="line">service mysql start</span><br><span class="line">chkconfig --level 35 mysql on	//可选，设置后MySQL会开机自启动</span><br></pre></td></tr></table></figure>
 </li>
 <li><p>设置之前，需先设置PATH要不然不能直接调用mysql这个指令</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -s /usr/<span class="built_in">local</span>/mysql/bin/mysql /usr/bin/</span><br></pre></td></tr></table></figure>
+
 </li>
 </ul>
 <h2 id="7-检查MySQL服务是否启动"><a href="#7-检查MySQL服务是否启动" class="headerlink" title="7. 检查MySQL服务是否启动"></a>7. 检查MySQL服务是否启动</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql -u root -p</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>密码为空，如果能登陆上，则安装成功</li>
 <li>修改密码，登陆mysql，依次输入如下指令<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">use</span> mysql;</span><br><span class="line"><span class="keyword">update</span> <span class="keyword">user</span> <span class="keyword">set</span> <span class="keyword">password</span>=<span class="keyword">password</span>(<span class="string">'your_passward'</span>) <span class="keyword">where</span> <span class="keyword">user</span>=<span class="string">'root'</span>;</span><br><span class="line"><span class="keyword">flush</span> <span class="keyword">privileges</span>;</span><br></pre></td></tr></table></figure>
+
 </li>
 </ul>
 <h2 id="8-可能会出现的问题"><a href="#8-可能会出现的问题" class="headerlink" title="8. 可能会出现的问题"></a>8. 可能会出现的问题</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">问题：</span><br><span class="line">Starting MySQL..The server quit without updating PID file ([FAILED]/mysql/Server03.mylinux.com.pid).</span><br><span class="line">解决：</span><br><span class="line">修改/etc/my.cnf 中datadir,指向正确的mysql数据库文件目录</span><br></pre></td></tr></table></figure>
+
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">问题：</span><br><span class="line">ERROR 2002 (HY000): Can<span class="string">'t connect to local MySQL server through socket '</span>/tmp/mysql.sock<span class="string">' (2)</span></span><br><span class="line"><span class="string">解决：</span></span><br><span class="line"><span class="string">新建一个链接或在mysql中加入-S参数，直接指出mysql.sock位置</span></span><br><span class="line"><span class="string">ln -s /usr/local/mysql/data/mysql.sock /tmp/mysql.sock</span></span><br><span class="line"><span class="string">/usr/local/mysql/bin/mysql -u root -S /usr/local/mysql/data/mysql.sock</span></span><br></pre></td></tr></table></figure>
+
 
       
     </div>
@@ -462,8 +472,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/01/07/centos/CentOS 7.0 安装PHP 5.6/" rel="next" title="CentOS 7.0 安装PHP 5.6">
-                <i class="fa fa-chevron-left"></i> CentOS 7.0 安装PHP 5.6
+              <a href="/2016/01/07/centos/CentOS 7.0 安装Nginx/" rel="next" title="CentOS 7.0 安装Nginx">
+                <i class="fa fa-chevron-left"></i> CentOS 7.0 安装Nginx
               </a>
             
           </div>
@@ -472,8 +482,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/01/07/php/安装redis&memcache及PHP扩展/" rel="prev" title="安装redis&memcache及PHP扩展">
-                安装redis&memcache及PHP扩展 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/01/07/centos/CentOS 7.0 安装PHP 5.6/" rel="prev" title="CentOS 7.0 安装PHP 5.6">
+                CentOS 7.0 安装PHP 5.6 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -550,7 +560,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -620,7 +630,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

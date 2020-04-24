@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -364,8 +364,10 @@
       
         <p>最近需要在CentOS 7.2上安装matlab，发现matlabR2017b Linux版本安装需要gcc 4.9.x，但是CentOS 7.2 使用yum安装的gcc版本最高为4.8.5，于是决定将gcc版本进行升级。升级gcc一般建议采用编译安装的方式，但是这种方式比较麻烦，需要先编译安装mpfr、gmp、mpc等，于是在网上找到了一种通过yum比较方便的升级方式，而且可以随时在bash、zsh等当中切换各种gcc版本，特记录在此。</p>
 <h2 id="gcc-4-9安装"><a href="#gcc-4-9安装" class="headerlink" title="gcc 4.9安装"></a>gcc 4.9安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install centos-release-scl</span><br><span class="line">sudo yum install devtoolset-3-toolchain</span><br><span class="line">scl <span class="built_in">enable</span> devtoolset-3 bash</span><br></pre></td></tr></table></figure>
+
 <p>这里scl enable就是用来切换不同版本的gcc的。这个切换是临时的，表示在bash中临时切换到gcc4.9的工作环境，当使用<code>exit</code>指令之后，就会回退到原始的gcc版本，可以使用<code>scl -l</code>来查看所有可以切换的开发工具集。</p>
 <h2 id="gcc-5-2"><a href="#gcc-5-2" class="headerlink" title="gcc 5.2"></a>gcc 5.2</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install centos-release-scl</span><br><span class="line">sudo yum install devtoolset-4-toolchain</span><br><span class="line">scl <span class="built_in">enable</span> devtoolset-4 bash</span><br></pre></td></tr></table></figure>
+
 
       
     </div>
@@ -487,7 +489,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -557,7 +559,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

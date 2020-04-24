@@ -97,18 +97,18 @@
 
 
 
-  <meta name="description" content="后台断点续传大文件使用rync指令进行断点续传 1rsync -P --rsh=ssh slurm@XXX.XXX.XXX.XXX:/path/to/file.tar.gz file.tar.gz 以上指令表示将远端的file.tar.gz文件传输到近端，输入以上指令之后需要输入密码，此时输入密码便开始进行传输。此时传输的程序是运行在前台的，我们需要将该程序转入后台运行。此时使用Ctrl+z挂起该">
+  <meta name="description" content="后台断点续传大文件使用rync指令进行断点续传 1rsync -P --rsh=ssh slurm@XXX.XXX.XXX.XXX:/path/to/file.tar.gz file.tar.gz  以上指令表示将远端的file.tar.gz文件传输到近端，输入以上指令之后需要输入密码，此时输入密码便开始进行传输。此时传输的程序是运行在前台的，我们需要将该程序转入后台运行。此时使用Ctrl+z挂起">
 <meta name="keywords" content="Linux">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux断点续传大文件">
 <meta property="og:url" content="http://yoursite.com/2017/08/03/linux/Linux断点续传大文件/index.html">
 <meta property="og:site_name" content="Joey&#39;s Notes">
-<meta property="og:description" content="后台断点续传大文件使用rync指令进行断点续传 1rsync -P --rsh=ssh slurm@XXX.XXX.XXX.XXX:/path/to/file.tar.gz file.tar.gz 以上指令表示将远端的file.tar.gz文件传输到近端，输入以上指令之后需要输入密码，此时输入密码便开始进行传输。此时传输的程序是运行在前台的，我们需要将该程序转入后台运行。此时使用Ctrl+z挂起该">
+<meta property="og:description" content="后台断点续传大文件使用rync指令进行断点续传 1rsync -P --rsh=ssh slurm@XXX.XXX.XXX.XXX:/path/to/file.tar.gz file.tar.gz  以上指令表示将远端的file.tar.gz文件传输到近端，输入以上指令之后需要输入密码，此时输入密码便开始进行传输。此时传输的程序是运行在前台的，我们需要将该程序转入后台运行。此时使用Ctrl+z挂起">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2020-03-13T07:47:52.262Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux断点续传大文件">
-<meta name="twitter:description" content="后台断点续传大文件使用rync指令进行断点续传 1rsync -P --rsh=ssh slurm@XXX.XXX.XXX.XXX:/path/to/file.tar.gz file.tar.gz 以上指令表示将远端的file.tar.gz文件传输到近端，输入以上指令之后需要输入密码，此时输入密码便开始进行传输。此时传输的程序是运行在前台的，我们需要将该程序转入后台运行。此时使用Ctrl+z挂起该">
+<meta name="twitter:description" content="后台断点续传大文件使用rync指令进行断点续传 1rsync -P --rsh=ssh slurm@XXX.XXX.XXX.XXX:/path/to/file.tar.gz file.tar.gz  以上指令表示将远端的file.tar.gz文件传输到近端，输入以上指令之后需要输入密码，此时输入密码便开始进行传输。此时传输的程序是运行在前台的，我们需要将该程序转入后台运行。此时使用Ctrl+z挂起">
 
 
 
@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -382,10 +382,12 @@
       
         <h3 id="后台断点续传大文件"><a href="#后台断点续传大文件" class="headerlink" title="后台断点续传大文件"></a>后台断点续传大文件</h3><p>使用rync指令进行断点续传</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rsync -P --rsh=ssh slurm@XXX.XXX.XXX.XXX:/path/to/file.tar.gz file.tar.gz</span><br></pre></td></tr></table></figure>
+
 <p>以上指令表示将远端的file.tar.gz文件传输到近端，输入以上指令之后需要输入密码，此时输入密码便开始进行传输。此时传输的程序是运行在前台的，我们需要将该程序转入后台运行。此时使用<code>Ctrl+z</code>挂起该传输进程，再使用<code>jobs</code>指令能够看到挂起的进程的序号以及状态，例如序号为1，接下来使用<code>bg %1</code>便能将这个序号为1的挂起任务重新再后台进行执行。但是此时如果退出登录该传输进程还是会被kill，原因是该进程此时属于这个登录用户，该用户下线之后该进程便会被自动注销关闭，所以需要将该进程的所有者由当前登录的用户移交给root用户，使用<code>disown -h %1</code>便能达到这个效果，此时该进程便能顺利的在后台进行传输了，如果需要中断，只能使用手动查找到传输的进程，使用<code>kill</code>指令进行关闭。</p>
 <p>使用ssh协议来进行rsync操作，能够在传输的时候暂停或者因为网络故障等中断传输以后下次可以继续传输，传输过程中，被传输的文件会被存储为一个隐藏文件，文件传输完毕后该隐藏文件会被转换成普通文件。如果传输过程中断，该隐藏文件也会被转换为普通文件，下次继续传输时会再转换为隐藏文件进行传输。</p>
 <h3 id="断点传输目录"><a href="#断点传输目录" class="headerlink" title="断点传输目录"></a>断点传输目录</h3><p>使用方法基本一致</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rsync -Pr --rsh=ssh source/dirname slurm@XXX.XXX.XXX.XXX:/home/slurm/dest/dirname</span><br></pre></td></tr></table></figure>
+
 <p>断点续传目录的时候，目录中的文件会被依次以上面的那种方法的形式进行传输，传输如果中断，之前已经上传完毕的文件会被进行完整性检查，如果确认是完整传输的文件，就不会被继续传输了。</p>
 
       
@@ -508,7 +510,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -578,7 +580,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

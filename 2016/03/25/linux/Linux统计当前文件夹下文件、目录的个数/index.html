@@ -97,18 +97,18 @@
 
 
 
-  <meta name="description" content="统计当前文件夹下文件的个数1ls -l | grep &quot;^-&quot; | wc -l 统计当前文件夹下目录的个数1ls -l | grep &quot;^d&quot; | wc -l 统计当前文件夹下文件的个数（包括子文件夹中的文件）">
+  <meta name="description" content="统计当前文件夹下文件的个数1ls -l | grep &quot;^-&quot; | wc -l  统计当前文件夹下目录的个数1ls -l | grep &quot;^d&quot; | wc -l  统计当前文件夹下文件的个数（包括子文件夹中的文件）">
 <meta name="keywords" content="Linux">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux统计当前文件夹下文件、目录的个数">
 <meta property="og:url" content="http://yoursite.com/2016/03/25/linux/Linux统计当前文件夹下文件、目录的个数/index.html">
 <meta property="og:site_name" content="Joey&#39;s Notes">
-<meta property="og:description" content="统计当前文件夹下文件的个数1ls -l | grep &quot;^-&quot; | wc -l 统计当前文件夹下目录的个数1ls -l | grep &quot;^d&quot; | wc -l 统计当前文件夹下文件的个数（包括子文件夹中的文件）">
+<meta property="og:description" content="统计当前文件夹下文件的个数1ls -l | grep &quot;^-&quot; | wc -l  统计当前文件夹下目录的个数1ls -l | grep &quot;^d&quot; | wc -l  统计当前文件夹下文件的个数（包括子文件夹中的文件）">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2020-03-13T07:47:52.262Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux统计当前文件夹下文件、目录的个数">
-<meta name="twitter:description" content="统计当前文件夹下文件的个数1ls -l | grep &quot;^-&quot; | wc -l 统计当前文件夹下目录的个数1ls -l | grep &quot;^d&quot; | wc -l 统计当前文件夹下文件的个数（包括子文件夹中的文件）">
+<meta name="twitter:description" content="统计当前文件夹下文件的个数1ls -l | grep &quot;^-&quot; | wc -l  统计当前文件夹下目录的个数1ls -l | grep &quot;^d&quot; | wc -l  统计当前文件夹下文件的个数（包括子文件夹中的文件）">
 
 
 
@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -381,10 +381,14 @@
 
       
         <h3 id="统计当前文件夹下文件的个数"><a href="#统计当前文件夹下文件的个数" class="headerlink" title="统计当前文件夹下文件的个数"></a>统计当前文件夹下文件的个数</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls -l | grep <span class="string">"^-"</span> | wc -l</span><br></pre></td></tr></table></figure>
+
 <h3 id="统计当前文件夹下目录的个数"><a href="#统计当前文件夹下目录的个数" class="headerlink" title="统计当前文件夹下目录的个数"></a>统计当前文件夹下目录的个数</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls -l | grep <span class="string">"^d"</span> | wc -l</span><br></pre></td></tr></table></figure>
+
 <h3 id="统计当前文件夹下文件的个数（包括子文件夹中的文件）"><a href="#统计当前文件夹下文件的个数（包括子文件夹中的文件）" class="headerlink" title="统计当前文件夹下文件的个数（包括子文件夹中的文件）"></a>统计当前文件夹下文件的个数（包括子文件夹中的文件）</h3><a id="more"></a>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls -lR | grep <span class="string">"^-"</span> | wc -l</span><br></pre></td></tr></table></figure>
+
 <h3 id="统计当前文件夹下目录的个数（包括子文件夹中的目录）"><a href="#统计当前文件夹下目录的个数（包括子文件夹中的目录）" class="headerlink" title="统计当前文件夹下目录的个数（包括子文件夹中的目录）"></a>统计当前文件夹下目录的个数（包括子文件夹中的目录）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ls -lR | grep <span class="string">"^d"</span> | wc -l</span><br></pre></td></tr></table></figure>
+
 <h3 id="各参数的含义"><a href="#各参数的含义" class="headerlink" title="各参数的含义"></a>各参数的含义</h3><p><code>ls -l</code>表示列出当前文件夹下文件的信息<br><code>grep &quot;^-&quot;</code>grep表示将ls输出的信息进行过滤 <code>&quot;^-&quot;</code>表示得到文件,<code>&quot;&quot;^d</code>表示得到目录<br><code>wc -l</code>表示统计输出信息的行数</p>
 
       
@@ -507,7 +511,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -577,7 +581,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

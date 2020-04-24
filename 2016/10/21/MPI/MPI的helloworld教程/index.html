@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -381,17 +381,23 @@
 
       
         <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mpi.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Initialize the MPI environment</span></span><br><span class="line">    MPI_Init(<span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the number of processes</span></span><br><span class="line">    <span class="keyword">int</span> world_size;</span><br><span class="line">    MPI_Comm_size(MPI_COMM_WORLD, &amp;world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the rank of the process</span></span><br><span class="line">    <span class="keyword">int</span> world_rank;</span><br><span class="line">    MPI_Comm_rank(MPI_COMM_WORLD, &amp;world_rank);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the name of the processor</span></span><br><span class="line">    <span class="keyword">char</span> processor_name[MPI_MAX_PROCESSOR_NAME];</span><br><span class="line">    <span class="keyword">int</span> name_len;</span><br><span class="line">    MPI_Get_processor_name(processor_name, &amp;name_len);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Print off a hello world message</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Hello world from processor %s, rank %d"</span></span><br><span class="line">           <span class="string">" out of %d processors\n"</span>,</span><br><span class="line">           processor_name, world_rank, world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Finalize the MPI environment.</span></span><br><span class="line">    MPI_Finalize();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <a id="more"></a>
 <p>MPI程序首先需要includeMPI的头文件<code>#include &lt;mpi.h&gt;</code>，之后，MPI环境需要使用如下语句进行初始化</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">MPI_Init(</span><br><span class="line">	<span class="keyword">int</span>* argc,</span><br><span class="line">	<span class="keyword">char</span>*** argv)</span><br></pre></td></tr></table></figure>
+
 <p><code>MPI_Init</code>之后，所有的MPI需要的全局和内部变量都会被创建完成，例如会产生一个通信域communicator负责所有产生的进程之间的通信，并且每一个MPI进程都会有一个唯一的rank值产生。<br><code>MPI_Init</code>之后，一般会调用两个函数</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">MPI_Comm_size(</span><br><span class="line">	MPI_Comm communicator,</span><br><span class="line">	<span class="keyword">int</span>* <span class="built_in">size</span>)</span><br></pre></td></tr></table></figure>
+
 <p><code>MPI_Comm_size</code>会返回communicator的大小，<code>MPI_COMM_WORLD</code>（由MPI产生）封装了所有MPI job中的进程，因此这个函数的调用会返回MPI job中所需要的进程的数量。</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">MPI_Comm_rank(</span><br><span class="line">	MPI_Comm communicator,</span><br><span class="line">	<span class="keyword">int</span>* rank)</span><br></pre></td></tr></table></figure>
+
 <p><code>MPI_Comm_rank</code>返回在一个communicator中某一个节点的rank值。在communicator中的每一个进程都会被赋予一个从0开始递增的rank值。所有进程的rank值主要作用为在发送和接受信息时起到标识的作用。<br>在这个例子中用到了一个使用很少的函数</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">MPI_Get_processor_name(</span><br><span class="line">	<span class="keyword">char</span>* name,</span><br><span class="line">	<span class="keyword">int</span>* name_length)</span><br></pre></td></tr></table></figure>
+
 <p><code>MPI_Get_processor_name</code>获得正在执行的进程的真实名字，这个程序最后会执行</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">MPI_Finalize()</span><br></pre></td></tr></table></figure>
+
 <p><code>MPI_Finalize</code>的作用是情理MPI环境，这个函数调用之后，MPI的其他操作将不能再继续调用</p>
 
       
@@ -505,7 +511,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -575,7 +581,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

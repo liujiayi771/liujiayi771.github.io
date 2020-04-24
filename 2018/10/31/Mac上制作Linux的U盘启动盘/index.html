@@ -221,7 +221,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -237,7 +237,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -366,21 +366,27 @@
 <h4 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h4><ol>
 <li><p>插入U盘，使用diskutil指令来查看U盘的挂载点</p>
  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ diskutil list</span><br></pre></td></tr></table></figure>
+
 <p> 系统输出类似如下的内容</p>
  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># joey @ joey-Mac in ~ [9:45:27]</span></span><br><span class="line">$ diskutil list</span><br><span class="line">/dev/disk0 (internal):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:      GUID_partition_scheme                         24.0 GB    disk0</span><br><span class="line">   1:                        EFI EFI                     314.6 MB   disk0s1</span><br><span class="line">   2:                 Apple_APFS                         23.6 GB    disk0s2</span><br><span class="line"></span><br><span class="line">/dev/disk1 (internal, physical):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:      GUID_partition_scheme                        *1.0 TB     disk1</span><br><span class="line">   1:                        EFI EFI                     209.7 MB   disk1s1</span><br><span class="line">   2:                 Apple_APFS Container disk2         900.7 GB   disk1s2</span><br><span class="line">   3:       Microsoft Basic Data BOOTCAMP                99.3 GB    disk1s3</span><br><span class="line"></span><br><span class="line">/dev/disk2 (synthesized):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:      APFS Container Scheme -                      +900.7 GB   disk2</span><br><span class="line">                                 Physical Store disk1s2</span><br><span class="line">   1:                APFS Volume CoreStorage Fusion      576.8 GB   disk2s1</span><br><span class="line">   2:                APFS Volume Preboot                 44.0 MB    disk2s2</span><br><span class="line">   3:                APFS Volume Recovery                512.4 MB   disk2s3</span><br><span class="line">   4:                APFS Volume VM                      6.4 GB     disk2s4</span><br><span class="line"></span><br><span class="line">/dev/disk3 (external, physical):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:     FDisk_partition_scheme                        *15.7 GB    disk3</span><br><span class="line">   1:               Windows_NTFS joey                    15.7 GB    disk3s1</span><br></pre></td></tr></table></figure>
+
 <p> 可以看到，我的U盘大小是16GB，对应上面输出的挂载点应该是位于<code>/dev/disk3</code></p>
 </li>
 <li><p>在写入系统镜像前，首先需要umount这个U盘，使用如下指令</p>
  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ diskutil unmountDisk /dev/disk3</span><br></pre></td></tr></table></figure>
+
 <p> 会输出如下内容表示正确unmount</p>
  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># joey @ joey-Mac in ~ [9:45:34]</span></span><br><span class="line">$ diskutil unmountDisk /dev/disk3</span><br><span class="line">Unmount of all volumes on disk3 was successful</span><br></pre></td></tr></table></figure>
+
 <p> 此时，Mac的Finder中已经看不到之前挂载上的U盘了，但是使用<code>diskutil list</code>命令还是能够看到U盘的信息</p>
 </li>
 <li><p>使用dd指令写入Linux系统镜像到U盘 </p>
  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo dd <span class="keyword">if</span>=/Users/joey/Downloads/CentOS-7-x86_64-DVD-1804.iso of=/dev/disk3 bs=1M</span><br></pre></td></tr></table></figure>
+
 <p> 这里有一点需要注意，有些教程可能写的<code>bs=1m</code>，这里如果你的电脑装了GNU Coreutils，就是那个让<code>ls</code>能够彩色化输出的软件，这里用1m就会报错，报错内容为<code>dd: invalid number: ‘1m’</code>，这里把m大写就能很容易解决这个问题，但是究竟是什么原因造成1m不行的我也不是很清楚，只知道一个解决的办法。</p>
 <p> 之后会输出如下，表示写入完成，大概要等几分钟</p>
  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># joey @ joey-Mac in ~ [9:49:37] C:1</span></span><br><span class="line">$ sudo dd <span class="keyword">if</span>=/Users/joey/Downloads/CentOS-7-x86_64-DVD-1804.iso of=/dev/disk3 bs=1M</span><br><span class="line">Password:</span><br><span class="line">4263+0 records <span class="keyword">in</span></span><br><span class="line">4263+0 records out</span><br><span class="line">4470079488 bytes (4.5 GB, 4.2 GiB) copied, 446.25 s, 10.0 MB/s</span><br></pre></td></tr></table></figure>
+
 <p> 经过如上几个步骤，用Mac制作的U盘启动盘就制作完成了。</p>
 </li>
 </ol>
@@ -500,7 +506,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -570,7 +576,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

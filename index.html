@@ -218,7 +218,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -234,7 +234,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -269,6 +269,170 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/24/CentOS7上安装Kerberos-KDC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joey's Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/04/24/CentOS7上安装Kerberos-KDC/" itemprop="url">
+                  CentOS7上安装Kerberos KDC
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+                
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-24T17:29:41+08:00">2020-04-24</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="yum安装软件"><a href="#yum安装软件" class="headerlink" title="yum安装软件"></a>yum安装软件</h3><p>首先通过yum安装kerberos所需要的软件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y krb5-server krb5-workstation pam_krb5</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改服务端配置"><a href="#修改服务端配置" class="headerlink" title="修改服务端配置"></a>修改服务端配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /var/kerberos/krb5kdc</span><br></pre></td></tr></table></figure>
+
+<p>我们需要修改该目录下的两个配置文件：</p>
+<ul>
+<li>kdc.conf</li>
+<li>kadm5.acl</li>
+</ul>
+<p>假设我们的realm为KDC.COM，修改<code>kadm5.acl</code>为如下内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*/admin@KDC.COM     *</span><br></pre></td></tr></table></figure>
+
+<p>修改<code>kdc.conf</code>为如下内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[kdcdefaults]</span><br><span class="line"> kdc_ports = 88</span><br><span class="line"> kdc_tcp_ports = 88</span><br><span class="line"></span><br><span class="line">[realms]</span><br><span class="line"> KDC.COM = &#123;</span><br><span class="line">  <span class="comment">#master_key_type = aes256-cts</span></span><br><span class="line">  max_renewable_life = 7d</span><br><span class="line">  acl_file = /var/kerberos/krb5kdc/kadm5.acl</span><br><span class="line">  dict_file = /usr/share/dict/words</span><br><span class="line">  admin_keytab = /var/kerberos/krb5kdc/kadm5.keytab</span><br><span class="line">  supported_enctypes = aes256-cts:normal aes128-cts:normal des3-hmac-sha1:normal arcfour-hmac:normal camellia256-cts:normal camellia128-cts:normal des-hmac-sha1:normal des-cbc-md5:normal des-cbc-crc:normal</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改客户端配置"><a href="#修改客户端配置" class="headerlink" title="修改客户端配置"></a>修改客户端配置</h3><p>我们用作KDC服务的服务器也将会是一个Kerberos客户端，我们需要修改客户端配置文件<code>/etc/krb5.conf</code>，文件内容如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Configuration snippets may be placed in this directory as well</span></span><br><span class="line">includedir /etc/krb5.conf.d/</span><br><span class="line"></span><br><span class="line">[logging]</span><br><span class="line"> default = FILE:/var/<span class="built_in">log</span>/krb5libs.log</span><br><span class="line"> kdc = FILE:/var/<span class="built_in">log</span>/krb5kdc.log</span><br><span class="line"> admin_server = FILE:/var/<span class="built_in">log</span>/kadmind.log</span><br><span class="line"></span><br><span class="line">[libdefaults]</span><br><span class="line"> dns_lookup_realm = <span class="literal">false</span></span><br><span class="line"> ticket_lifetime = 24h</span><br><span class="line"> renew_lifetime = 7d</span><br><span class="line"> forwardable = <span class="literal">true</span></span><br><span class="line"> rdns = <span class="literal">false</span></span><br><span class="line"> pkinit_anchors = /etc/pki/tls/certs/ca-bundle.crt</span><br><span class="line"> default_realm = KDC.COM</span><br><span class="line"> default_ccache_name = KEYRING:persistent:%&#123;uid&#125;</span><br><span class="line"> default_tgs_enctypes = aes128-cts arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-hmac-sha1 aes256-cts</span><br><span class="line"> default_tkt_enctypes = aes128-cts arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-hmac-sha1 aes256-cts</span><br><span class="line"> permitted_enctypes = aes256-cts-hmac-sha1-96 des3-cbc-sha1 arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-cbc-md4</span><br><span class="line"> allow_weak_crypto = yes</span><br><span class="line"></span><br><span class="line">[realms]</span><br><span class="line"> KDC.COM = &#123;</span><br><span class="line">  kdc = kdc.hostname</span><br><span class="line">  admin_server = kdc.hostname</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line">[domain_realm]</span><br><span class="line"> .kdc.com = KDC.COM</span><br><span class="line"> kdc.com = KDC.COM</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建KDC数据库"><a href="#创建KDC数据库" class="headerlink" title="创建KDC数据库"></a>创建KDC数据库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kdb5_util create -s -r KDC.COM</span><br></pre></td></tr></table></figure>
+
+<h3 id="开启Kerberos"><a href="#开启Kerberos" class="headerlink" title="开启Kerberos"></a>开启Kerberos</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl start krb5kdc kadmin</span><br><span class="line">systemctl <span class="built_in">enable</span> krb5kdc kadmin</span><br></pre></td></tr></table></figure>
+
+<p>接下来需要创建kadmin的管理员账号：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kadmin.local</span><br><span class="line">kadmin.local: addprinc root/admin</span><br><span class="line">kadmin.local: quit</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改SSH客户端配置"><a href="#修改SSH客户端配置" class="headerlink" title="修改SSH客户端配置"></a>修改SSH客户端配置</h3><p>修改<code>/etc/ssh/ssh_config</code>，添加如下配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GSSAPIAuthentication yes</span><br><span class="line">GSSAPIDelegateCredentials yes</span><br></pre></td></tr></table></figure>
+
+<p>执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">authconfig  --enablekrb5 --update</span><br><span class="line">systemctl reload sshd</span><br></pre></td></tr></table></figure>
+
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
     
       
 
@@ -518,6 +682,7 @@
 <p>看了一下，这些系统都是支持这台MacBook Air的，最新的10.14应该是这台电脑最高能升的系统了，以后再有新系统的更新估计就上不去了。我决定直接升级到10.11，于是找了一个10.11.6的系统镜像dmg文件，下了半天才下好，打开的时候却说什么“校验和”有问题，后来查了一下直接打开的时候点跳过就可以了，里面有一个<code>Install OS X El Capitan.app</code>，把它随便拖到一个文件夹里面。</p>
 <p>之后准备一个8G以上的U盘插入电脑，打开磁盘工具，点击左上角的显示，选择显示所有设备。找到自己的U盘，点最外层的设备，选择抹掉，分区类型选GUID，格式选Mac OS扩展（日志式），取一个名字叫OSX。格式化完毕之后，输入以下命令来进行启动盘制作。</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo /Users/joey/Downloads/xxx.app/Contents/Resources/createinstallmedia --volume /Volumes/OSX --applicationpath /Users/joey/Downloads/xxx.app --nointeraction</span><br></pre></td></tr></table></figure>
+
 <p>我是把app文件拖到了Downloads目录下的，这里xxx就代表了这个app文件的名字，其他版本的MacOS制作U盘启动盘的命令都是一样的，这个过程持续的时间比较长。做好之后重启电脑，按住option键，选择U盘启动，之后的过程很简单，一步一步点就行了。但是到最后还是安装失败了，报了一个错“应用程序副本不能验证 它在下载过程中可能已遭破坏或篡改”。这个问题很多人都说在安装的时候在终端里通过date修改时间就可以解决，我试了一下没办法解决这个问题。但是我看了一下，遇到这个问题的大多数都是安装10.11以及之前版本的MacOS的，那时候系统还不叫MacOS，叫OSX。估计OSX有个时间上的验证机制，于是放弃安装10.11，毕竟这台电脑还可以装10.12，10.13和10.14，估计就不会有这个问题了。重新制作启动盘，流程和上面一样，然后就顺利安装上去了。</p>
 <p>接下来就是用boot camp安装win10双系统，又遇到了奇葩问题，用boot camp做了启动盘之后一直会出现无法引导的问题，可以用efi引导进去安装，但是会遇到分区表类型无法兼容efi的问题，删除分区和格式化都没法解决，找到一个比较挫的方法是先在Mac系统里把BOOTCAMP的分区格式化成Mac OS扩展（日志式），然后安装windows的时候删除那个分区即可安装上去，但是这样那个分区在Mac系统中就不受boot camp控制了，删除windows系统还原分区的时候比较麻烦。查了很久，一个帖子恰好也是这一款MacBook Air，也出现了一样的问题，被我查到了<a href="https://www.cnblogs.com/pinganzi/p/10354296.html" target="_blank" rel="noopener">https://www.cnblogs.com/pinganzi/p/10354296.html</a> ，他的第一个问题我没遇到，第二个问题和我一样，于是我换了一个USB2.0的U盘，马上就解决问题了，但是安装win10的时候会说需要先格式化成NTFS，直接点格式化就可以安装了。</p>
 
@@ -652,7 +817,9 @@
       
         
           
-            <p>最近在写论文时，需要将word文档导出为pdf文档。将word导出为pdf之前一直使用的是另存为的方法，也可以使用打印选择Adobe PDF来生成pdf文件，但是这两种方法都有一定的局限性。打印的方法生成pdf不能选择添加书签，但是能控制输出文件的清晰度，调到比较高时，能生成非常清晰的pdf文件。word2016中已经可以使用另存为来导出pdf，并且在选项当中也可以设置是否导出书签，但是输出的pdf文件的清晰度调整选项不够多，输出的pdf中图片会被压缩，变得模糊。<br>实际上，安装了Adobe Acrobat的word当中有一个Acrobat的加载项菜单，里面的首选项菜单可以很详细地配置导出的pdf文件的一些参数，可以选择高质量打印，并且将其中的图片的压缩和采样全都关掉，并且可以设置输出的清晰度以及书签等等。但是这个加载项在生成pdf结束后，会导致word崩溃，出来一个提示问我是否要禁用该加载项，一时手滑点到了是，结果这个加载项就被禁用了。禁用之后也好办，可以在word的选项-加载项-转到里面勾选Adobe PDFMaker加载项进行加载。但是这个加载项原本是随word启动自动加载的，现在变成了每次都要去选项里面设置加载，非常麻烦，并且选项里面并没有菜单可以选择让这个加载项自动加载。这里便需要修改注册表来实现随word启动自动加载，注册表的位置为:<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKEY_CURRENT_USER\Software\Microsoft\Office\Word\Addins\PDFMaker.OfficeAddin</span><br></pre></td></tr></table></figure></p>
+            <p>最近在写论文时，需要将word文档导出为pdf文档。将word导出为pdf之前一直使用的是另存为的方法，也可以使用打印选择Adobe PDF来生成pdf文件，但是这两种方法都有一定的局限性。打印的方法生成pdf不能选择添加书签，但是能控制输出文件的清晰度，调到比较高时，能生成非常清晰的pdf文件。word2016中已经可以使用另存为来导出pdf，并且在选项当中也可以设置是否导出书签，但是输出的pdf文件的清晰度调整选项不够多，输出的pdf中图片会被压缩，变得模糊。<br>实际上，安装了Adobe Acrobat的word当中有一个Acrobat的加载项菜单，里面的首选项菜单可以很详细地配置导出的pdf文件的一些参数，可以选择高质量打印，并且将其中的图片的压缩和采样全都关掉，并且可以设置输出的清晰度以及书签等等。但是这个加载项在生成pdf结束后，会导致word崩溃，出来一个提示问我是否要禁用该加载项，一时手滑点到了是，结果这个加载项就被禁用了。禁用之后也好办，可以在word的选项-加载项-转到里面勾选Adobe PDFMaker加载项进行加载。但是这个加载项原本是随word启动自动加载的，现在变成了每次都要去选项里面设置加载，非常麻烦，并且选项里面并没有菜单可以选择让这个加载项自动加载。这里便需要修改注册表来实现随word启动自动加载，注册表的位置为:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKEY_CURRENT_USER\Software\Microsoft\Office\Word\Addins\PDFMaker.OfficeAddin</span><br></pre></td></tr></table></figure>
+
 <p>进去之后发现有一个LoadBehavior的键的值现在是0，我观察到Addins里面还有有道词典的加载项，这个加载项是会随word自动启动的，其LoadBehavior的值为3，于是将PDFMaker.OfficeAddin中LoadBehavior的值也改为3便能自动随word启动了，大功告成。</p>
 
           
@@ -786,7 +953,7 @@
       
         
           <p>登录MATLAB的MathWorks，选择右上角的我的账户，点击许可证右侧的许可证管理，进入后选择安装和激活，之后选择“激活并获取许可证文件”，选择激活计算机，填入相关信息。其中主机ID即为电脑用于上外网的网卡的MAC地址，可以使用<code>ipconfig</code>进行查看，计算机登录名就是当前登录用户的用户名，不知道的话可以使用<code>whoami</code>指令进行查看。填写完成后会生成一个序列号，和一个lisence.lic文件，将文件上传至安装MATLAB的服务器上并记录激活序列号。</p>
-<p>下载包含所有产品的完整MATLAB安装包，官网下载的只是一个100MB多的一个网络安装器，安装过程中才会下载需要的产品，这对于命令行安装是不适用的，命令行安装必须使用完整的离线安装包。之后需要填写silent安装模式下的安装配置文件，具体模板如下：<br>
+<p>下载包含所有产品的完整MATLAB安装包，官网下载的只是一个100MB多的一个网络安装器，安装过程中才会下载需要的产品，这对于命令行安装是不适用的，命令行安装必须使用完整的离线安装包。之后需要填写silent安装模式下的安装配置文件，具体模板如下：</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2019/01/18/linux命令行安装MATLAB/#more" rel="contents">
@@ -796,7 +963,7 @@
           <!--/noindex-->
         
       
-    </p></div>
+    </div>
 
     
 
@@ -1093,26 +1260,24 @@
 <thead>
 <tr>
 <th>磁盘分区形式</th>
-<th style="text-align:center">支持最大磁盘容量</th>
-<th style="text-align:left">支持分区数量</th>
-<th style="text-align:left">Linux分区工具</th>
+<th align="center">支持最大磁盘容量</th>
+<th align="left">支持分区数量</th>
+<th align="left">Linux分区工具</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>主启动记录分区（MBR）</td>
-<td style="text-align:center">2TB</td>
-<td style="text-align:left"><li>4个主分区</li><li>3个主分区和1个扩展分区</li><br>说明：<br>MBR分区包含主分区和扩展分<br>区，其中扩展分区里面可以包<br>含若干个逻辑分区。以创建六<br>个分区为例，以下两种分区情<br>况供参考：<br><li>3个主分区，一个扩展分区，<br>其中扩展分区包含3个逻辑分<br>区。</li><li>1个主分区，1个扩展分区，<br>其中扩展分区中包含5个逻辑<br>分区。</li></td>
-<td style="text-align:left">以下两种工具均可以使用：<br><li>fdisk工具</li><li>parted工具</li></td>
+<td align="center">2TB</td>
+<td align="left"><li>4个主分区</li><li>3个主分区和1个扩展分区</li><br>说明：<br>MBR分区包含主分区和扩展分<br>区，其中扩展分区里面可以包<br>含若干个逻辑分区。以创建六<br>个分区为例，以下两种分区情<br>况供参考：<br><li>3个主分区，一个扩展分区，<br>其中扩展分区包含3个逻辑分<br>区。</li><li>1个主分区，1个扩展分区，<br>其中扩展分区中包含5个逻辑<br>分区。</li></td>
+<td align="left">以下两种工具均可以使用：<br><li>fdisk工具</li><li>parted工具</li></td>
 </tr>
 <tr>
 <td>全局分区表<br>(GPT, Guid Partition Table)</td>
-<td style="text-align:center">18EB<br>(1EB=1048576TB)</td>
-<td style="text-align:left">不限制分区数量<br>说明：<br>GPT格式下没有主分区、扩展分区以及逻辑分区之分</td>
-<td style="text-align:left">parted工具</td>
+<td align="center">18EB<br>(1EB=1048576TB)</td>
+<td align="left">不限制分区数量<br>说明：<br>GPT格式下没有主分区、扩展分区以及逻辑分区之分</td>
+<td align="left">parted工具</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <blockquote>
 <p>注意事项：<br>MBR格式分区最大支持的容量是2TB，如果硬盘的容量大于2TB，则必须选择GPT的分区形式，并且使用parted进行分区。当磁盘已经投入使用后，此时切换磁盘分区形式时，磁盘上的原有数据将会被清除，因此请在磁盘初始化时谨慎选择磁盘分区形式。</p>
 </blockquote>
@@ -1122,14 +1287,22 @@
 </li>
 <li><p><code>fdisk 新增数据盘</code>，例如<code>fdisk /dev/sdb</code></p>
 </li>
-<li>输入n，按Enter开始新建分区，这里n代表new</li>
-<li>接下来会让我们选择p还是e，p代表主要分区，e代表延伸分区，对于新增加的硬盘一般选择p</li>
-<li>选择分区号，对于新增硬盘，一般选择1</li>
-<li>选择初始磁柱编号，新增硬盘选择默认的2048即可</li>
-<li>选择截止磁柱区域，选择默认的最大的磁柱区域即可，表示只建立一个分区，这个分区使用了硬盘的所有容量</li>
-<li>输入p，可以看到我们已经新建好的硬盘分区为<code>/dev/sdb1</code></li>
-<li>输入w，按Enter将分区结果写入分区表</li>
-<li>执行<code>partprobe</code>将新的分区表变更同步至操作系统</li>
+<li><p>输入n，按Enter开始新建分区，这里n代表new</p>
+</li>
+<li><p>接下来会让我们选择p还是e，p代表主要分区，e代表延伸分区，对于新增加的硬盘一般选择p</p>
+</li>
+<li><p>选择分区号，对于新增硬盘，一般选择1</p>
+</li>
+<li><p>选择初始磁柱编号，新增硬盘选择默认的2048即可</p>
+</li>
+<li><p>选择截止磁柱区域，选择默认的最大的磁柱区域即可，表示只建立一个分区，这个分区使用了硬盘的所有容量</p>
+</li>
+<li><p>输入p，可以看到我们已经新建好的硬盘分区为<code>/dev/sdb1</code></p>
+</li>
+<li><p>输入w，按Enter将分区结果写入分区表</p>
+</li>
+<li><p>执行<code>partprobe</code>将新的分区表变更同步至操作系统</p>
+</li>
 </ol>
 <h2 id="使用parted工具初始化磁盘（可以支持大于2TB的硬盘）"><a href="#使用parted工具初始化磁盘（可以支持大于2TB的硬盘）" class="headerlink" title="使用parted工具初始化磁盘（可以支持大于2TB的硬盘）"></a>使用parted工具初始化磁盘（可以支持大于2TB的硬盘）</h2><ol>
 <li><p><code>lsblk</code>查看新增数据盘信息，和上一个介绍的工具的<code>fdisk -l</code>的效果是一样的，可以看到例如<code>/dev/sdb</code>这样的新增盘，并且这种方式显示出来的结果更加直观一点，冗余的信息比较少。<br> 一般会显示如下信息（以下信息为分区后的情况，若新硬盘会看到一个没有分区的磁盘）：</p>
@@ -1137,18 +1310,26 @@
 </li>
 <li><p><code>parted 新增数据盘</code>，例如<code>parted /dev/sdb</code></p>
 </li>
-<li>输入p，按Enter查看当前磁盘的分区形式</li>
-<li>输入以下命令，设置磁盘分区形式。<code>mklabel 磁盘分区形式</code>，这里磁盘分区形式可以选择GPT和MBR，当然，大于2TB的硬盘只能选择GPT</li>
-<li>输入<code>unit s</code>，按Enter，设置磁盘的计量单位为磁柱</li>
-<li>以为整个磁盘创建一个分区为例，输入<code>mkparted data 2048s 100%</code>，按Enter。这里data为分区名称，2048s表示初始磁柱位置，100%表示从初始磁柱位置开始，占用100%的磁盘容量进行新建分区</li>
-<li>输入q，按Enter，退出parted</li>
+<li><p>输入p，按Enter查看当前磁盘的分区形式</p>
+</li>
+<li><p>输入以下命令，设置磁盘分区形式。<code>mklabel 磁盘分区形式</code>，这里磁盘分区形式可以选择GPT和MBR，当然，大于2TB的硬盘只能选择GPT</p>
+</li>
+<li><p>输入<code>unit s</code>，按Enter，设置磁盘的计量单位为磁柱</p>
+</li>
+<li><p>以为整个磁盘创建一个分区为例，输入<code>mkparted data 2048s 100%</code>，按Enter。这里data为分区名称，2048s表示初始磁柱位置，100%表示从初始磁柱位置开始，占用100%的磁盘容量进行新建分区</p>
+</li>
+<li><p>输入q，按Enter，退出parted</p>
+</li>
 </ol>
 <h2 id="格式化数据盘及挂载数据盘"><a href="#格式化数据盘及挂载数据盘" class="headerlink" title="格式化数据盘及挂载数据盘"></a>格式化数据盘及挂载数据盘</h2><p>数据盘分区好之后是不能直接挂载的，会显示unknown filesystem，需要进行格式化指定一个磁盘文件格式，以ext4格式为例，使用如下指令进行格式化:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkfs -t ext4 /dev/sdb1</span><br></pre></td></tr></table></figure>
+
 <p>之后便可以新建一个文件夹，例如<code>/mnt/data</code>将新硬盘挂载到该文件夹下，输入如下指令：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount /dev/sdb1 /mnt/data</span><br></pre></td></tr></table></figure>
+
 <p>这样做只能即使生效，重启后需要重新输入指令进行挂载，十分不方便，可以将磁盘挂载写入到<code>/etc/fstab</code>文件当中，这样就可以省去每次开机挂载的繁琐操作。首先使用<code>blkid /dev/sdb1</code>来查看新增分区的UUID号是多少，复制UUID，编辑<code>/etc/fstab</code>文件，在末尾加入一行:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UUID=1851e23f-1c57-40ab-86bb-5fc5fc606ffa /mnt/data      ext4 defaults     0   2</span><br></pre></td></tr></table></figure>
+
 
           
         
@@ -1284,18 +1465,24 @@
             <p>ansible是一个自动化运维非常重要的工具，对于做大数据开发的人来说，ansible是一个管理集群的利器，我们可以用它来在集群中批量执行一些指令，而不需要对服务器一台一台进行操作。ansible的功能非常多，但是对于我来说一般只用来在集群中批量执行一些命令，例如批量安装软件、批量删除文件、批量新建文件夹等，具体详细的功能可以参考这个中文文档 <a href="http://www.ansible.com.cn/docs/" target="_blank" rel="noopener">ansible中文权威指南</a>。</p>
 <h3 id="用ansible对集群中文件进行管理"><a href="#用ansible对集群中文件进行管理" class="headerlink" title="用ansible对集群中文件进行管理"></a>用ansible对集群中文件进行管理</h3><p>有时候我们可能需要在集群中批量删除某些文件，例如有时候spark slave节点上的work文件夹中的无用文件太多，又没有被自动清除，我们可以使用如下ansible指令来对文件夹中的文件进行批量删除：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ansible spark -m shell -a &quot;rm -rf /usr/local/spark/work/*&quot;</span><br></pre></td></tr></table></figure>
+
 <p>这样做确实能正确将work文件夹中的内容都删除掉，但是会收到一个警告信息：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">[WARNING]: Consider using the file module with state=absent rather than running rm.  If you need to use command because file is insufficient you can add warn=False to this command task or set command_warnings=False in ansible.cfg to get</span><br><span class="line">rid of this message.</span><br></pre></td></tr></table></figure>
+
 <p>其实，这里<code>-m</code>后面接的参数就是使用的module，这里用了ansible的shell模块在每台机器上运行shell command进行删除操作，warning中也告诉了我们，ansible中有一个file模块可以用来做文件处理的操作。</p>
 <h3 id="file模块"><a href="#file模块" class="headerlink" title="file模块"></a>file模块</h3><p>file模块的功能非常多，官方文档是这样描述的：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Sets attributes of files, symlinks, and directories, or removes files/symlinks/directories. Many other modules support the same options as the `file&apos; module - including [copy], [template], and [assemble].</span><br></pre></td></tr></table></figure>
+
 <p>我们可以使用<code>ansible-doc file</code>来查看file模块的详细使用文档（精简版可以使用<code>ansible-doc -s file</code>），这里举几个常用的例子来介绍file模块的使用。</p>
 <h4 id="file模块删除文件或目录"><a href="#file模块删除文件或目录" class="headerlink" title="file模块删除文件或目录"></a>file模块删除文件或目录</h4><p>正如前面所说的删除文件的方法，用file模块的使用方法是：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">$ ansible spark -m file -a &quot;path=/usr/local/spark/work/* state=absent&quot;</span><br><span class="line">dell-r730-2 | SUCCESS =&gt; &#123;</span><br><span class="line">    &quot;changed&quot;: false,</span><br><span class="line">    &quot;path&quot;: &quot;/usr/local/spark/work/*&quot;,</span><br><span class="line">    &quot;state&quot;: &quot;absent&quot;</span><br><span class="line">&#125;</span><br><span class="line">dell-r730-4 | SUCCESS =&gt; &#123;</span><br><span class="line">    &quot;changed&quot;: false,</span><br><span class="line">    &quot;path&quot;: &quot;/usr/local/spark/work/*&quot;,</span><br><span class="line">    &quot;state&quot;: &quot;absent&quot;</span><br><span class="line">&#125;</span><br><span class="line">dell-r730-3 | SUCCESS =&gt; &#123;</span><br><span class="line">    &quot;changed&quot;: false,</span><br><span class="line">    &quot;path&quot;: &quot;/usr/local/spark/work/*&quot;,</span><br><span class="line">    &quot;state&quot;: &quot;absent&quot;</span><br><span class="line">&#125;</span><br><span class="line">dell-r730-1 | SUCCESS =&gt; &#123;</span><br><span class="line">    &quot;changed&quot;: false,</span><br><span class="line">    &quot;path&quot;: &quot;/usr/local/spark/work/*&quot;,</span><br><span class="line">    &quot;state&quot;: &quot;absent&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>这样就能达到将<code>/usr/local/spark/work</code>目录中的<code>app-xxx</code>目录删除的目的，这里<code>-m</code>参数后面指定了使用file模块，<code>-a</code>参数后面为模块的参数，指定了文件或目录的路径<code>path</code>，以及状态<code>state=absent</code>，表示将指定的path进行删除处理。</p>
 <h4 id="file模块新建一个文件或目录"><a href="#file模块新建一个文件或目录" class="headerlink" title="file模块新建一个文件或目录"></a>file模块新建一个文件或目录</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ansible spark -m file -a &quot;path=/usr/local/spark/conf/slaves state=touch&quot;</span><br></pre></td></tr></table></figure>
+
 <p>这里<code>state=touch</code>表示新建文件，而<code>state=directory</code>则表示新建目录。这里也可以是用<code>mode</code>来指定创建的文件或目录的权限<code>mode=&#39;u=rw,g=r,o=r&#39;</code>或者<code>mode=0755</code></p>
 <h4 id="file模块递归设置文件的属主或属组"><a href="#file模块递归设置文件的属主或属组" class="headerlink" title="file模块递归设置文件的属主或属组"></a>file模块递归设置文件的属主或属组</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ansible spark -m file -a &quot;path=/usr/local/spark owner=spark group=spark recurse=yes&quot;</span><br></pre></td></tr></table></figure>
+
 <p><code>owner</code>设置属主，<code>group</code>设置属组，<code>recurse</code>设置是否对目录进行递归进行设置。</p>
 
           
@@ -1434,21 +1621,27 @@
 <h4 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h4><ol>
 <li><p>插入U盘，使用diskutil指令来查看U盘的挂载点</p>
  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ diskutil list</span><br></pre></td></tr></table></figure>
+
 <p> 系统输出类似如下的内容</p>
  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># joey @ joey-Mac in ~ [9:45:27]</span></span><br><span class="line">$ diskutil list</span><br><span class="line">/dev/disk0 (internal):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:      GUID_partition_scheme                         24.0 GB    disk0</span><br><span class="line">   1:                        EFI EFI                     314.6 MB   disk0s1</span><br><span class="line">   2:                 Apple_APFS                         23.6 GB    disk0s2</span><br><span class="line"></span><br><span class="line">/dev/disk1 (internal, physical):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:      GUID_partition_scheme                        *1.0 TB     disk1</span><br><span class="line">   1:                        EFI EFI                     209.7 MB   disk1s1</span><br><span class="line">   2:                 Apple_APFS Container disk2         900.7 GB   disk1s2</span><br><span class="line">   3:       Microsoft Basic Data BOOTCAMP                99.3 GB    disk1s3</span><br><span class="line"></span><br><span class="line">/dev/disk2 (synthesized):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:      APFS Container Scheme -                      +900.7 GB   disk2</span><br><span class="line">                                 Physical Store disk1s2</span><br><span class="line">   1:                APFS Volume CoreStorage Fusion      576.8 GB   disk2s1</span><br><span class="line">   2:                APFS Volume Preboot                 44.0 MB    disk2s2</span><br><span class="line">   3:                APFS Volume Recovery                512.4 MB   disk2s3</span><br><span class="line">   4:                APFS Volume VM                      6.4 GB     disk2s4</span><br><span class="line"></span><br><span class="line">/dev/disk3 (external, physical):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:     FDisk_partition_scheme                        *15.7 GB    disk3</span><br><span class="line">   1:               Windows_NTFS joey                    15.7 GB    disk3s1</span><br></pre></td></tr></table></figure>
+
 <p> 可以看到，我的U盘大小是16GB，对应上面输出的挂载点应该是位于<code>/dev/disk3</code></p>
 </li>
 <li><p>在写入系统镜像前，首先需要umount这个U盘，使用如下指令</p>
  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ diskutil unmountDisk /dev/disk3</span><br></pre></td></tr></table></figure>
+
 <p> 会输出如下内容表示正确unmount</p>
  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># joey @ joey-Mac in ~ [9:45:34]</span></span><br><span class="line">$ diskutil unmountDisk /dev/disk3</span><br><span class="line">Unmount of all volumes on disk3 was successful</span><br></pre></td></tr></table></figure>
+
 <p> 此时，Mac的Finder中已经看不到之前挂载上的U盘了，但是使用<code>diskutil list</code>命令还是能够看到U盘的信息</p>
 </li>
 <li><p>使用dd指令写入Linux系统镜像到U盘 </p>
  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo dd <span class="keyword">if</span>=/Users/joey/Downloads/CentOS-7-x86_64-DVD-1804.iso of=/dev/disk3 bs=1M</span><br></pre></td></tr></table></figure>
+
 <p> 这里有一点需要注意，有些教程可能写的<code>bs=1m</code>，这里如果你的电脑装了GNU Coreutils，就是那个让<code>ls</code>能够彩色化输出的软件，这里用1m就会报错，报错内容为<code>dd: invalid number: ‘1m’</code>，这里把m大写就能很容易解决这个问题，但是究竟是什么原因造成1m不行的我也不是很清楚，只知道一个解决的办法。</p>
 <p> 之后会输出如下，表示写入完成，大概要等几分钟</p>
  <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># joey @ joey-Mac in ~ [9:49:37] C:1</span></span><br><span class="line">$ sudo dd <span class="keyword">if</span>=/Users/joey/Downloads/CentOS-7-x86_64-DVD-1804.iso of=/dev/disk3 bs=1M</span><br><span class="line">Password:</span><br><span class="line">4263+0 records <span class="keyword">in</span></span><br><span class="line">4263+0 records out</span><br><span class="line">4470079488 bytes (4.5 GB, 4.2 GiB) copied, 446.25 s, 10.0 MB/s</span><br></pre></td></tr></table></figure>
+
 <p> 经过如上几个步骤，用Mac制作的U盘启动盘就制作完成了。</p>
 </li>
 </ol>
@@ -1587,153 +1780,17 @@
           
             <p>最近在看别人写的shell脚本时看到这样一个sed指令：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i.bak -e<span class="string">'s/\(LOBJS=.*\)/\1 bwtindex.o rle.o rope.o bwt.o is.o/g'</span> bwa/Makefile</span><br></pre></td></tr></table></figure>
+
 <p>这里面使用了<code>sed &#39;s/要被取代的字符串/新的字符串/g&#39; file</code>的方式来对文本中指定的字符串进行全局替换，这里g代表的是global，之前面试又被问到过sed全局如何替换，当时就是忘记了最后应该要加<code>/g</code>，在这个命令中，新的字符串的内容中有一个<code>\1</code>之前从来没有遇到过，不知道具体的作用是什么，于是就去查找了一些资料进行学习。</p>
 <p>在sed中，要被匹配的字符串可以用正则匹配来进行模式匹配，而用括号括起来的一个正则匹配串可以称为一个模式，而<code>\1-9</code>就是用来指代第一个、第二个、……、第九个模式在匹配到的字符串中的内容。在sed中一共可以记录9个模式，在某些需要保留原有字符串的一部分并添加一部分内容的时候就会很有用。</p>
 <p>举个例子：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> abc123 | sed <span class="string">'s/\([a-z]*\)\([0-9]&#123;3&#125;\)/\2\1/g'</span></span><br></pre></td></tr></table></figure>
+
 <p>这个例子的输出就是<code>123abc</code>，先来看下正则匹配的内容，一共有2个位于括号中的模式，第一个模式匹配的是出现次数任意多的小写字母，第二个模式匹配的是出现三次的数字，模式都用括号括起来，但是括号要使用反斜杠进行转义。在这个正则匹配中，<code>\1</code>代表的就是第一个模式匹配的内容，即abc,<code>\2</code>代表的是第二个模式匹配的内容，即123，然后替换成什么内容呢？就是交换这两个匹配的模式，把<code>\2</code>放到<code>\1</code>前面，就是123在前面，abc在后面，变成了123abc，就是这样简单，这是一个简单的交换匹配到的内容的例子，我们还可以在模式中插入内容，举例子来说：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> abc123 | sed <span class="string">'s/\([a-z]*\)\([0-9]&#123;3&#125;\)/\1xx\2/g'</span></span><br></pre></td></tr></table></figure>
+
 <p>这个例子的输出就是在abc和123之间插入了两个字母xx，最终的结果是abcxx123，知道C当中的printf函数的同学可以把这里的<code>\1\2</code>理解成两个占位符，具体的内容由前面匹配到的模式的内容来进行填充，按照正则匹配中的顺序进行记录，最多记录9个。</p>
 <p>这里在说一点题外话，<code>sed -i</code>我们知道是直接在原文件中进行修改，但是<code>-i</code>后面其实是可以加参数的，在最上面那个例子里面就是加了<code>.bak</code>作为<code>-i</code>的参数，这里的意思是，直接在原文件进行修改，但是将原文件保存为<code>filename.bak</code>，即在最后加上<code>.bak</code>进行备份。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/29/Gradle中添加C-C-代码编译打包流程/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jiayi Liu">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Joey's Notes">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/29/Gradle中添加C-C-代码编译打包流程/" itemprop="url">
-                  Gradle中添加C/C++代码编译打包流程
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-                
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-29T15:10:41+08:00">2018-10-29</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>写过JNI代码的同学应该都有遇到过这样的问题，我们可以很方便的使用Maven、Gradle等工具将我们写好的Java代码打包成一个jar包进行发布，但是当我们的代码当中包含有C/C++的代码时，我们可能需要额外再去运行一次make指令去编译C/C++的代码，并将编译出的库和jar包一起发布（在大多数情况下so文件和jar包是分开的）。实际上，我们可以使用Gradle在打包的同时自动编译我们的C/C++代码，同时将so文件打包到jar包之中，这样在运行jar包时不需要指定<code>java.library.path</code>也能正确读取到so文件，并且发布时只有一个文件，更为方便。</p>
-<h4 id="Exec-Task"><a href="#Exec-Task" class="headerlink" title="Exec Task"></a>Exec Task</h4><p>我们知道，Gradle的执行过程可以分为很多的Task进行，要实现Gradle自动编译C/C++代码我们需要首先了解一下Exec Task。Exec Task是用来执行一个命令行语句的，例如：</p>
-<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">task</span> stopTomcat(type: Exec) &#123;</span><br><span class="line">	workingDir <span class="string">'../tomcat/bin'</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//on windows:</span></span><br><span class="line">	commandLine <span class="string">'cmd'</span>, <span class="string">'/c'</span>, <span class="string">'stop.bat'</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//on linux:</span></span><br><span class="line">	commandLine <span class="string">'./stop.sh'</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//store the output instead of printing to the console:</span></span><br><span class="line">	standardOutput = <span class="keyword">new</span> ByteArrayOutputStream()</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//extension method stopTomcat.output() can be used to obtain the output:</span></span><br><span class="line">	ext.output = &#123;</span><br><span class="line">		<span class="keyword">return</span> standardOutput.toString()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>具体有关这个Task的详细说明可以看这个：<a href="https://docs.gradle.org/current/dsl/org.gradle.api.tasks.Exec.html" target="_blank" rel="noopener">https://docs.gradle.org/current/dsl/org.gradle.api.tasks.Exec.html</a></p>
-<h4 id="使用Exec-Task来编译C-C-代码"><a href="#使用Exec-Task来编译C-C-代码" class="headerlink" title="使用Exec Task来编译C/C++代码"></a>使用Exec Task来编译C/C++代码</h4><p>当然，Exec Task用来编译C/C++代码使用的是make指令，如果使用的是cmake，也可以先执行cmake再执行make，无非是多加几个Exec Task。这里具体的写法如下：</p>
-<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">String cpath = <span class="string">"native"</span></span><br><span class="line">String libname = <span class="string">"libpairhmm"</span></span><br><span class="line"><span class="keyword">task</span> buildLib(type: Exec) &#123;</span><br><span class="line">	workingDir <span class="string">"$cpath"</span></span><br><span class="line">	outputs.files <span class="string">"$cpath/libpairhmm*"</span></span><br><span class="line">	outputs.dir <span class="string">"$cpath/pairhmm"</span></span><br><span class="line">	commandLine <span class="string">"make all"</span></span><br><span class="line">	String home = System.properties.<span class="string">"java.home"</span></span><br><span class="line">	<span class="comment">//strip the trailing jre</span></span><br><span class="line">	String corrected = home.endsWith(<span class="string">"jre"</span>) ? home.substring(<span class="number">0</span>, home.length() - <span class="number">4</span>) : home</span><br><span class="line">	environment JAVA_HOME : corrected</span><br><span class="line">	<span class="keyword">doFirst</span> &#123; <span class="keyword">println</span> <span class="string">"using $home -&gt; $corrected as JAVA_HOME"</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">clean &#123;</span><br><span class="line">	<span class="keyword">delete</span> <span class="string">"$cpath/pairhmm"</span></span><br><span class="line">	<span class="keyword">delete</span> <span class="string">"$cpath/$libname*"</span></span><br><span class="line">	<span class="keyword">delete</span> <span class="keyword">fileTree</span>(<span class="string">"$cpath"</span>) &#123; <span class="keyword">include</span> <span class="string">"$libname*"</span>, <span class="string">"*.o"</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">processResources &#123;</span><br><span class="line">	dependsOn buildLib</span><br><span class="line">	<span class="keyword">from</span> cpath</span><br><span class="line">	<span class="keyword">include</span> <span class="string">"$libname*"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里buildLib这个task就是一个Exec Task，其中定义的流程就是执行make all指令来编译C/C++代码，clean的作用就是清除编译产生的lib文件和o文件（在调用gradle clean的时候调用清除工作），processResources即处理资源文件，其作用就是将编译产生的库文件拷贝到jar包当中。</p>
 
           
         
@@ -1821,7 +1878,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1891,7 +1948,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

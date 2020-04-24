@@ -218,7 +218,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -234,7 +234,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -269,6 +269,147 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/10/29/Gradle中添加C-C-代码编译打包流程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joey's Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2018/10/29/Gradle中添加C-C-代码编译打包流程/" itemprop="url">
+                  Gradle中添加C/C++代码编译打包流程
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+                
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-29T15:10:41+08:00">2018-10-29</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>写过JNI代码的同学应该都有遇到过这样的问题，我们可以很方便的使用Maven、Gradle等工具将我们写好的Java代码打包成一个jar包进行发布，但是当我们的代码当中包含有C/C++的代码时，我们可能需要额外再去运行一次make指令去编译C/C++的代码，并将编译出的库和jar包一起发布（在大多数情况下so文件和jar包是分开的）。实际上，我们可以使用Gradle在打包的同时自动编译我们的C/C++代码，同时将so文件打包到jar包之中，这样在运行jar包时不需要指定<code>java.library.path</code>也能正确读取到so文件，并且发布时只有一个文件，更为方便。</p>
+<h4 id="Exec-Task"><a href="#Exec-Task" class="headerlink" title="Exec Task"></a>Exec Task</h4><p>我们知道，Gradle的执行过程可以分为很多的Task进行，要实现Gradle自动编译C/C++代码我们需要首先了解一下Exec Task。Exec Task是用来执行一个命令行语句的，例如：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">task</span> stopTomcat(type: Exec) &#123;</span><br><span class="line">	workingDir <span class="string">'../tomcat/bin'</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//on windows:</span></span><br><span class="line">	commandLine <span class="string">'cmd'</span>, <span class="string">'/c'</span>, <span class="string">'stop.bat'</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//on linux:</span></span><br><span class="line">	commandLine <span class="string">'./stop.sh'</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//store the output instead of printing to the console:</span></span><br><span class="line">	standardOutput = <span class="keyword">new</span> ByteArrayOutputStream()</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//extension method stopTomcat.output() can be used to obtain the output:</span></span><br><span class="line">	ext.output = &#123;</span><br><span class="line">		<span class="keyword">return</span> standardOutput.toString()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>具体有关这个Task的详细说明可以看这个：<a href="https://docs.gradle.org/current/dsl/org.gradle.api.tasks.Exec.html" target="_blank" rel="noopener">https://docs.gradle.org/current/dsl/org.gradle.api.tasks.Exec.html</a></p>
+<h4 id="使用Exec-Task来编译C-C-代码"><a href="#使用Exec-Task来编译C-C-代码" class="headerlink" title="使用Exec Task来编译C/C++代码"></a>使用Exec Task来编译C/C++代码</h4><p>当然，Exec Task用来编译C/C++代码使用的是make指令，如果使用的是cmake，也可以先执行cmake再执行make，无非是多加几个Exec Task。这里具体的写法如下：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">String cpath = <span class="string">"native"</span></span><br><span class="line">String libname = <span class="string">"libpairhmm"</span></span><br><span class="line"><span class="keyword">task</span> buildLib(type: Exec) &#123;</span><br><span class="line">	workingDir <span class="string">"$cpath"</span></span><br><span class="line">	outputs.files <span class="string">"$cpath/libpairhmm*"</span></span><br><span class="line">	outputs.dir <span class="string">"$cpath/pairhmm"</span></span><br><span class="line">	commandLine <span class="string">"make all"</span></span><br><span class="line">	String home = System.properties.<span class="string">"java.home"</span></span><br><span class="line">	<span class="comment">//strip the trailing jre</span></span><br><span class="line">	String corrected = home.endsWith(<span class="string">"jre"</span>) ? home.substring(<span class="number">0</span>, home.length() - <span class="number">4</span>) : home</span><br><span class="line">	environment JAVA_HOME : corrected</span><br><span class="line">	<span class="keyword">doFirst</span> &#123; <span class="keyword">println</span> <span class="string">"using $home -&gt; $corrected as JAVA_HOME"</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">clean &#123;</span><br><span class="line">	<span class="keyword">delete</span> <span class="string">"$cpath/pairhmm"</span></span><br><span class="line">	<span class="keyword">delete</span> <span class="string">"$cpath/$libname*"</span></span><br><span class="line">	<span class="keyword">delete</span> <span class="keyword">fileTree</span>(<span class="string">"$cpath"</span>) &#123; <span class="keyword">include</span> <span class="string">"$libname*"</span>, <span class="string">"*.o"</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">processResources &#123;</span><br><span class="line">	dependsOn buildLib</span><br><span class="line">	<span class="keyword">from</span> cpath</span><br><span class="line">	<span class="keyword">include</span> <span class="string">"$libname*"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里buildLib这个task就是一个Exec Task，其中定义的流程就是执行make all指令来编译C/C++代码，clean的作用就是清除编译产生的lib文件和o文件（在调用gradle clean的时候调用清除工作），processResources即处理资源文件，其作用就是将编译产生的库文件拷贝到jar包当中。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
     
       
 
@@ -533,14 +674,22 @@
 <p>用户使用spark-submit提交一个作业之后，会首先启动一个driver进程，driver进程会向集群管理器（standalone、YARN、Mesos）申请本次运行所需要的资源（这里的资源包括core和memory，可以在spark-submit的参数中进行设置），集群管理器会根据我们需要的参数在各个节点上启动executor。申请到对应资源之后，driver进程就会开始调度和执行我们编写的作业代码。作业会被提交给DAGScheduler，DAGScheduler会根据作业中RDD的依赖关系将作业拆分成多个stage，拆分的原则就是根据是否出现了宽依赖，每个stage当中都会尽可能多的包含连续的窄依赖。每个stage都包含了作业的一部分，会生成一个TaskSet提交给底层调度器TaskScheduler，TaskScheduler会把TaskSet提交到集群当中由executor进行执行。Task的划分是根据数据的partition进行划分，一个partition会划分为一个task。如此循环往复，直至执行完编写的driver程序的所有代码逻辑，并且计算完所有的数据。</p>
 </blockquote>
 <p>简单的运行流程如下图：</p>
-<center><br><img style="border: none" src="https://user-gold-cdn.xitu.io/2018/9/30/16629a724b5034a3?w=1326&h=359&f=png&s=54756" width="60%" height="60%"><br><br>图一 spark运行流程<br></center>
+<center>
+<img style="border: none" src="https://user-gold-cdn.xitu.io/2018/9/30/16629a724b5034a3?w=1326&h=359&f=png&s=54756" width="60%" height="60%">
+
+<p>图一 spark运行流程</p>
+</center>
 
 <h3 id="SparkContext"><a href="#SparkContext" class="headerlink" title="SparkContext"></a>SparkContext</h3><p>Spark程序的整个运行过程都是围绕spark driver程序展开的，spark driver程序当中最重要的一个部分就是SparkContext，SparkContext的初始化是为了准备Spark应用程序的运行环境，SparkContext主要是负责与集群进行通信、向集群管理器申请资源、任务的分配和监控等。</p>
 <p>driver与worker之间的架构如下图，driver负责向worker分发任务，worker将处理好的结果返回给driver。</p>
-<center><br><img style="border: none" src="https://user-gold-cdn.xitu.io/2018/9/30/16629ab664dc9649?w=344&h=318&f=png&s=18157" width="20%"><br><br>图二 driver架构<br></center>
+<center>
+<img style="border: none" src="https://user-gold-cdn.xitu.io/2018/9/30/16629ab664dc9649?w=344&h=318&f=png&s=18157" width="20%">
+
+<p>图二 driver架构</p>
+</center>
 
 <p>SparkContext的核心作用是初始化Spark应用程序运行所需要的核心组件，包括高层调度器DAGScheduler、底层调度器TaskScheduler和调度器的通信终端SchedulerBackend，同时还会负责Spark程序向Master注册程序等。Spark应用当中的RDD是由SparkContext进行创建的，例如通过SparkContext.textFile()、SparkContext.parallel()等这些API。运行流程当中提及的向集群管理器Cluster Manager申请计算资源也是由SparkContext产生的对象来申请的。接下来我们从源码的角度学习一下SparkContext，关于SparkContext创建的各种组件，在SparkContext类中有这样一段代码来创建这些组件：</p>
-<p><img style="border: none; margin-left: 0; margin-right: 0" src="https://user-gold-cdn.xitu.io/2018/10/25/166a8d2fbb706104?w=1246&h=220&f=png&s=63332" width="45%"><br>
+<img style="border: none; margin-left: 0; margin-right: 0" src="https://user-gold-cdn.xitu.io/2018/10/25/166a8d2fbb706104?w=1246&h=220&f=png&s=63332" width="45%">
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2018/10/25/spark/spark源码阅读/Spark运行原理/#more" rel="contents">
@@ -550,7 +699,7 @@
           <!--/noindex-->
         
       
-    </p></div>
+    </div>
 
     
 
@@ -685,17 +834,29 @@
 <blockquote>
 <p><strong>-keepdirectories</strong> [_directory_filter_]<br>Specifies the directories to be kept in the output jars (or aars, wars, ears, zips, apks, or directories). By default, directory entries are removed. This reduces the jar size, but it may break your program if the code tries to find them with constructs like “com.example.MyClass.class.getResource(“”)”. You’ll then want to keep the directory corresponding to the package, “-keepdirectories com.example”. If the option is specified without a filter, all directories are kept. With a filter, only matching directories are kept. For instance, “-keepdirectories mydirectory” matches the specified directory, “-keepdirectories mydirectory/*” matches its immediate subdirectories, and “-keepdirectories mydirectory/**” matches all of its subdirectories.</p>
 </blockquote>
-<h4 id="阶段四"><a href="#阶段四" class="headerlink" title="阶段四"></a>阶段四</h4><p>最后的要求还是需要将源码和依赖的库打包到一起，需要在shadowJar打包之前先将源码产生的jar包进行混淆，shadowJar任务的输入改成这个混淆后的jar包即可。proguard实际上也能作为gradle的一个插件进行使用，可以在<code>build.gradle</code>当中加入一个proguard的task进行混淆，proguard官网提供了一种使用方法：<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">buildscript &#123;</span><br><span class="line">  repositories &#123;</span><br><span class="line">    flatDir <span class="string">dirs:</span> <span class="string">'/usr/local/java/proguard/lib'</span></span><br><span class="line">  &#125;</span><br><span class="line">  dependencies &#123;</span><br><span class="line">    classpath <span class="string">':proguard:'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>定义task的方式如下：<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">task myProguardTask(<span class="string">type:</span> proguard.gradle.ProGuardTask) &#123;</span><br><span class="line">  .....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>但这样需要自己手动下载proguard，并存放在编译gradle的服务器上，十分不方便。还有一种方式比较方便，每次会自动下载需要的jar包：<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">buildscript &#123;</span><br><span class="line">  repositories &#123;</span><br><span class="line">    mavenCentral()</span><br><span class="line">    jcenter() <span class="comment">// for shadow plugin</span></span><br><span class="line">  &#125;</span><br><span class="line">  dependencies &#123;</span><br><span class="line">    classpath <span class="string">'net.sf.proguard:proguard-gradle:6.0.3'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>我所定义的proguard的混淆任务如下：<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">task obfuscate(<span class="string">type:</span> proguard.gradle.ProGuardTask) &#123;</span><br><span class="line">  injars jar</span><br><span class="line">  outjars <span class="string">"$buildDir/libs/$&#123;project.name&#125;-pg.jar"</span></span><br><span class="line">  libraryjars <span class="string">"$&#123;System.getProperty('java.home')&#125;/lib/rt.jar"</span></span><br><span class="line">  libraryjars files(configurations.compile.collect())</span><br><span class="line"></span><br><span class="line">  useuniqueclassmembernames</span><br><span class="line"></span><br><span class="line">  dontshrink</span><br><span class="line">  dontoptimize</span><br><span class="line">  dontnote</span><br><span class="line">  dontwarn</span><br><span class="line"></span><br><span class="line">  <span class="comment">//keepnames 'class ** &#123; *; &#125;'</span></span><br><span class="line">  configuration <span class="string">'proguard.pro'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这里<code>injars</code>直接写jar即可，会得到jar任务的输出（即源码编译产生的jar），<code>outjars</code>输出到<code>build/libs</code>路径下，<code>rt.jar</code>也许要添加，jre的路径可以使用<code>${System.getProperty(&#39;java.home&#39;)}</code>获得。另外，依赖的所有库可以通过一种很简洁的方式表述出来，不需要一个依赖一个依赖的添加，<code>libraryjars files(configurations.compile.collect())</code>，这句话会把compile环节所依赖的所有库文件的获取到，并添加到libraryjar当中。proguard的配置参数可以直接在gradle的task中写，一般来说是将普通的proguard参数去掉前面的-，参数的值需要写到一个字符串当中，遇到配置字符串需要换行的配置情况需要在最后加上一个\。<br>同时，还需要将混淆产生的jar包作为shadowJar任务的输入才能将这个混淆的jar包和依赖打包到一起，具体写法如下：<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">task myShadow(<span class="string">type:</span> ShadowJar) &#123;</span><br><span class="line">  baseName = jar.baseName</span><br><span class="line">  from obfuscate</span><br><span class="line">  configurations = [project.configurations.runtime]</span><br><span class="line">  classifier = <span class="string">'shadow'</span></span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="阶段四"><a href="#阶段四" class="headerlink" title="阶段四"></a>阶段四</h4><p>最后的要求还是需要将源码和依赖的库打包到一起，需要在shadowJar打包之前先将源码产生的jar包进行混淆，shadowJar任务的输入改成这个混淆后的jar包即可。proguard实际上也能作为gradle的一个插件进行使用，可以在<code>build.gradle</code>当中加入一个proguard的task进行混淆，proguard官网提供了一种使用方法：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">buildscript &#123;</span><br><span class="line">  repositories &#123;</span><br><span class="line">    flatDir <span class="string">dirs:</span> <span class="string">'/usr/local/java/proguard/lib'</span></span><br><span class="line">  &#125;</span><br><span class="line">  dependencies &#123;</span><br><span class="line">    classpath <span class="string">':proguard:'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>定义task的方式如下：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">task myProguardTask(<span class="string">type:</span> proguard.gradle.ProGuardTask) &#123;</span><br><span class="line">  .....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但这样需要自己手动下载proguard，并存放在编译gradle的服务器上，十分不方便。还有一种方式比较方便，每次会自动下载需要的jar包：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">buildscript &#123;</span><br><span class="line">  repositories &#123;</span><br><span class="line">    mavenCentral()</span><br><span class="line">    jcenter() <span class="comment">// for shadow plugin</span></span><br><span class="line">  &#125;</span><br><span class="line">  dependencies &#123;</span><br><span class="line">    classpath <span class="string">'net.sf.proguard:proguard-gradle:6.0.3'</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我所定义的proguard的混淆任务如下：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">task obfuscate(<span class="string">type:</span> proguard.gradle.ProGuardTask) &#123;</span><br><span class="line">  injars jar</span><br><span class="line">  outjars <span class="string">"$buildDir/libs/$&#123;project.name&#125;-pg.jar"</span></span><br><span class="line">  libraryjars <span class="string">"$&#123;System.getProperty('java.home')&#125;/lib/rt.jar"</span></span><br><span class="line">  libraryjars files(configurations.compile.collect())</span><br><span class="line"></span><br><span class="line">  useuniqueclassmembernames</span><br><span class="line"></span><br><span class="line">  dontshrink</span><br><span class="line">  dontoptimize</span><br><span class="line">  dontnote</span><br><span class="line">  dontwarn</span><br><span class="line"></span><br><span class="line">  <span class="comment">//keepnames 'class ** &#123; *; &#125;'</span></span><br><span class="line">  configuration <span class="string">'proguard.pro'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里<code>injars</code>直接写jar即可，会得到jar任务的输出（即源码编译产生的jar），<code>outjars</code>输出到<code>build/libs</code>路径下，<code>rt.jar</code>也许要添加，jre的路径可以使用<code>${System.getProperty(&#39;java.home&#39;)}</code>获得。另外，依赖的所有库可以通过一种很简洁的方式表述出来，不需要一个依赖一个依赖的添加，<code>libraryjars files(configurations.compile.collect())</code>，这句话会把compile环节所依赖的所有库文件的获取到，并添加到libraryjar当中。proguard的配置参数可以直接在gradle的task中写，一般来说是将普通的proguard参数去掉前面的-，参数的值需要写到一个字符串当中，遇到配置字符串需要换行的配置情况需要在最后加上一个\。<br>同时，还需要将混淆产生的jar包作为shadowJar任务的输入才能将这个混淆的jar包和依赖打包到一起，具体写法如下：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">task myShadow(<span class="string">type:</span> ShadowJar) &#123;</span><br><span class="line">  baseName = jar.baseName</span><br><span class="line">  from obfuscate</span><br><span class="line">  configurations = [project.configurations.runtime]</span><br><span class="line">  classifier = <span class="string">'shadow'</span></span><br><span class="line">  ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>from指明了需要打包的jar的来源，这里指定obfuscate就是之前写的obfuscate任务的输出，configurations指定了配置文件，指定之后会根据这个配置文件找到所有的依赖库文件，这里指定的是打包compile环节依赖的库文件，并且<code>[project.configurations.runtime]</code>实际上是default <code>shadowJar</code> task的默认配置。</p>
 <p>这里有一个坑需要注意，如果你使用了默认的shadowJar任务（shadowJar），最后生成的fat-jar会包含有依赖库、没混淆的代码、混淆的代码三部分，正如Stack Overflow上这个问题所描述的一样：<a href="https://stackoverflow.com/questions/43643609/gradle-shadowjar-output-contains-obfuscated-and-non-obfuscated-classes?utm_medium=organic&amp;utm_source=google_rich_qa&amp;utm_campaign=google_rich_qa" target="_blank" rel="noopener">https://stackoverflow.com/questions/43643609/gradle-shadowjar-output-contains-obfuscated-and-non-obfuscated-classes?utm_medium=organic&amp;utm_source=google_rich_qa&amp;utm_campaign=google_rich_qa</a><br>这里产生这种情况的原因是，默认的shadowJar任务总会将main文件夹中的源文件添加到输入当中，要解决这个问题就是自己定义一个type为shadowJar的task，不要去使用默认的shadowJar任务，其实这个问题在shadowJar官方说明文档当中也写到了：</p>
 <blockquote>
 <p>The built in shadowJar task only provides an output for the main source set of the project. It is possible to add arbitrary ShadowJar tasks to a project. When doing so, ensure that the configurations property is specified to inform Shadow which dependencies to merge into the output.</p>
 </blockquote>
-<p>官方提供了一个例子可以将test中的源文件与testRuntime中依赖的库文件进行打包的方法，也说到了默认的shadowJar任务只能将main中的源文件进行打包，也提示了我们如果要用proguard混淆之后的jar作为输入需要自己定义shadowJar任务，不能使用默认的shadowJar任务。<br><figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">task testJar(<span class="string">type:</span> ShadowJar) &#123;</span><br><span class="line">  classifier = <span class="string">'tests'</span></span><br><span class="line">  from sourceSets.test.output</span><br><span class="line">  configurations = [project.configurations.testRuntime]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>官方提供了一个例子可以将test中的源文件与testRuntime中依赖的库文件进行打包的方法，也说到了默认的shadowJar任务只能将main中的源文件进行打包，也提示了我们如果要用proguard混淆之后的jar作为输入需要自己定义shadowJar任务，不能使用默认的shadowJar任务。</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">task testJar(<span class="string">type:</span> ShadowJar) &#123;</span><br><span class="line">  classifier = <span class="string">'tests'</span></span><br><span class="line">  from sourceSets.test.output</span><br><span class="line">  configurations = [project.configurations.testRuntime]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
 <li><a href="https://www.guardsquare.com/en/proguard/manual/usage" target="_blank" rel="noopener">https://www.guardsquare.com/en/proguard/manual/usage</a></li>
 <li><a href="https://www.oschina.net/question/237480_166440" target="_blank" rel="noopener">https://www.oschina.net/question/237480_166440</a></li>
@@ -837,8 +998,10 @@
           
             <p>最近需要在CentOS 7.2上安装matlab，发现matlabR2017b Linux版本安装需要gcc 4.9.x，但是CentOS 7.2 使用yum安装的gcc版本最高为4.8.5，于是决定将gcc版本进行升级。升级gcc一般建议采用编译安装的方式，但是这种方式比较麻烦，需要先编译安装mpfr、gmp、mpc等，于是在网上找到了一种通过yum比较方便的升级方式，而且可以随时在bash、zsh等当中切换各种gcc版本，特记录在此。</p>
 <h2 id="gcc-4-9安装"><a href="#gcc-4-9安装" class="headerlink" title="gcc 4.9安装"></a>gcc 4.9安装</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install centos-release-scl</span><br><span class="line">sudo yum install devtoolset-3-toolchain</span><br><span class="line">scl <span class="built_in">enable</span> devtoolset-3 bash</span><br></pre></td></tr></table></figure>
+
 <p>这里scl enable就是用来切换不同版本的gcc的。这个切换是临时的，表示在bash中临时切换到gcc4.9的工作环境，当使用<code>exit</code>指令之后，就会回退到原始的gcc版本，可以使用<code>scl -l</code>来查看所有可以切换的开发工具集。</p>
 <h2 id="gcc-5-2"><a href="#gcc-5-2" class="headerlink" title="gcc 5.2"></a>gcc 5.2</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install centos-release-scl</span><br><span class="line">sudo yum install devtoolset-4-toolchain</span><br><span class="line">scl <span class="built_in">enable</span> devtoolset-4 bash</span><br></pre></td></tr></table></figure>
+
 
           
         
@@ -995,11 +1158,17 @@
 <li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/util/collection/SizeTrackingVector.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/util/collection/SizeTrackingVector.scala</code></a></li>
 <li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/util/collection/SizeTracker.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/util/collection/SizeTracker.scala</code></a></li>
 </ul>
-<h2 id="RDD缓存分析"><a href="#RDD缓存分析" class="headerlink" title="RDD缓存分析"></a>RDD缓存分析</h2><p>RDD在缓存到内存之前，Partition中的数据一般以迭代器(Iterator)的数据结构来访问，通过Iterator可以获得分区中每一条序列化或者非序列化的Record，这些Record在访问的时候占用的是JVM堆内存中other部分的内存区域，同一个Partition的不同Record的空间并不是连续的。RDD被缓存之后，会由Partition转化为Block，并且存储位置变为了Storage Memory区域，并且此时Block中的Record所占用的内存空间是连续的。我们可以在Spark的源码当中多次看到unroll这个词，字面意思是展开，在Spark当中的意义就是将存储在Partition中的Record由不连续的存储空间转换为连续存储空间的过程。Unroll操作的时候需要在Storage Memory当中通过<code>reserveUnrollMemoryForThisTask</code>来申请Unroll操作所需要的内存，使用完毕之后，又通过<code>releaseUnrollMemoryForThisTask</code>方法来释放这部分内存。这与1.6.0版本之前固定Unroll内存的方式不同，是动态申请的，因为这部分内存只在Unroll的时候有用，动态申请这块内存能够在不需要Unroll的时候将这块内存区域用于其他的用途上，提升内存资源的利用率。Block有两种存储方式，分别为序列化存储和非序列化存储，这两种存储方式具有其对应的Entry，在MemoryStore类中通过一个<code>LinkedHashMap</code>来存储堆内和对外内存中的所有Block对象的实例：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Note: all changes to memory allocations, notably putting blocks, evicting blocks, and</span></span><br><span class="line"><span class="comment">// acquiring or releasing unroll memory, must be synchronized on `memoryManager`!</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">val</span> entries = <span class="keyword">new</span> <span class="type">LinkedHashMap</span>[<span class="type">BlockId</span>, <span class="type">MemoryEntry</span>[_]](<span class="number">32</span>, <span class="number">0.75</span>f, <span class="literal">true</span>)</span><br></pre></td></tr></table></figure></p>
+<h2 id="RDD缓存分析"><a href="#RDD缓存分析" class="headerlink" title="RDD缓存分析"></a>RDD缓存分析</h2><p>RDD在缓存到内存之前，Partition中的数据一般以迭代器(Iterator)的数据结构来访问，通过Iterator可以获得分区中每一条序列化或者非序列化的Record，这些Record在访问的时候占用的是JVM堆内存中other部分的内存区域，同一个Partition的不同Record的空间并不是连续的。RDD被缓存之后，会由Partition转化为Block，并且存储位置变为了Storage Memory区域，并且此时Block中的Record所占用的内存空间是连续的。我们可以在Spark的源码当中多次看到unroll这个词，字面意思是展开，在Spark当中的意义就是将存储在Partition中的Record由不连续的存储空间转换为连续存储空间的过程。Unroll操作的时候需要在Storage Memory当中通过<code>reserveUnrollMemoryForThisTask</code>来申请Unroll操作所需要的内存，使用完毕之后，又通过<code>releaseUnrollMemoryForThisTask</code>方法来释放这部分内存。这与1.6.0版本之前固定Unroll内存的方式不同，是动态申请的，因为这部分内存只在Unroll的时候有用，动态申请这块内存能够在不需要Unroll的时候将这块内存区域用于其他的用途上，提升内存资源的利用率。Block有两种存储方式，分别为序列化存储和非序列化存储，这两种存储方式具有其对应的Entry，在MemoryStore类中通过一个<code>LinkedHashMap</code>来存储堆内和对外内存中的所有Block对象的实例：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Note: all changes to memory allocations, notably putting blocks, evicting blocks, and</span></span><br><span class="line"><span class="comment">// acquiring or releasing unroll memory, must be synchronized on `memoryManager`!</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">val</span> entries = <span class="keyword">new</span> <span class="type">LinkedHashMap</span>[<span class="type">BlockId</span>, <span class="type">MemoryEntry</span>[_]](<span class="number">32</span>, <span class="number">0.75</span>f, <span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
+
 <p>通过这段源码的注释我们也可以知道，对这个map的数据结构进行操作的时候需要严格遵循同步的原则，因为一个Executor会对应一个MemoryStore，而一个Executor有多个core的时候会并行执行Task，就会有多个线程共享使用一块Storage Memory，即共享使用这一个LinkedHashMap，修改LinkedHashMap时需要做到同步。<br>因为不能保证存储空间可以一次容纳 Iterator 中的所有数据，当前的计算任务在 Unroll 时要向 MemoryManager 申请足够的 Unroll 空间来临时占位，空间不足则 Unroll 失败，空间足够时可以继续进行。至于为何要选择LinkedHashMap来存储也是有原因的，因为LinkedHashMap能够很好地支持LRU算法(最近最少使用，常用于页面置换算法)，我们可以看到定义LinkedHashMap的第三个参数<code>accessOrder=true</code>，即基于访问顺序，被访问到的元素会被加到LinkedHashMap的最后。基于这个特性，当新Block加入的时候发现内存空间不足的时候，会按照最近最少使用的顺序淘汰LinkedHashMap中的Block。</p>
-<h3 id="序列化存储"><a href="#序列化存储" class="headerlink" title="序列化存储"></a>序列化存储</h3><p>序列化存储使用了一个名为SerializedMemoryEntry的case class：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">case</span> <span class="class"><span class="keyword">class</span> <span class="title">SerializedMemoryEntry</span>[<span class="type">T</span>](<span class="params"></span></span></span><br><span class="line"><span class="class"><span class="params">    buffer: <span class="type">ChunkedByteBuffer</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    memoryMode: <span class="type">MemoryMode</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]</span>) <span class="keyword">extends</span> <span class="title">MemoryEntry</span>[<span class="type">T</span>] </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>: <span class="type">Long</span> = buffer.size</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>这里的主要存储结构为<code>ChunkedByteBuffer</code>，实际上这个类是Spark自己实现的用于存储<code>ByteBuffer</code>的数据结构，其本质为<code>Array[ByteBuffer]</code>，Array的每一个元素被称为一个chunk。对于已经序列化的Partition在转化为Block进行存储时，因为在存储时就已经知道序列化的ByteBuffer的size，其所需要的Unroll空间可以直接累加计算，一次申请。存储所使用的方法为<code>putBytes</code>，需要输入Block的ID、占用的内存空间大小、存储模式为堆内内存还是堆外内存以及存放序列化数据的ByteBuffer，其返回的内容指示了是否缓存成功：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">putBytes</span></span>[<span class="type">T</span>: <span class="type">ClassTag</span>](</span><br><span class="line">      blockId: <span class="type">BlockId</span>,</span><br><span class="line">      size: <span class="type">Long</span>,</span><br><span class="line">      memoryMode: <span class="type">MemoryMode</span>,</span><br><span class="line">      _bytes: () =&gt; <span class="type">ChunkedByteBuffer</span>): <span class="type">Boolean</span></span><br></pre></td></tr></table></figure></p>
-<p>获取序列化缓存的内容可以直接使用<code>getBytes</code>方法，输入Block的ID，获取对应的ChunkByteBuffer。<br>
+<h3 id="序列化存储"><a href="#序列化存储" class="headerlink" title="序列化存储"></a>序列化存储</h3><p>序列化存储使用了一个名为SerializedMemoryEntry的case class：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">case</span> <span class="class"><span class="keyword">class</span> <span class="title">SerializedMemoryEntry</span>[<span class="type">T</span>](<span class="params"></span></span></span><br><span class="line"><span class="class"><span class="params">    buffer: <span class="type">ChunkedByteBuffer</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    memoryMode: <span class="type">MemoryMode</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]</span>) <span class="keyword">extends</span> <span class="title">MemoryEntry</span>[<span class="type">T</span>] </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>: <span class="type">Long</span> = buffer.size</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的主要存储结构为<code>ChunkedByteBuffer</code>，实际上这个类是Spark自己实现的用于存储<code>ByteBuffer</code>的数据结构，其本质为<code>Array[ByteBuffer]</code>，Array的每一个元素被称为一个chunk。对于已经序列化的Partition在转化为Block进行存储时，因为在存储时就已经知道序列化的ByteBuffer的size，其所需要的Unroll空间可以直接累加计算，一次申请。存储所使用的方法为<code>putBytes</code>，需要输入Block的ID、占用的内存空间大小、存储模式为堆内内存还是堆外内存以及存放序列化数据的ByteBuffer，其返回的内容指示了是否缓存成功：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">putBytes</span></span>[<span class="type">T</span>: <span class="type">ClassTag</span>](</span><br><span class="line">      blockId: <span class="type">BlockId</span>,</span><br><span class="line">      size: <span class="type">Long</span>,</span><br><span class="line">      memoryMode: <span class="type">MemoryMode</span>,</span><br><span class="line">      _bytes: () =&gt; <span class="type">ChunkedByteBuffer</span>): <span class="type">Boolean</span></span><br></pre></td></tr></table></figure>
+
+<p>获取序列化缓存的内容可以直接使用<code>getBytes</code>方法，输入Block的ID，获取对应的ChunkByteBuffer。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2018/04/05/spark/spark源码阅读/Spark源码分析RDD缓存过程/#more" rel="contents">
@@ -1009,7 +1178,7 @@
           <!--/noindex-->
         
       
-    </p></div>
+    </div>
 
     
 
@@ -1163,6 +1332,7 @@
 <p>对于in-memory的Spark来说，了解一下其内存管理还是十分重要的，因为Spark的in-memory的计算特性，其对内存的消耗还是很巨大的，如果对Spark的内存管理不够了解便不能充分利用所有的内存资源，并且很容易导致内存不够用时中间数据被缓存到了磁盘当中影响计算的速度。</p>
 <h2 id="Spark内存管理接口"><a href="#Spark内存管理接口" class="headerlink" title="Spark内存管理接口"></a>Spark内存管理接口</h2><p>Spark为存储内存和执行内存的管理提供了统一的抽象类——<a href="https://github.com/apache/spark/blob/branch-1.6/core/src/main/scala/org/apache/spark/memory/MemoryManager.scala" target="_blank" rel="noopener">MemoryManager</a>，同一个Executor内的任务都调用这个抽象类的方法来申请或释放内存，几个关键的内存管理接口定义如下：</p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">acquireStorageMemory</span></span>(</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    numBytes: <span class="type">Long</span>,</span><br><span class="line">    evictedBlocks: mutable.<span class="type">Buffer</span>[(<span class="type">BlockId</span>, <span class="type">BlockStatus</span>)]): <span class="type">Boolean</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">acquireUnrollMemory</span></span>(</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    numBytes: <span class="type">Long</span>,</span><br><span class="line">    evictedBlocks: mutable.<span class="type">Buffer</span>[(<span class="type">BlockId</span>, <span class="type">BlockStatus</span>)]): <span class="type">Boolean</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>[memory]</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">acquireExecutionMemory</span></span>(</span><br><span class="line">    numBytes: <span class="type">Long</span>,</span><br><span class="line">    taskAttemptId: <span class="type">Long</span>,</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Long</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>[memory]</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">releaseExecutionMemory</span></span>(</span><br><span class="line">    numBytes: <span class="type">Long</span>,</span><br><span class="line">    taskAttemptId: <span class="type">Long</span>,</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Unit</span> = synchronized &#123;</span><br><span class="line">  memoryMode <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span> =&gt; onHeapExecutionMemoryPool.releaseMemory(numBytes, taskAttemptId)</span><br><span class="line">    <span class="keyword">case</span> <span class="type">MemoryMode</span>.<span class="type">OFF_HEAP</span> =&gt; offHeapExecutionMemoryPool.releaseMemory(numBytes, taskAttemptId)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>[memory] <span class="function"><span class="keyword">def</span> <span class="title">releaseAllExecutionMemoryForTask</span></span>(taskAttemptId: <span class="type">Long</span>): <span class="type">Long</span> = synchronized &#123;</span><br><span class="line">  onHeapExecutionMemoryPool.releaseAllMemoryForTask(taskAttemptId) +</span><br><span class="line">    offHeapExecutionMemoryPool.releaseAllMemoryForTask(taskAttemptId)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">releaseStorageMemory</span></span>(numBytes: <span class="type">Long</span>): <span class="type">Unit</span> = synchronized &#123;</span><br><span class="line">  storageMemoryPool.releaseMemory(numBytes)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">final</span> <span class="function"><span class="keyword">def</span> <span class="title">releaseAllStorageMemory</span></span>(): <span class="type">Unit</span> = synchronized &#123;</span><br><span class="line">  storageMemoryPool.releaseAllMemory()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">final</span> <span class="function"><span class="keyword">def</span> <span class="title">releaseUnrollMemory</span></span>(numBytes: <span class="type">Long</span>): <span class="type">Unit</span> = synchronized &#123;</span><br><span class="line">  releaseStorageMemory(numBytes)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>Spark的内存系统随着Spark版本的发展具有非常多的变化，1.6.0版本之后新的内存管理模块的实现类为<a href="https://github.com/apache/spark/blob/branch-1.6/core/src/main/scala/org/apache/spark/memory/UnifiedMemoryManager.scala" target="_blank" rel="noopener">UnifiedMemoryManager</a>，1.6.0版本之前采用的静态管理<a href="https://github.com/apache/spark/blob/branch-1.6/core/src/main/scala/org/apache/spark/memory/StaticMemoryManager.scala" target="_blank" rel="noopener">StaticMemoryManager</a>方式仍被保留，称为Legacy模式。Legacy模式默认是关闭的，需要通过增加一个配置参数<code>spark.memory.useLegacyMode=true</code>来开启。</p>
 <h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><h2 id="静态内存管理"><a href="#静态内存管理" class="headerlink" title="静态内存管理"></a>静态内存管理</h2><p>首先来简略地了解一下Spark 1.6.0版本之前的内存管理模型，对于一个Executor，内存一般由3个部分构成：</p>
 <ol>
@@ -1329,10 +1499,13 @@
 <h1 id="partitionBy"><a href="#partitionBy" class="headerlink" title="partitionBy"></a>partitionBy</h1><p>其实对于我的这种情况使用partitionBy会更为适合，可以自己实现一个partitioner，也可以直接使用HashPartitioner，以染色体号作为key进行重新分区，然后再使用mapPartition在每个分区内处理不同染色体，partitionBy的效率会比groupByKey高很多。</p>
 <h1 id="repartitionAndSortWithinPartitions"><a href="#repartitionAndSortWithinPartitions" class="headerlink" title="repartitionAndSortWithinPartitions"></a>repartitionAndSortWithinPartitions</h1><p>在我的项目当中，对每个染色体号对应的记录进行的数据处理包括对数据的排序操作，在数据量很大的时候，这个排序操作也会很耗费时间，但是在partitionBy对数据进行shuffle的时候，已经对数据进行过遍历了，之后再次排序需要又一次遍历数据，十分浪费时间。于是，我又找到了一个非常适合我的程序的一个新的分区接口<code>repartitionAndSortWithinPartitions</code>，首先看下这个接口的使用方法：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">def repartitionAndSortWithinPartitions(partitioner: Partitioner): RDD[(K, V)]</span><br><span class="line"></span><br><span class="line">Repartition the RDD according to the given partitioner and, within each resulting partition, sort records by their keys.</span><br><span class="line"></span><br><span class="line">This is more efficient than calling repartition and then sorting within each partition because it can push the sorting down into the shuffle machinery.</span><br></pre></td></tr></table></figure>
+
 <p>为了使用这个接口，我就必须将我自己定义的数据类型定义一个排序规则，即定义一个Ordering，具体的定义方法如下：</p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">MySAMRecord</span> </span>&#123;</span><br><span class="line">  <span class="keyword">implicit</span> <span class="keyword">val</span> samRecordOrdering: <span class="type">Ordering</span>[<span class="type">MySAMRecord</span>] = <span class="keyword">new</span> <span class="type">Ordering</span>[<span class="type">MySAMRecord</span>] &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">compare</span></span>(x: <span class="type">MySAMRecord</span>, y: <span class="type">MySAMRecord</span>): <span class="type">Int</span> = &#123;</span><br><span class="line">      <span class="keyword">if</span> (x.referenceIndex != y.referenceIndex) x.referenceIndex - y.referenceIndex</span><br><span class="line">      <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (x.startPos != y.startPos) &#123;</span><br><span class="line">          x.startPos - y.startPos</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">new</span> <span class="type">String</span>(x.originalStrByteArr) &gt; <span class="keyword">new</span> <span class="type">String</span>(y.originalStrByteArr)) <span class="number">1</span> <span class="keyword">else</span> <span class="number">-1</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>同时，由于<code>repartitionAndSortWithinPartitions</code>接口的排序是按照key进行的，我就不能使用原有的HashPartitioner进行分区，需要自己定义Partitioner，使得我自己定义的数据类型作为key值时，仍然能够按照染色体序号进行分区，我自己的Partitioner函数定义如下：</p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.spark.<span class="type">Partitioner</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MySAMRecordPartitioner</span>(<span class="params">numParts: <span class="type">Int</span></span>) <span class="keyword">extends</span> <span class="title">Partitioner</span> </span>&#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">numPartitions</span></span>: <span class="type">Int</span> = numParts</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">getPartition</span></span>(key: <span class="type">Any</span>): <span class="type">Int</span> = &#123;</span><br><span class="line">    <span class="keyword">val</span> record: <span class="type">MySAMRecord</span> = key.asInstanceOf[<span class="type">MySAMRecord</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> code = record.regionId % numPartitions</span><br><span class="line">    <span class="keyword">if</span> (code &lt; <span class="number">0</span>) &#123;</span><br><span class="line">      code + numPartitions</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      code</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">equals</span></span>(other: <span class="type">Any</span>): <span class="type">Boolean</span> = other <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> records: <span class="type">MySAMRecordPartitioner</span> =&gt;</span><br><span class="line">      records.numPartitions == numPartitions</span><br><span class="line">    <span class="keyword">case</span> _ =&gt;</span><br><span class="line">      <span class="literal">false</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">hashCode</span></span>(): <span class="type">Int</span> = numPartitions</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>当我的数据输入是<code>RDD[MySAMRecord]</code>时，为了使用<code>repartitionAndSortWithinPartitions</code>，需要将输入转换成键值对形式，RDD[(MySAMRecord, None)]，repartition之后，每个partition中的数据就会被自动排序完成，从源码注释当中我们也可以看到，这样子操作是比repartition之后再在每个分区中sorting是要快的，因为这个排序是在shffle的同时进行的，对数据的遍历在shffle的时候只进行了一次，效率当然会高很多。之后再使用mapPartition对每个分区进行操作的时候，每个partition所对应的Iterable就已经是有序的了，不需要再进行新的排序操作。</p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ol>
 <li>在处理的数据比较大的时候，尽量不要使用groupByKey操作，这个操作的效率很低，可以使用reduceByKey(当需要后续操作的时候)来代替，也可以使用partitionBy，repartition等接口进行替代。</li>
@@ -1492,10 +1665,12 @@
         
           <p>最近将Spark集群部署到了Mesos之上，运行Spark程序时，能够方便的在Mesos的sandbox中查看程序运行时产生的stderr和stdout，并且这两个文件可以动态加载，不像在Spark管理界面上需要手动点击load more才能加载出来，十分方便。但是也发现了一个问题，当调试Spark代码时手动kill掉spark-submit的进程，或者Ctrl-c时，spark的程序已经停止了，但是在Mesos的管理界面上有时候还会看到有Job在运行，会占用资源，影响之后提交的程序的资源获取。但是Mesos网页管理界面上又没有像Spark管理界面上的kill按钮，就一时不知道如何kill掉这些实际已经不在运行的Job。在Stack Overflow上查到了几种方法，其中我觉得比较好用的一个贴在这里方便之后查看。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -XPOST http://mesos-master-ip-address:5050/master/teardown -d <span class="string">'frameworkId=&lt;frameId-you-want-to-kill&gt;'</span></span><br></pre></td></tr></table></figure>
+
 <p>这里使用到了Mesos的HTTP Endpoint teardown，有很多人可能会查到是shutdown，但是从Mesos某个版本之后，已经从shutdown改为了teardown，具体的有关HTTP Endpoint的官方文档说明在参考文档当中。</p>
 <p>指令发送了一个POST请求给Mesos的一个HTTP Endpoint，要求关闭指定frameworkId的framework。可以将这个指令写在<code>~/.bashrc</code>中，方便之后使用，如下：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="title">killmesostask</span></span>()&#123; curl -XPOST http://gpu-server5:5050/master/teardown -d <span class="string">'frameworkId='</span><span class="variable">$@</span><span class="string">''</span>; &#125; ;</span><br></pre></td></tr></table></figure>
-<p>之后就可以使用<code>killmesostask &lt;frameworkId&gt;</code>的方式来kill指定Id的framework，需要注意的是这个指令一定要在mesos的master所在的服务器上运行，如果使用了zookeeper，master有时候会发生变化，需要在每个运行mesos-master进程的机器上都加上这个语句，需要kill的时候在对应那个时刻为master的机器上运行指令。<br>
+
+<p>之后就可以使用<code>killmesostask &lt;frameworkId&gt;</code>的方式来kill指定Id的framework，需要注意的是这个指令一定要在mesos的master所在的服务器上运行，如果使用了zookeeper，master有时候会发生变化，需要在每个运行mesos-master进程的机器上都加上这个语句，需要kill的时候在对应那个时刻为master的机器上运行指令。</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017/11/16/Mesos-kill-framework的方法/#more" rel="contents">
@@ -1505,7 +1680,7 @@
           <!--/noindex-->
         
       
-    </p></div>
+    </div>
 
     
 
@@ -1634,6 +1809,7 @@
         
           
             <h3 id="1-安装iTerm2"><a href="#1-安装iTerm2" class="headerlink" title="1.安装iTerm2"></a>1.安装iTerm2</h3><h3 id="2-安装oh-my-zsh"><a href="#2-安装oh-my-zsh" class="headerlink" title="2.安装oh-my-zsh"></a>2.安装oh-my-zsh</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh -c &quot;$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&quot;</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>使用该指令能自动切换bash为zsh</li>
 <li>将oh-my-zsh的主题切换为ys</li>
@@ -1646,6 +1822,7 @@
 <li>在.zshrc中添加如下内容</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">if brew list | grep coreutils &gt; /dev/null ; then</span><br><span class="line">	PATH=&quot;$(brew --prefix coreutils)/libexec/gnubin:$PATH&quot;</span><br><span class="line">	alias ls=&apos;ls -F --show-control-chars --color=auto&apos;</span><br><span class="line">	eval `gdircolors -b $HOME/.dir_colors`</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+
 <h3 id="4-修改vim主题"><a href="#4-修改vim主题" class="headerlink" title="4.修改vim主题"></a>4.修改vim主题</h3><ul>
 <li><code>git clone git://github.com/altercation/solarized.git</code></li>
 <li><code>mkdir -p ~/.vim/colors</code></li>
@@ -1653,162 +1830,6 @@
 <li><code>vim ~/.vimrc</code>，添加如下内容</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">syntax enable</span><br><span class="line">set background=dark</span><br><span class="line">colorscheme solarized</span><br><span class="line">set nu</span><br></pre></td></tr></table></figure>
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/08/python/普通用户安装CNVkit/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jiayi Liu">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Joey's Notes">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/08/08/python/普通用户安装CNVkit/" itemprop="url">
-                  普通用户安装CNVkit
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-                
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-08T10:49:54+08:00">2017-08-08</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>安装python的library的时候经常需要sudo权限，原因是许多机器上安装的python都是使用apt-get(ubuntu)、yum(CentOS)安装的，在这种情况下python被安装到了root用户目录下，再使用pip安装各种库的时候，有时候库需要被安装到这些root用户目录下，就会出现权限问题。解决这个问题的方法是通过源码安装python到普通用户目录下，再通过源码安装setuptools和pip便能在普通用户下安装python的各种库。</p>
-<h2 id="1-编译安装python"><a href="#1-编译安装python" class="headerlink" title="1.编译安装python"></a>1.编译安装python</h2><p>下载python源码，<a href="https://www.python.org/downloads/source/" target="_blank" rel="noopener">https://www.python.org/downloads/source/</a><br>这里选择python2.7.13进行测试，<a href="https://www.python.org/downloads/release/python-2713/" target="_blank" rel="noopener">https://www.python.org/downloads/release/python-2713/</a><br>下载xz压缩格式的源码，使用<code>tar -xvf Python-2.7.13.tar.xz</code>解压后进入目录，<code>./configure --prefix=/home/spark/Softwares/python2</code>通过<code>--prefix</code>指定安装目录为普通用户目录，<code>make</code>进行编译，<code>make install</code>进行安装。之后在<code>~/.bashrc</code>文件内添加PATH指定python的安装路径<code>export PATH=/home/spark/Softwares/python2/bin:$PATH</code>，然后<code>source ~/.bashrc</code>，此时python便被指定为编译安装的python了。</p>
-<h2 id="2-编译安装setuptools和pip"><a href="#2-编译安装setuptools和pip" class="headerlink" title="2.编译安装setuptools和pip"></a>2.编译安装setuptools和pip</h2><p>下载setuptools源码，<a href="https://pypi.python.org/pypi/setuptools" target="_blank" rel="noopener">https://pypi.python.org/pypi/setuptools</a></p>
-<p>下载zip压缩格式源码，使用<code>unzip setuptools-36.2.7.zip</code>进行解压，进入目录之后使用<code>python setup.py install</code>进行安装，此时需要确保python指令指向的是之前编译安装的python。</p>
-<p>下载pip源码，<a href="https://pypi.python.org/pypi/pip" target="_blank" rel="noopener">https://pypi.python.org/pypi/pip</a></p>
-<p>下载tar.gz格式的源码，使用<code>tar -zxvf pip-9.0.1.tar.gz</code>进行解压，进入目录后，首先使用<code>python setup.py build</code>进行编译，然后使用<code>python setup.py install</code>进行安装，这之后会发现在编译安装python的路径的bin目录中会有pip和setuptools程序。由于之前已经添加该bin目录到PATH环境变量当中，此时使用pip安装即为普通用户目录下的pip，可以不需要sudo权限安装各种library。</p>
-
           
         
       
@@ -1895,7 +1916,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1965,7 +1986,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

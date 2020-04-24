@@ -97,18 +97,18 @@
 
 
 
-  <meta name="description" content="使用pymysql替代MySQLdbDjango与mysql进行连接使用的是MySQLdb模块，但是该模块并不支持python3，需要使用别的库来替代MySQLdb，这里采用的是pymysql，可以使用pip来安装 1pip3 install pymysql 之后在Django的站点文件夹中的init.py文件夹中添加如下代码即可 12import pymysqlpymysql.install_a">
+  <meta name="description" content="使用pymysql替代MySQLdbDjango与mysql进行连接使用的是MySQLdb模块，但是该模块并不支持python3，需要使用别的库来替代MySQLdb，这里采用的是pymysql，可以使用pip来安装 1pip3 install pymysql  之后在Django的站点文件夹中的init.py文件夹中添加如下代码即可 12import pymysqlpymysql.install_">
 <meta name="keywords" content="python">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Django连接mysql数据库">
 <meta property="og:url" content="http://yoursite.com/2016/10/17/Django/Django连接mysql数据库/index.html">
 <meta property="og:site_name" content="Joey&#39;s Notes">
-<meta property="og:description" content="使用pymysql替代MySQLdbDjango与mysql进行连接使用的是MySQLdb模块，但是该模块并不支持python3，需要使用别的库来替代MySQLdb，这里采用的是pymysql，可以使用pip来安装 1pip3 install pymysql 之后在Django的站点文件夹中的init.py文件夹中添加如下代码即可 12import pymysqlpymysql.install_a">
+<meta property="og:description" content="使用pymysql替代MySQLdbDjango与mysql进行连接使用的是MySQLdb模块，但是该模块并不支持python3，需要使用别的库来替代MySQLdb，这里采用的是pymysql，可以使用pip来安装 1pip3 install pymysql  之后在Django的站点文件夹中的init.py文件夹中添加如下代码即可 12import pymysqlpymysql.install_">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2020-03-13T07:47:52.257Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Django连接mysql数据库">
-<meta name="twitter:description" content="使用pymysql替代MySQLdbDjango与mysql进行连接使用的是MySQLdb模块，但是该模块并不支持python3，需要使用别的库来替代MySQLdb，这里采用的是pymysql，可以使用pip来安装 1pip3 install pymysql 之后在Django的站点文件夹中的init.py文件夹中添加如下代码即可 12import pymysqlpymysql.install_a">
+<meta name="twitter:description" content="使用pymysql替代MySQLdbDjango与mysql进行连接使用的是MySQLdb模块，但是该模块并不支持python3，需要使用别的库来替代MySQLdb，这里采用的是pymysql，可以使用pip来安装 1pip3 install pymysql  之后在Django的站点文件夹中的init.py文件夹中添加如下代码即可 12import pymysqlpymysql.install_">
 
 
 
@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -382,20 +382,27 @@
       
         <h3 id="使用pymysql替代MySQLdb"><a href="#使用pymysql替代MySQLdb" class="headerlink" title="使用pymysql替代MySQLdb"></a>使用pymysql替代MySQLdb</h3><p>Django与mysql进行连接使用的是MySQLdb模块，但是该模块并不支持python3，需要使用别的库来替代MySQLdb，这里采用的是pymysql，可以使用pip来安装</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install pymysql</span><br></pre></td></tr></table></figure>
+
 <p>之后在Django的站点文件夹中的<strong>init</strong>.py文件夹中添加如下代码即可</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pymysql</span><br><span class="line">pymysql.install_as_MySQLdb()</span><br></pre></td></tr></table></figure>
+
 <a id="more"></a>
 <h3 id="修改setting-py文件"><a href="#修改setting-py文件" class="headerlink" title="修改setting.py文件"></a>修改setting.py文件</h3><p>在setting.py文件中修改DATABASES中的内容如下</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">DATABASES = &#123;</span><br><span class="line">	<span class="string">'default'</span>: &#123;</span><br><span class="line">        <span class="string">'ENGINE'</span>: <span class="string">'django.db.backends.mysql'</span>,</span><br><span class="line">        <span class="string">'NAME'</span>: <span class="string">'&lt;database_name&gt;'</span>,</span><br><span class="line">        <span class="string">'USER'</span>: <span class="string">'&lt;user_name&gt;'</span>,</span><br><span class="line">        <span class="string">'PASSWORD'</span>: <span class="string">'&lt;password&gt;'</span>,</span><br><span class="line">        <span class="string">'HOST'</span>: <span class="string">'&lt;ip_address&gt;'</span>,</span><br><span class="line">        <span class="string">'PORT'</span>: <span class="string">'&lt;port_num&gt;'</span>,</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <h3 id="添加测试表"><a href="#添加测试表" class="headerlink" title="添加测试表"></a>添加测试表</h3><p>使用startapp users命令来新建一个名称为users的app，并在users文件夹中的models.py文件中添加如下内容进行测试</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> django.db <span class="keyword">import</span> models</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">User</span><span class="params">(models.Model)</span>:</span></span><br><span class="line">    username = models.CharField(max_length=<span class="number">32</span>)</span><br><span class="line">    password = models.CharField(max_length=<span class="number">32</span>)</span><br><span class="line">    nickname = models.CharField(max_length=<span class="number">200</span>)</span><br></pre></td></tr></table></figure>
+
 <p>通过以上代码，会在数据库中创建一个叫users_user的表，表中有三个字段为username、password和nickname，字段的类型、特性可以在新建字段时进行设置</p>
 <h3 id="manage-py运行命令"><a href="#manage-py运行命令" class="headerlink" title="manage.py运行命令"></a>manage.py运行命令</h3><p>首先运行如下命令</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 manage.py makemigrations users</span><br></pre></td></tr></table></figure>
+
 <p>通过运行makemigrations，可以告诉Django框架在users中model有所改变，使得这些改变会被作为migration进行存储。Migration是Django用于存储model的变化，只是在硬盘上存储的文件，可以从硬盘当中读取migration文件进行查看。例如上例中产生的migration文件存储在<code>users/migrations/0001_initial.py</code>当中，可以通过如下命令查看其中的SQL语句内容</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 manage.py sqlmigrate users 0001</span><br></pre></td></tr></table></figure>
+
 <p>要想在数据库中真正创建上例中的表，需要运行如下命令</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python3 manage.py migrate</span><br></pre></td></tr></table></figure>
+
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>三个步骤来改变数据库结构</p>
 <ul>
 <li>在model.py中改变数据库结构</li>
@@ -523,7 +530,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -593,7 +600,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

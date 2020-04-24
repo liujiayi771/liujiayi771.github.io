@@ -226,7 +226,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -242,7 +242,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -393,6 +393,7 @@
 <p>对于in-memory的Spark来说，了解一下其内存管理还是十分重要的，因为Spark的in-memory的计算特性，其对内存的消耗还是很巨大的，如果对Spark的内存管理不够了解便不能充分利用所有的内存资源，并且很容易导致内存不够用时中间数据被缓存到了磁盘当中影响计算的速度。</p>
 <h2 id="Spark内存管理接口"><a href="#Spark内存管理接口" class="headerlink" title="Spark内存管理接口"></a>Spark内存管理接口</h2><p>Spark为存储内存和执行内存的管理提供了统一的抽象类——<a href="https://github.com/apache/spark/blob/branch-1.6/core/src/main/scala/org/apache/spark/memory/MemoryManager.scala" target="_blank" rel="noopener">MemoryManager</a>，同一个Executor内的任务都调用这个抽象类的方法来申请或释放内存，几个关键的内存管理接口定义如下：</p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">acquireStorageMemory</span></span>(</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    numBytes: <span class="type">Long</span>,</span><br><span class="line">    evictedBlocks: mutable.<span class="type">Buffer</span>[(<span class="type">BlockId</span>, <span class="type">BlockStatus</span>)]): <span class="type">Boolean</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">acquireUnrollMemory</span></span>(</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    numBytes: <span class="type">Long</span>,</span><br><span class="line">    evictedBlocks: mutable.<span class="type">Buffer</span>[(<span class="type">BlockId</span>, <span class="type">BlockStatus</span>)]): <span class="type">Boolean</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>[memory]</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">acquireExecutionMemory</span></span>(</span><br><span class="line">    numBytes: <span class="type">Long</span>,</span><br><span class="line">    taskAttemptId: <span class="type">Long</span>,</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Long</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>[memory]</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">releaseExecutionMemory</span></span>(</span><br><span class="line">    numBytes: <span class="type">Long</span>,</span><br><span class="line">    taskAttemptId: <span class="type">Long</span>,</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Unit</span> = synchronized &#123;</span><br><span class="line">  memoryMode <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span> =&gt; onHeapExecutionMemoryPool.releaseMemory(numBytes, taskAttemptId)</span><br><span class="line">    <span class="keyword">case</span> <span class="type">MemoryMode</span>.<span class="type">OFF_HEAP</span> =&gt; offHeapExecutionMemoryPool.releaseMemory(numBytes, taskAttemptId)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>[memory] <span class="function"><span class="keyword">def</span> <span class="title">releaseAllExecutionMemoryForTask</span></span>(taskAttemptId: <span class="type">Long</span>): <span class="type">Long</span> = synchronized &#123;</span><br><span class="line">  onHeapExecutionMemoryPool.releaseAllMemoryForTask(taskAttemptId) +</span><br><span class="line">    offHeapExecutionMemoryPool.releaseAllMemoryForTask(taskAttemptId)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">releaseStorageMemory</span></span>(numBytes: <span class="type">Long</span>): <span class="type">Unit</span> = synchronized &#123;</span><br><span class="line">  storageMemoryPool.releaseMemory(numBytes)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">final</span> <span class="function"><span class="keyword">def</span> <span class="title">releaseAllStorageMemory</span></span>(): <span class="type">Unit</span> = synchronized &#123;</span><br><span class="line">  storageMemoryPool.releaseAllMemory()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">final</span> <span class="function"><span class="keyword">def</span> <span class="title">releaseUnrollMemory</span></span>(numBytes: <span class="type">Long</span>): <span class="type">Unit</span> = synchronized &#123;</span><br><span class="line">  releaseStorageMemory(numBytes)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>Spark的内存系统随着Spark版本的发展具有非常多的变化，1.6.0版本之后新的内存管理模块的实现类为<a href="https://github.com/apache/spark/blob/branch-1.6/core/src/main/scala/org/apache/spark/memory/UnifiedMemoryManager.scala" target="_blank" rel="noopener">UnifiedMemoryManager</a>，1.6.0版本之前采用的静态管理<a href="https://github.com/apache/spark/blob/branch-1.6/core/src/main/scala/org/apache/spark/memory/StaticMemoryManager.scala" target="_blank" rel="noopener">StaticMemoryManager</a>方式仍被保留，称为Legacy模式。Legacy模式默认是关闭的，需要通过增加一个配置参数<code>spark.memory.useLegacyMode=true</code>来开启。</p>
 <h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><h2 id="静态内存管理"><a href="#静态内存管理" class="headerlink" title="静态内存管理"></a>静态内存管理</h2><p>首先来简略地了解一下Spark 1.6.0版本之前的内存管理模型，对于一个Executor，内存一般由3个部分构成：</p>
 <ol>
@@ -407,6 +408,7 @@
 <ol>
 <li><p><strong>Reserved Memory</strong>，这块内存区域是Spark系统预留的内存区域，用于存储Spark的内部对象，它的大小是在源码当中固定死的，为300MB，我们可以从源码中看到这段对Reserved Memory限定的代码：</p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Set aside a fixed amount of memory for non-storage, non-execution purposes.</span></span><br><span class="line"><span class="comment">// This serves a function similar to `spark.memory.fraction`, but guarantees that we reserve</span></span><br><span class="line"><span class="comment">// sufficient memory for the system even for small heaps. E.g. if we have a 1GB JVM, then</span></span><br><span class="line"><span class="comment">// the memory used for execution and storage will be (1024 - 300) * 0.75 = 434MB by default.</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">val</span> <span class="type">RESERVED_SYSTEM_MEMORY_BYTES</span> = <span class="number">300</span> * <span class="number">1024</span> * <span class="number">1024</span></span><br></pre></td></tr></table></figure>
+
 <p>Reserved Memory的大小只能通过自己编译修改过的Spark源码来实现更改，还有一点需要说明的是，如果给每个Executor设定的内存值小于<code>1.5 * Reserved Memory = 450MB</code>，Executor将不会被正常启动，会报一个错误信息“please use larger heap size”。我们也可以从源码的注释信息中看到，用于execution和storage的内存大小为<code>(Java Heap Memory - Reserved Memory) * 0.75</code>，即Spark 1.6.0中<code>spark.memory.fraction</code>的默认值为0.75，但是目前版本的Spark，其默认值为0.6。</p>
 </li>
 <li><p><strong>User Memory</strong>，这块内存区域为用户内存，用于用户保存在RDD转换操作中需要使用的自己的数据结构。这块区域的大小为<code>(Java Heap Memory - Reserved Memory) * (1 - spark.memory.fraction)</code>，对于这块区域的使用，Spark对于用户使用这块内存区域做什么以及使用的内存是否会超出这个区域的限制都不加管束，因此用户在使用时如果不加注意，很容易产生OOM的问题。</p>
@@ -547,7 +549,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -617,7 +619,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

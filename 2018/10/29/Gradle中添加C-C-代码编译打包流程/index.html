@@ -221,7 +221,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -237,7 +237,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -364,9 +364,11 @@
         <p>写过JNI代码的同学应该都有遇到过这样的问题，我们可以很方便的使用Maven、Gradle等工具将我们写好的Java代码打包成一个jar包进行发布，但是当我们的代码当中包含有C/C++的代码时，我们可能需要额外再去运行一次make指令去编译C/C++的代码，并将编译出的库和jar包一起发布（在大多数情况下so文件和jar包是分开的）。实际上，我们可以使用Gradle在打包的同时自动编译我们的C/C++代码，同时将so文件打包到jar包之中，这样在运行jar包时不需要指定<code>java.library.path</code>也能正确读取到so文件，并且发布时只有一个文件，更为方便。</p>
 <h4 id="Exec-Task"><a href="#Exec-Task" class="headerlink" title="Exec Task"></a>Exec Task</h4><p>我们知道，Gradle的执行过程可以分为很多的Task进行，要实现Gradle自动编译C/C++代码我们需要首先了解一下Exec Task。Exec Task是用来执行一个命令行语句的，例如：</p>
 <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">task</span> stopTomcat(type: Exec) &#123;</span><br><span class="line">	workingDir <span class="string">'../tomcat/bin'</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//on windows:</span></span><br><span class="line">	commandLine <span class="string">'cmd'</span>, <span class="string">'/c'</span>, <span class="string">'stop.bat'</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//on linux:</span></span><br><span class="line">	commandLine <span class="string">'./stop.sh'</span></span><br><span class="line">	</span><br><span class="line">	<span class="comment">//store the output instead of printing to the console:</span></span><br><span class="line">	standardOutput = <span class="keyword">new</span> ByteArrayOutputStream()</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//extension method stopTomcat.output() can be used to obtain the output:</span></span><br><span class="line">	ext.output = &#123;</span><br><span class="line">		<span class="keyword">return</span> standardOutput.toString()</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>具体有关这个Task的详细说明可以看这个：<a href="https://docs.gradle.org/current/dsl/org.gradle.api.tasks.Exec.html" target="_blank" rel="noopener">https://docs.gradle.org/current/dsl/org.gradle.api.tasks.Exec.html</a></p>
 <h4 id="使用Exec-Task来编译C-C-代码"><a href="#使用Exec-Task来编译C-C-代码" class="headerlink" title="使用Exec Task来编译C/C++代码"></a>使用Exec Task来编译C/C++代码</h4><p>当然，Exec Task用来编译C/C++代码使用的是make指令，如果使用的是cmake，也可以先执行cmake再执行make，无非是多加几个Exec Task。这里具体的写法如下：</p>
 <figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">String cpath = <span class="string">"native"</span></span><br><span class="line">String libname = <span class="string">"libpairhmm"</span></span><br><span class="line"><span class="keyword">task</span> buildLib(type: Exec) &#123;</span><br><span class="line">	workingDir <span class="string">"$cpath"</span></span><br><span class="line">	outputs.files <span class="string">"$cpath/libpairhmm*"</span></span><br><span class="line">	outputs.dir <span class="string">"$cpath/pairhmm"</span></span><br><span class="line">	commandLine <span class="string">"make all"</span></span><br><span class="line">	String home = System.properties.<span class="string">"java.home"</span></span><br><span class="line">	<span class="comment">//strip the trailing jre</span></span><br><span class="line">	String corrected = home.endsWith(<span class="string">"jre"</span>) ? home.substring(<span class="number">0</span>, home.length() - <span class="number">4</span>) : home</span><br><span class="line">	environment JAVA_HOME : corrected</span><br><span class="line">	<span class="keyword">doFirst</span> &#123; <span class="keyword">println</span> <span class="string">"using $home -&gt; $corrected as JAVA_HOME"</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">clean &#123;</span><br><span class="line">	<span class="keyword">delete</span> <span class="string">"$cpath/pairhmm"</span></span><br><span class="line">	<span class="keyword">delete</span> <span class="string">"$cpath/$libname*"</span></span><br><span class="line">	<span class="keyword">delete</span> <span class="keyword">fileTree</span>(<span class="string">"$cpath"</span>) &#123; <span class="keyword">include</span> <span class="string">"$libname*"</span>, <span class="string">"*.o"</span> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">processResources &#123;</span><br><span class="line">	dependsOn buildLib</span><br><span class="line">	<span class="keyword">from</span> cpath</span><br><span class="line">	<span class="keyword">include</span> <span class="string">"$libname*"</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>这里buildLib这个task就是一个Exec Task，其中定义的流程就是执行make all指令来编译C/C++代码，clean的作用就是清除编译产生的lib文件和o文件（在调用gradle clean的时候调用清除工作），processResources即处理资源文件，其作用就是将编译产生的库文件拷贝到jar包当中。</p>
 
       
@@ -483,7 +485,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -553,7 +555,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

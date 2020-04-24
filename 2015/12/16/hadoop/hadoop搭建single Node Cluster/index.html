@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -386,6 +386,7 @@
 </li>
 <li><p>使用以下命令来添加用户</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo adduser --ingroup hadoop hadoop</span><br></pre></td></tr></table></figure>
+
 </li>
 </ul>
 <a id="more"></a>
@@ -407,12 +408,16 @@
 </li>
 <li><p>若能正确连接localhost则说明SSH配置正确</p>
 </li>
-<li>若看到如下错误响应，可能SSH在此系统不可用，可以purge掉openssh-server之后重新进行安装</li>
+<li><p>若看到如下错误响应，可能SSH在此系统不可用，可以purge掉openssh-server之后重新进行安装</p>
+</li>
 </ul>
 <h3 id="3-安装、配置Java"><a href="#3-安装、配置Java" class="headerlink" title="3. 安装、配置Java"></a>3. 安装、配置Java</h3><ul>
-<li>在浏览器中打开网址： <a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html" target="_blank" rel="noopener">http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html</a></li>
-<li>下载最新的稳定的jdk(Java SE Developmet Kit)</li>
-<li>将下载的文件解压到目录<code>/opt/java/jdk</code>，并改名为<code>jdk1.8</code>（我下载的是1.8版本的JDK）</li>
+<li><p>在浏览器中打开网址： <a href="http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html" target="_blank" rel="noopener">http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html</a></p>
+</li>
+<li><p>下载最新的稳定的jdk(Java SE Developmet Kit)</p>
+</li>
+<li><p>将下载的文件解压到目录<code>/opt/java/jdk</code>，并改名为<code>jdk1.8</code>（我下载的是1.8版本的JDK）</p>
+</li>
 <li><p>修改<code>/etc/bash.bashrc</code>文件，在最后加上如下内容</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">export</span> JAVA_HOME=/opt/java/jdk/jdk1.8</span><br><span class="line"><span class="built_in">export</span> CLASSPATH=<span class="variable">$&#123;JAVA_HOME&#125;</span>/lib</span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$&#123;JAVA_HOME&#125;</span>/bin:<span class="variable">$PATH</span></span><br></pre></td></tr></table></figure>
 </li>
@@ -421,12 +426,14 @@
 </li>
 <li><p>若输出如下内容，则说明安装、配置正确</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">java version <span class="string">"1.8.0_65"</span></span><br><span class="line">Java(TM) SE Runtime Environment (build 1.8.0_65-b17)</span><br><span class="line">Java HotSpot(TM) 64-Bit Server VM (build 25.65-b01, mixed mode)</span><br></pre></td></tr></table></figure>
+
 </li>
 </ul>
 <h3 id="4-下载Hadoop"><a href="#4-下载Hadoop" class="headerlink" title="4. 下载Hadoop"></a>4. 下载Hadoop</h3><ul>
 <li>在浏览器中打开网址：  <a href="http://hadoop.apache.org/releases.html" target="_blank" rel="noopener">http://hadoop.apache.org/releases.html</a></li>
 <li>下载新版本的二进制包，下载完成后解压到目录<code>/usr/local</code>，并改名为<code>hadoop</code></li>
 <li>更改文件权限，使hadoop用户能够拥有该文件夹的权限<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span></span><br><span class="line">sudo chown -R hadoop:hadoop hadoop</span><br></pre></td></tr></table></figure>
+
 </li>
 </ul>
 <h3 id="5-配置Hadoop"><a href="#5-配置Hadoop" class="headerlink" title="5. 配置Hadoop"></a>5. 配置Hadoop</h3><ul>
@@ -454,6 +461,7 @@
 </li>
 <li><p>配置<code>/usr/local/hadoop/etc/hadoop/hdfs-site.xml</code></p>
 <figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">	  <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.replication<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">	  <span class="tag">&lt;<span class="name">value</span>&gt;</span>1<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	  <span class="tag">&lt;<span class="name">description</span>&gt;</span>Default block replication.</span><br><span class="line">	  The actual number of replications can be specified when the file is created.</span><br><span class="line">	  The default is used if replication is not specified in create time.</span><br><span class="line">	  <span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.data.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">value</span>&gt;</span>/home/hadoop/hdfs<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
 </li>
 </ul>
 <h3 id="6-使用Hadoop"><a href="#6-使用Hadoop" class="headerlink" title="6. 使用Hadoop"></a>6. 使用Hadoop</h3><ul>
@@ -467,9 +475,12 @@
 </li>
 <li><p>也可以使用<code>/usr/local/hadoop/sbin/start-all.sh</code>来启动所有功能</p>
 </li>
-<li>使用jps验证是否所有Hadoop相关的Java进程正在运行<code>/opt/java/jdk/jdk1.8/bin/jps</code></li>
-<li>关闭Hadoop相关功能使用<code>stop-*.sh</code>，具体可以参照<code>/usr/local/hadoop/sbin</code>中的文件内容</li>
-<li>测试<ul>
+<li><p>使用jps验证是否所有Hadoop相关的Java进程正在运行<code>/opt/java/jdk/jdk1.8/bin/jps</code></p>
+</li>
+<li><p>关闭Hadoop相关功能使用<code>stop-*.sh</code>，具体可以参照<code>/usr/local/hadoop/sbin</code>中的文件内容</p>
+</li>
+<li><p>测试</p>
+<ul>
 <li>ALL Application: <a href="http://localhost:8088/" target="_blank" rel="noopener">http://localhost:8088/</a></li>
 <li>DataNode: <a href="http://localhost:50070/" target="_blank" rel="noopener">http://localhost:50070/</a></li>
 </ul>
@@ -596,7 +607,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -666,7 +677,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

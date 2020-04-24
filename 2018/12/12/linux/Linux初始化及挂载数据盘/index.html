@@ -97,18 +97,18 @@
 
 
 
-  <meta name="description" content="磁盘分区形式常用的磁盘分区形式如下表所示，并且针对Linux操作系统，不同的磁盘分区形式需要选择不同的分区工具。    磁盘分区形式 支持最大磁盘容量 支持分区数量 Linux分区工具     主启动记录分区（MBR） 2TB 4个主分区3个主分区和1个扩展分区说明：MBR分区包含主分区和扩展分区，其中扩展分区里面可以包含若干个逻辑分区。以创建六个分区为例，以下两种分区情况供参考：3个主分区，一个">
+  <meta name="description" content="磁盘分区形式常用的磁盘分区形式如下表所示，并且针对Linux操作系统，不同的磁盘分区形式需要选择不同的分区工具。    磁盘分区形式 支持最大磁盘容量 支持分区数量 Linux分区工具    主启动记录分区（MBR） 2TB 4个主分区3个主分区和1个扩展分区说明：MBR分区包含主分区和扩展分区，其中扩展分区里面可以包含若干个逻辑分区。以创建六个分区为例，以下两种分区情况供参考：3个主分区，一个扩">
 <meta name="keywords" content="Linux">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Linux初始化及挂载数据盘">
 <meta property="og:url" content="http://yoursite.com/2018/12/12/linux/Linux初始化及挂载数据盘/index.html">
 <meta property="og:site_name" content="Joey&#39;s Notes">
-<meta property="og:description" content="磁盘分区形式常用的磁盘分区形式如下表所示，并且针对Linux操作系统，不同的磁盘分区形式需要选择不同的分区工具。    磁盘分区形式 支持最大磁盘容量 支持分区数量 Linux分区工具     主启动记录分区（MBR） 2TB 4个主分区3个主分区和1个扩展分区说明：MBR分区包含主分区和扩展分区，其中扩展分区里面可以包含若干个逻辑分区。以创建六个分区为例，以下两种分区情况供参考：3个主分区，一个">
+<meta property="og:description" content="磁盘分区形式常用的磁盘分区形式如下表所示，并且针对Linux操作系统，不同的磁盘分区形式需要选择不同的分区工具。    磁盘分区形式 支持最大磁盘容量 支持分区数量 Linux分区工具    主启动记录分区（MBR） 2TB 4个主分区3个主分区和1个扩展分区说明：MBR分区包含主分区和扩展分区，其中扩展分区里面可以包含若干个逻辑分区。以创建六个分区为例，以下两种分区情况供参考：3个主分区，一个扩">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2020-03-13T07:47:52.261Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Linux初始化及挂载数据盘">
-<meta name="twitter:description" content="磁盘分区形式常用的磁盘分区形式如下表所示，并且针对Linux操作系统，不同的磁盘分区形式需要选择不同的分区工具。    磁盘分区形式 支持最大磁盘容量 支持分区数量 Linux分区工具     主启动记录分区（MBR） 2TB 4个主分区3个主分区和1个扩展分区说明：MBR分区包含主分区和扩展分区，其中扩展分区里面可以包含若干个逻辑分区。以创建六个分区为例，以下两种分区情况供参考：3个主分区，一个">
+<meta name="twitter:description" content="磁盘分区形式常用的磁盘分区形式如下表所示，并且针对Linux操作系统，不同的磁盘分区形式需要选择不同的分区工具。    磁盘分区形式 支持最大磁盘容量 支持分区数量 Linux分区工具    主启动记录分区（MBR） 2TB 4个主分区3个主分区和1个扩展分区说明：MBR分区包含主分区和扩展分区，其中扩展分区里面可以包含若干个逻辑分区。以创建六个分区为例，以下两种分区情况供参考：3个主分区，一个扩">
 
 
 
@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -367,26 +367,24 @@
 <thead>
 <tr>
 <th>磁盘分区形式</th>
-<th style="text-align:center">支持最大磁盘容量</th>
-<th style="text-align:left">支持分区数量</th>
-<th style="text-align:left">Linux分区工具</th>
+<th align="center">支持最大磁盘容量</th>
+<th align="left">支持分区数量</th>
+<th align="left">Linux分区工具</th>
 </tr>
 </thead>
-<tbody>
-<tr>
+<tbody><tr>
 <td>主启动记录分区（MBR）</td>
-<td style="text-align:center">2TB</td>
-<td style="text-align:left"><li>4个主分区</li><li>3个主分区和1个扩展分区</li><br>说明：<br>MBR分区包含主分区和扩展分<br>区，其中扩展分区里面可以包<br>含若干个逻辑分区。以创建六<br>个分区为例，以下两种分区情<br>况供参考：<br><li>3个主分区，一个扩展分区，<br>其中扩展分区包含3个逻辑分<br>区。</li><li>1个主分区，1个扩展分区，<br>其中扩展分区中包含5个逻辑<br>分区。</li></td>
-<td style="text-align:left">以下两种工具均可以使用：<br><li>fdisk工具</li><li>parted工具</li></td>
+<td align="center">2TB</td>
+<td align="left"><li>4个主分区</li><li>3个主分区和1个扩展分区</li><br>说明：<br>MBR分区包含主分区和扩展分<br>区，其中扩展分区里面可以包<br>含若干个逻辑分区。以创建六<br>个分区为例，以下两种分区情<br>况供参考：<br><li>3个主分区，一个扩展分区，<br>其中扩展分区包含3个逻辑分<br>区。</li><li>1个主分区，1个扩展分区，<br>其中扩展分区中包含5个逻辑<br>分区。</li></td>
+<td align="left">以下两种工具均可以使用：<br><li>fdisk工具</li><li>parted工具</li></td>
 </tr>
 <tr>
 <td>全局分区表<br>(GPT, Guid Partition Table)</td>
-<td style="text-align:center">18EB<br>(1EB=1048576TB)</td>
-<td style="text-align:left">不限制分区数量<br>说明：<br>GPT格式下没有主分区、扩展分区以及逻辑分区之分</td>
-<td style="text-align:left">parted工具</td>
+<td align="center">18EB<br>(1EB=1048576TB)</td>
+<td align="left">不限制分区数量<br>说明：<br>GPT格式下没有主分区、扩展分区以及逻辑分区之分</td>
+<td align="left">parted工具</td>
 </tr>
-</tbody>
-</table>
+</tbody></table>
 <blockquote>
 <p>注意事项：<br>MBR格式分区最大支持的容量是2TB，如果硬盘的容量大于2TB，则必须选择GPT的分区形式，并且使用parted进行分区。当磁盘已经投入使用后，此时切换磁盘分区形式时，磁盘上的原有数据将会被清除，因此请在磁盘初始化时谨慎选择磁盘分区形式。</p>
 </blockquote>
@@ -396,14 +394,22 @@
 </li>
 <li><p><code>fdisk 新增数据盘</code>，例如<code>fdisk /dev/sdb</code></p>
 </li>
-<li>输入n，按Enter开始新建分区，这里n代表new</li>
-<li>接下来会让我们选择p还是e，p代表主要分区，e代表延伸分区，对于新增加的硬盘一般选择p</li>
-<li>选择分区号，对于新增硬盘，一般选择1</li>
-<li>选择初始磁柱编号，新增硬盘选择默认的2048即可</li>
-<li>选择截止磁柱区域，选择默认的最大的磁柱区域即可，表示只建立一个分区，这个分区使用了硬盘的所有容量</li>
-<li>输入p，可以看到我们已经新建好的硬盘分区为<code>/dev/sdb1</code></li>
-<li>输入w，按Enter将分区结果写入分区表</li>
-<li>执行<code>partprobe</code>将新的分区表变更同步至操作系统</li>
+<li><p>输入n，按Enter开始新建分区，这里n代表new</p>
+</li>
+<li><p>接下来会让我们选择p还是e，p代表主要分区，e代表延伸分区，对于新增加的硬盘一般选择p</p>
+</li>
+<li><p>选择分区号，对于新增硬盘，一般选择1</p>
+</li>
+<li><p>选择初始磁柱编号，新增硬盘选择默认的2048即可</p>
+</li>
+<li><p>选择截止磁柱区域，选择默认的最大的磁柱区域即可，表示只建立一个分区，这个分区使用了硬盘的所有容量</p>
+</li>
+<li><p>输入p，可以看到我们已经新建好的硬盘分区为<code>/dev/sdb1</code></p>
+</li>
+<li><p>输入w，按Enter将分区结果写入分区表</p>
+</li>
+<li><p>执行<code>partprobe</code>将新的分区表变更同步至操作系统</p>
+</li>
 </ol>
 <h2 id="使用parted工具初始化磁盘（可以支持大于2TB的硬盘）"><a href="#使用parted工具初始化磁盘（可以支持大于2TB的硬盘）" class="headerlink" title="使用parted工具初始化磁盘（可以支持大于2TB的硬盘）"></a>使用parted工具初始化磁盘（可以支持大于2TB的硬盘）</h2><ol>
 <li><p><code>lsblk</code>查看新增数据盘信息，和上一个介绍的工具的<code>fdisk -l</code>的效果是一样的，可以看到例如<code>/dev/sdb</code>这样的新增盘，并且这种方式显示出来的结果更加直观一点，冗余的信息比较少。<br> 一般会显示如下信息（以下信息为分区后的情况，若新硬盘会看到一个没有分区的磁盘）：</p>
@@ -411,18 +417,26 @@
 </li>
 <li><p><code>parted 新增数据盘</code>，例如<code>parted /dev/sdb</code></p>
 </li>
-<li>输入p，按Enter查看当前磁盘的分区形式</li>
-<li>输入以下命令，设置磁盘分区形式。<code>mklabel 磁盘分区形式</code>，这里磁盘分区形式可以选择GPT和MBR，当然，大于2TB的硬盘只能选择GPT</li>
-<li>输入<code>unit s</code>，按Enter，设置磁盘的计量单位为磁柱</li>
-<li>以为整个磁盘创建一个分区为例，输入<code>mkparted data 2048s 100%</code>，按Enter。这里data为分区名称，2048s表示初始磁柱位置，100%表示从初始磁柱位置开始，占用100%的磁盘容量进行新建分区</li>
-<li>输入q，按Enter，退出parted</li>
+<li><p>输入p，按Enter查看当前磁盘的分区形式</p>
+</li>
+<li><p>输入以下命令，设置磁盘分区形式。<code>mklabel 磁盘分区形式</code>，这里磁盘分区形式可以选择GPT和MBR，当然，大于2TB的硬盘只能选择GPT</p>
+</li>
+<li><p>输入<code>unit s</code>，按Enter，设置磁盘的计量单位为磁柱</p>
+</li>
+<li><p>以为整个磁盘创建一个分区为例，输入<code>mkparted data 2048s 100%</code>，按Enter。这里data为分区名称，2048s表示初始磁柱位置，100%表示从初始磁柱位置开始，占用100%的磁盘容量进行新建分区</p>
+</li>
+<li><p>输入q，按Enter，退出parted</p>
+</li>
 </ol>
 <h2 id="格式化数据盘及挂载数据盘"><a href="#格式化数据盘及挂载数据盘" class="headerlink" title="格式化数据盘及挂载数据盘"></a>格式化数据盘及挂载数据盘</h2><p>数据盘分区好之后是不能直接挂载的，会显示unknown filesystem，需要进行格式化指定一个磁盘文件格式，以ext4格式为例，使用如下指令进行格式化:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkfs -t ext4 /dev/sdb1</span><br></pre></td></tr></table></figure>
+
 <p>之后便可以新建一个文件夹，例如<code>/mnt/data</code>将新硬盘挂载到该文件夹下，输入如下指令：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount /dev/sdb1 /mnt/data</span><br></pre></td></tr></table></figure>
+
 <p>这样做只能即使生效，重启后需要重新输入指令进行挂载，十分不方便，可以将磁盘挂载写入到<code>/etc/fstab</code>文件当中，这样就可以省去每次开机挂载的繁琐操作。首先使用<code>blkid /dev/sdb1</code>来查看新增分区的UUID号是多少，复制UUID，编辑<code>/etc/fstab</code>文件，在末尾加入一行:</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UUID=1851e23f-1c57-40ab-86bb-5fc5fc606ffa /mnt/data      ext4 defaults     0   2</span><br></pre></td></tr></table></figure>
+
 
       
     </div>
@@ -544,7 +558,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -614,7 +628,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

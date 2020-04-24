@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -383,11 +383,13 @@
         <h2 id="1-下载和安装PHP-5-6"><a href="#1-下载和安装PHP-5-6" class="headerlink" title="1. 下载和安装PHP 5.6"></a>1. 下载和安装PHP 5.6</h2><ul>
 <li>下载地址： <a href="http://php.net/downloads.php" target="_blank" rel="noopener">http://php.net/downloads.php</a></li>
 <li>解压之后使用如下指令进行安装<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">./configure \</span><br><span class="line">--prefix=/usr/<span class="built_in">local</span>/php \</span><br><span class="line">--with-curl \</span><br><span class="line">--with-gd \</span><br><span class="line">--<span class="built_in">enable</span>-sockets \</span><br><span class="line">--with-freetype-dir=/usr/<span class="built_in">local</span>/freetype \</span><br><span class="line">--<span class="built_in">enable</span>-mbstring \</span><br><span class="line">--<span class="built_in">enable</span>-bcmath \</span><br><span class="line">--<span class="built_in">enable</span>-gettext \</span><br><span class="line">--with-jpeg-dir=/usr/<span class="built_in">local</span>/jpeg \</span><br><span class="line">--with-config-file-path=/usr/<span class="built_in">local</span>/php/etc \</span><br><span class="line">--with-mysql=/usr/<span class="built_in">local</span>/mysql \</span><br><span class="line">--with-mysqli=/usr/<span class="built_in">local</span>/mysql/bin/mysql_config \</span><br><span class="line">--with-mysql-sock=/var/lib/mysql/mysql.sock \</span><br><span class="line">--with-pdo-mysql=/usr/<span class="built_in">local</span>/mysql \</span><br><span class="line">--<span class="built_in">enable</span>-fpm \</span><br><span class="line">--<span class="built_in">disable</span>-fileinfo</span><br><span class="line"></span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
 </li>
 </ul>
 <a id="more"></a>
 <ul>
-<li>对于内存小于1G的电脑来说，make时可能会出现内存溢出的问题，解决方法为./configure加上选项–disable-fileinfo<h2 id="2-配置PHP"><a href="#2-配置PHP" class="headerlink" title="2. 配置PHP"></a>2. 配置PHP</h2></li>
+<li><p>对于内存小于1G的电脑来说，make时可能会出现内存溢出的问题，解决方法为./configure加上选项–disable-fileinfo</p>
+<h2 id="2-配置PHP"><a href="#2-配置PHP" class="headerlink" title="2. 配置PHP"></a>2. 配置PHP</h2></li>
 <li><p>复制PHP配置文件到安装目录</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cp php.in-production /usr/<span class="built_in">local</span>/php/etc/php.ini</span><br></pre></td></tr></table></figure>
 </li>
@@ -415,6 +417,7 @@
 </li>
 <li><p>重启PHP</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">kill</span> -USR2 `cat /usr/<span class="built_in">local</span>/php/var/run/php-fpm.pid`</span><br></pre></td></tr></table></figure>
+
 </li>
 </ul>
 
@@ -450,8 +453,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2016/01/07/centos/CentOS 7.0 安装Nginx/" rel="next" title="CentOS 7.0 安装Nginx">
-                <i class="fa fa-chevron-left"></i> CentOS 7.0 安装Nginx
+              <a href="/2016/01/07/centos/CentOS 7.0 安装MySQL 5.6/" rel="next" title="CentOS 7.0 安装MySQL 5.6">
+                <i class="fa fa-chevron-left"></i> CentOS 7.0 安装MySQL 5.6
               </a>
             
           </div>
@@ -460,8 +463,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2016/01/07/centos/CentOS 7.0 安装MySQL 5.6/" rel="prev" title="CentOS 7.0 安装MySQL 5.6">
-                CentOS 7.0 安装MySQL 5.6 <i class="fa fa-chevron-right"></i>
+              <a href="/2016/01/07/php/安装redis&memcache及PHP扩展/" rel="prev" title="安装redis&memcache及PHP扩展">
+                安装redis&memcache及PHP扩展 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -538,7 +541,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -608,7 +611,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -382,8 +382,10 @@
       
         <p>在编写程序时经常会需要读取系统的时间，但是大多数语言获取的时间都是距1970年1月1日的毫秒数，十分不方便，在hadoop给出的计算<code>π</code>值的mapreduce例子中有一个millis2string函数能将毫秒数转化为年日小时分秒毫秒显示的String，书写十分简洁，值得学习借鉴。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** Covert milliseconds to a String. */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">millis2String</span><span class="params">(<span class="keyword">long</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n &lt; <span class="number">0</span>)</span><br><span class="line">      <span class="keyword">return</span> <span class="string">"-"</span> + millis2String(-n);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (n &lt; <span class="number">1000</span>)</span><br><span class="line">      <span class="keyword">return</span> n + <span class="string">"ms"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> StringBuilder b = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> millis = (<span class="keyword">int</span>)(n % <span class="number">1000L</span>);</span><br><span class="line">    <span class="keyword">if</span> (millis != <span class="number">0</span>)</span><br><span class="line">      b.append(String.format(<span class="string">".%03d"</span>, millis));</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">1000</span>) &lt; <span class="number">60</span>)</span><br><span class="line">      <span class="keyword">return</span> b.insert(<span class="number">0</span>, n).append(<span class="string">"s"</span>).toString();</span><br><span class="line"></span><br><span class="line">    b.insert(<span class="number">0</span>, String.format(<span class="string">":%02d"</span>, (<span class="keyword">int</span>)(n % <span class="number">60L</span>)));</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">60</span>) &lt; <span class="number">60</span>)</span><br><span class="line">      <span class="keyword">return</span> b.insert(<span class="number">0</span>, n).toString();</span><br><span class="line"></span><br><span class="line">    b.insert(<span class="number">0</span>, String.format(<span class="string">":%02d"</span>, (<span class="keyword">int</span>)(n % <span class="number">60L</span>)));</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">60</span>) &lt; <span class="number">24</span>)</span><br><span class="line">      <span class="keyword">return</span> b.insert(<span class="number">0</span>, n).toString();</span><br><span class="line"></span><br><span class="line">    b.insert(<span class="number">0</span>, n % <span class="number">24L</span>);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> days = (<span class="keyword">int</span>)((n /= <span class="number">24</span>) % <span class="number">365L</span>);</span><br><span class="line">    b.insert(<span class="number">0</span>, days == <span class="number">1</span>? <span class="string">" day "</span>: <span class="string">" days "</span>).insert(<span class="number">0</span>, days);</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">365L</span>) &gt; <span class="number">0</span>)</span><br><span class="line">      b.insert(<span class="number">0</span>, n == <span class="number">1</span>? <span class="string">" year "</span>: <span class="string">" years "</span>).insert(<span class="number">0</span>, n);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> b.toString();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
 <p>写一个函数输出现在与1970年1月1日的时间间隔，输出结果：</p>
 <figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">46 years 113 days 7:07:31.820</span><br></pre></td></tr></table></figure>
+
 
       
     </div>
@@ -496,7 +498,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -566,7 +568,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

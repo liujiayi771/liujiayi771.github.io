@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -373,9 +373,11 @@
 <p>但我始终认为这样的debug方式是低效的，并且不是一个正常的程序员应该有的debug方式，之前有想过肯定有具体的方法来解决这样的调试问题，Intellij IDEA当中功能非常多，肯定有这样的功能来解决这个问题。近期又要写一些Spark程序，并且输入数据非常大，计算量也很大，我在本地电脑上根本没办法debug，于是想到了去查找一些资料来解决远程调试Spark程序的问题。其实Intellij IDEA或者Eclipse这样的IED都会有remote debug这样的功能，以Intellij IDEA为例，在Run-Edit Configurations菜单中我们可以添加一个Remote的Configurations，这就是Intellij IDEA为我们提供的远程调试的功能。这里对Spark程序的调试主要分两种——Driver程序调试和Executor程序调试。</p>
 <h4 id="Driver程序调试"><a href="#Driver程序调试" class="headerlink" title="Driver程序调试"></a>Driver程序调试</h4><p>Driver程序在远程进行调试时，需要在spark-submit的参数中增加一个配置：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--conf spark.driver.extraJavaOptions=-agentlib:jdwp=transport=dt_socket,server=y,<span class="built_in">suspend</span>=y,address=5005</span><br></pre></td></tr></table></figure>
+
 <a id="more"></a>
 <p>或</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--driver-java-options -agentlib:jdwp=transport=dt_socket,server=y,<span class="built_in">suspend</span>=y,address=5005</span><br></pre></td></tr></table></figure>
+
 <p>我们队这个参数进行一些说明，首先spark.driver.exetraJavaOptions这个参数允许我们在Spark的driver程序在运行时传入一些额外的Java参数，<code>agentlib:jdwp</code>是Java Debug Wire Protocol选项，是一个远程调试的协议，后面紧跟的是以逗号进行分隔的子选项：</p>
 <ul>
 <li><code>transport</code>定义了远程Debugger及Debuggee之间数据传输协议，可以选择socket和shared memory的方式，一般情况下都是选择socket的方式，即选项的值选择dt_socket</li>
@@ -385,11 +387,14 @@
 </ul>
 <p>进行了如上设置之后，在我们允许spark-submit指令之后，我们一般能够看到Spark程序暂停住了，并且会显示如下这样一句话：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Listening <span class="keyword">for</span> transport dt_socket at address: 5005</span><br></pre></td></tr></table></figure>
+
 <p>这时候，我们的Spark程序已经做好准备在等待远程Debugger客户端连接了(一般称之为attach)，接下来就在Intellij IDEA中打开之前所说的那个菜单，点击“+”添加一个新的run/debug configuration，这里选择的是Remote类型，Debugger mode选择Attach to remote JVM，接下来填入Host和port并选择moudle classpath，之后使用这个配置点击debug按钮便可以进行远程调试了。</p>
 <h4 id="Executor程序调试"><a href="#Executor程序调试" class="headerlink" title="Executor程序调试"></a>Executor程序调试</h4><p>一般来说，我们进行Spark程序调试最主要的就是要对Task当中的执行逻辑进行调试，因为Executor中执行的才是真正的并行任务，也是程序最主要的部分。对Executor进行调试时我们一般将允许Java进程的服务器作为客户端，将Debugger所在的机器作为服务端，也就是在调试机器上启动一个socket服务器对指定端口进行监听，而Executor上运行的程序作为客户端与之进行连接。为什么不采用之前的那种模式呢？因为我们需要保证Executor上的程序一开始执行就与Debugger进行了连接，若采用之前的模式，就需要将Executor进行暂停，而Executor暂停会使得driver程序误认为其出现了故障，会不断的重启Executor，无法正常进行调试。一般情况下要这样进行调试需要将Executor设置为只有一个，因为多个Executor同时连接Debugger的服务端会出现问题，若一定要进行集群调试，则在指定Worker启动的时候加入参数，而不是在spark-submit的时候加入参数，首先说下参数：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--conf spark.executor.extraJavaOptions=-agentlib:jdwp=transport=dt_socket,server=n,address=10.0.0.171:5005,<span class="built_in">suspend</span>=n</span><br></pre></td></tr></table></figure>
+
 <p>参数的具体意思不用多加说明，主要是address这里要写入具体的Debugger的地址以及端口号，如果要指定一个Worker上启动一个Executor来进行调试，可以在使用手动的方式启动该Worker</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">spark-class -agentlib:jdwp=transport=dt_socket,server=n,address=10.0.0.171:5005,<span class="built_in">suspend</span>=n org.apache.spark.deploy.worker.Worker spark://10.0.0.1:7077</span><br></pre></td></tr></table></figure>
+
 <p>只要给该Worker分配一定的资源，确保在这个Worker上启动一个Executor即可。Intellij IDEA的设置上和之前的区别就是将Debugger mode改为Listen to remote JVM，然后首先需要启动Debugger的服务端，即先在Intellij IDEA当中点击debug开启服务，再运行Spark程序，这样远端的Spark Executor上运行的程序会自动进行连接，方便进行debug。这里需要注意的是，debug过程中不要让一行代码停留太长时间，否则driver会认为该Executor出现了故障，会不断进行重启Executor。</p>
 <p>参考资料：</p>
 <ul>
@@ -517,7 +522,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -587,7 +592,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

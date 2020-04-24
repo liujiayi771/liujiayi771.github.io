@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -385,10 +385,13 @@
 <h1 id="partitionBy"><a href="#partitionBy" class="headerlink" title="partitionBy"></a>partitionBy</h1><p>其实对于我的这种情况使用partitionBy会更为适合，可以自己实现一个partitioner，也可以直接使用HashPartitioner，以染色体号作为key进行重新分区，然后再使用mapPartition在每个分区内处理不同染色体，partitionBy的效率会比groupByKey高很多。</p>
 <h1 id="repartitionAndSortWithinPartitions"><a href="#repartitionAndSortWithinPartitions" class="headerlink" title="repartitionAndSortWithinPartitions"></a>repartitionAndSortWithinPartitions</h1><p>在我的项目当中，对每个染色体号对应的记录进行的数据处理包括对数据的排序操作，在数据量很大的时候，这个排序操作也会很耗费时间，但是在partitionBy对数据进行shuffle的时候，已经对数据进行过遍历了，之后再次排序需要又一次遍历数据，十分浪费时间。于是，我又找到了一个非常适合我的程序的一个新的分区接口<code>repartitionAndSortWithinPartitions</code>，首先看下这个接口的使用方法：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">def repartitionAndSortWithinPartitions(partitioner: Partitioner): RDD[(K, V)]</span><br><span class="line"></span><br><span class="line">Repartition the RDD according to the given partitioner and, within each resulting partition, sort records by their keys.</span><br><span class="line"></span><br><span class="line">This is more efficient than calling repartition and then sorting within each partition because it can push the sorting down into the shuffle machinery.</span><br></pre></td></tr></table></figure>
+
 <p>为了使用这个接口，我就必须将我自己定义的数据类型定义一个排序规则，即定义一个Ordering，具体的定义方法如下：</p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">object</span> <span class="title">MySAMRecord</span> </span>&#123;</span><br><span class="line">  <span class="keyword">implicit</span> <span class="keyword">val</span> samRecordOrdering: <span class="type">Ordering</span>[<span class="type">MySAMRecord</span>] = <span class="keyword">new</span> <span class="type">Ordering</span>[<span class="type">MySAMRecord</span>] &#123;</span><br><span class="line">    <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">compare</span></span>(x: <span class="type">MySAMRecord</span>, y: <span class="type">MySAMRecord</span>): <span class="type">Int</span> = &#123;</span><br><span class="line">      <span class="keyword">if</span> (x.referenceIndex != y.referenceIndex) x.referenceIndex - y.referenceIndex</span><br><span class="line">      <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span> (x.startPos != y.startPos) &#123;</span><br><span class="line">          x.startPos - y.startPos</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="keyword">if</span> (<span class="keyword">new</span> <span class="type">String</span>(x.originalStrByteArr) &gt; <span class="keyword">new</span> <span class="type">String</span>(y.originalStrByteArr)) <span class="number">1</span> <span class="keyword">else</span> <span class="number">-1</span></span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>同时，由于<code>repartitionAndSortWithinPartitions</code>接口的排序是按照key进行的，我就不能使用原有的HashPartitioner进行分区，需要自己定义Partitioner，使得我自己定义的数据类型作为key值时，仍然能够按照染色体序号进行分区，我自己的Partitioner函数定义如下：</p>
 <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.apache.spark.<span class="type">Partitioner</span></span><br><span class="line"></span><br><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">MySAMRecordPartitioner</span>(<span class="params">numParts: <span class="type">Int</span></span>) <span class="keyword">extends</span> <span class="title">Partitioner</span> </span>&#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">numPartitions</span></span>: <span class="type">Int</span> = numParts</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">getPartition</span></span>(key: <span class="type">Any</span>): <span class="type">Int</span> = &#123;</span><br><span class="line">    <span class="keyword">val</span> record: <span class="type">MySAMRecord</span> = key.asInstanceOf[<span class="type">MySAMRecord</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">val</span> code = record.regionId % numPartitions</span><br><span class="line">    <span class="keyword">if</span> (code &lt; <span class="number">0</span>) &#123;</span><br><span class="line">      code + numPartitions</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      code</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">equals</span></span>(other: <span class="type">Any</span>): <span class="type">Boolean</span> = other <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> records: <span class="type">MySAMRecordPartitioner</span> =&gt;</span><br><span class="line">      records.numPartitions == numPartitions</span><br><span class="line">    <span class="keyword">case</span> _ =&gt;</span><br><span class="line">      <span class="literal">false</span></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">hashCode</span></span>(): <span class="type">Int</span> = numPartitions</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
 <p>当我的数据输入是<code>RDD[MySAMRecord]</code>时，为了使用<code>repartitionAndSortWithinPartitions</code>，需要将输入转换成键值对形式，RDD[(MySAMRecord, None)]，repartition之后，每个partition中的数据就会被自动排序完成，从源码注释当中我们也可以看到，这样子操作是比repartition之后再在每个分区中sorting是要快的，因为这个排序是在shffle的同时进行的，对数据的遍历在shffle的时候只进行了一次，效率当然会高很多。之后再使用mapPartition对每个分区进行操作的时候，每个partition所对应的Iterable就已经是有序的了，不需要再进行新的排序操作。</p>
 <h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><ol>
 <li>在处理的数据比较大的时候，尽量不要使用groupByKey操作，这个操作的效率很低，可以使用reduceByKey(当需要后续操作的时候)来代替，也可以使用partitionBy，repartition等接口进行替代。</li>
@@ -518,7 +521,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -588,7 +591,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

@@ -97,18 +97,18 @@
 
 
 
-  <meta name="description" content="1.安装iTerm22.安装oh-my-zsh1sh -c &amp;quot;$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&amp;quot;  使用该指令能自动切换bash为zsh 将oh-my-zsh的主题切换为ys brew install autojump，在.">
+  <meta name="description" content="1.安装iTerm22.安装oh-my-zsh1sh -c &amp;quot;$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&amp;quot;   使用该指令能自动切换bash为zsh 将oh-my-zsh的主题切换为ys brew install autojump，在">
 <meta name="keywords" content="mac">
 <meta property="og:type" content="article">
 <meta property="og:title" content="mac终端配置">
 <meta property="og:url" content="http://yoursite.com/2017/08/22/mac终端配置/index.html">
 <meta property="og:site_name" content="Joey&#39;s Notes">
-<meta property="og:description" content="1.安装iTerm22.安装oh-my-zsh1sh -c &amp;quot;$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&amp;quot;  使用该指令能自动切换bash为zsh 将oh-my-zsh的主题切换为ys brew install autojump，在.">
+<meta property="og:description" content="1.安装iTerm22.安装oh-my-zsh1sh -c &amp;quot;$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&amp;quot;   使用该指令能自动切换bash为zsh 将oh-my-zsh的主题切换为ys brew install autojump，在">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2020-03-13T07:47:52.262Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mac终端配置">
-<meta name="twitter:description" content="1.安装iTerm22.安装oh-my-zsh1sh -c &amp;quot;$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&amp;quot;  使用该指令能自动切换bash为zsh 将oh-my-zsh的主题切换为ys brew install autojump，在.">
+<meta name="twitter:description" content="1.安装iTerm22.安装oh-my-zsh1sh -c &amp;quot;$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&amp;quot;   使用该指令能自动切换bash为zsh 将oh-my-zsh的主题切换为ys brew install autojump，在">
 
 
 
@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -363,6 +363,7 @@
 
       
         <h3 id="1-安装iTerm2"><a href="#1-安装iTerm2" class="headerlink" title="1.安装iTerm2"></a>1.安装iTerm2</h3><h3 id="2-安装oh-my-zsh"><a href="#2-安装oh-my-zsh" class="headerlink" title="2.安装oh-my-zsh"></a>2.安装oh-my-zsh</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sh -c &quot;$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)&quot;</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>使用该指令能自动切换bash为zsh</li>
 <li>将oh-my-zsh的主题切换为ys</li>
@@ -375,6 +376,7 @@
 <li>在.zshrc中添加如下内容</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">if brew list | grep coreutils &gt; /dev/null ; then</span><br><span class="line">	PATH=&quot;$(brew --prefix coreutils)/libexec/gnubin:$PATH&quot;</span><br><span class="line">	alias ls=&apos;ls -F --show-control-chars --color=auto&apos;</span><br><span class="line">	eval `gdircolors -b $HOME/.dir_colors`</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+
 <h3 id="4-修改vim主题"><a href="#4-修改vim主题" class="headerlink" title="4.修改vim主题"></a>4.修改vim主题</h3><ul>
 <li><code>git clone git://github.com/altercation/solarized.git</code></li>
 <li><code>mkdir -p ~/.vim/colors</code></li>
@@ -502,7 +504,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -572,7 +574,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

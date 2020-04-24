@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -382,27 +382,41 @@
       
         <h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>1.下载mysql5.7源码进行编译安装： <a href="http://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.13.tar.gz" target="_blank" rel="noopener">http://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.13.tar.gz</a><br>2.安装必备的包和工具</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install build-essential</span><br><span class="line">sudo apt install cmake</span><br><span class="line">sudo apt install bison</span><br><span class="line">sudo apt install libncurses5-dev</span><br></pre></td></tr></table></figure>
+
 <p>  编译安装zlib（安装nginx时一般已经安装）<br>3.安装功能需要的包</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install libxml</span><br><span class="line">sudo apt install openssl</span><br></pre></td></tr></table></figure>
-<p>4.下载Boost库<br>从mysql5.7.5开始Boost库是必须的，一般需要的版本为1_59_0，下载地址为： <a href="http://mirrors.sohu.com/mysql/MySQL-5.7/mysql-5.7.10.tar.gz" target="_blank" rel="noopener">http://mirrors.sohu.com/mysql/MySQL-5.7/mysql-5.7.10.tar.gz</a><br>下载后解压到与mysql源码相同的目录处<br><a id="more"></a><br>5.直接安装mysql在后续操作中可能会出现启动mysql段错误的情况，需要在编译修改源代码来解决<br>在源码包中，找到<code>cmd-line-utils/libedit/terminal.c</code>，找到其中<code>area = buf</code>的语句，将其改为<code>area = NULL</code>即可</p>
+
+<p>4.下载Boost库<br>从mysql5.7.5开始Boost库是必须的，一般需要的版本为1_59_0，下载地址为： <a href="http://mirrors.sohu.com/mysql/MySQL-5.7/mysql-5.7.10.tar.gz" target="_blank" rel="noopener">http://mirrors.sohu.com/mysql/MySQL-5.7/mysql-5.7.10.tar.gz</a><br>下载后解压到与mysql源码相同的目录处</p>
+<a id="more"></a>
+<p>5.直接安装mysql在后续操作中可能会出现启动mysql段错误的情况，需要在编译修改源代码来解决<br>在源码包中，找到<code>cmd-line-utils/libedit/terminal.c</code>，找到其中<code>area = buf</code>的语句，将其改为<code>area = NULL</code>即可</p>
 <h3 id="创建用户组和用户"><a href="#创建用户组和用户" class="headerlink" title="创建用户组和用户"></a>创建用户组和用户</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo groupadd mysql</span><br><span class="line">sudo useradd mysql</span><br></pre></td></tr></table></figure>
+
 <h3 id="源码编译及安装"><a href="#源码编译及安装" class="headerlink" title="源码编译及安装"></a>源码编译及安装</h3><p>1.mysql采用cmake的方式进行编译，编译指令如下：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">cmake \</span><br><span class="line">-DCMAKE_INSTALL_PREFIX=/usr/local/mysql \</span><br><span class="line">-DMYSQL_DATADIR=/usr/local/mysql/data \</span><br><span class="line">-DSYSCONFDIR=/etc \</span><br><span class="line">-DWITH_MYISAM_STORAGE_ENGINE=1 \</span><br><span class="line">-DWITH_INNOBASE_STORAGE_ENGINE=1 \</span><br><span class="line">-DWITH_MEMORY_STORAGE_ENGINE=1 \</span><br><span class="line">-DWITH_READLINE=1 \</span><br><span class="line">-DMYSQL_UNIX_ADDR=/var/lib/mysql/mysql.sock \</span><br><span class="line">-DMYSQL_TCP_PORT=3306 \</span><br><span class="line">-DENABLED_LOCAL_INFILE=1 \</span><br><span class="line">-DWITH_PARTITION_STORAGE_ENGINE=1 \</span><br><span class="line">-DEXTRA_CHARSETS=all \</span><br><span class="line">-DDEFAULT_CHARSET=utf8 \</span><br><span class="line">-DDEFAULT_COLLATION=utf8_general_ci \</span><br><span class="line">-DDOWNLOAD_BOOST=1 \</span><br><span class="line">-DWITH_BOOST=../boost_1_59_0</span><br></pre></td></tr></table></figure>
+
 <p>2.编译完成之后，使用<code>make</code>及<code>make install</code>指令进行安装</p>
-<h3 id="配置mysql"><a href="#配置mysql" class="headerlink" title="配置mysql"></a>配置mysql</h3><p>1.安装完成之后，将安装目录的所有者改为mysql<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo chown -R mysql:mysql /usr/local/mysql</span><br></pre></td></tr></table></figure></p>
+<h3 id="配置mysql"><a href="#配置mysql" class="headerlink" title="配置mysql"></a>配置mysql</h3><p>1.安装完成之后，将安装目录的所有者改为mysql</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo chown -R mysql:mysql /usr/local/mysql</span><br></pre></td></tr></table></figure>
+
 <p>2.复制配置文件到系统<code>etc</code>目录下，并修改所有者为mysql</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo cp /usr/local/mysql/support-files/my-default.cnf /etc/my.cnf</span><br></pre></td></tr></table></figure>
+
 <p>修改其中的内容如下所示：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">basedir = /usr/local/mysql</span><br><span class="line">datadir = /usr/local/mysql/data</span><br><span class="line">port = 3306</span><br></pre></td></tr></table></figure>
+
 <p>3.配置mysql开机启动，将mysql.server文件复制到系统<code>etc/init.d</code>目录当中</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo cp /usr/local/mysql/support-files/mysql.server /etc/init.d/mysql</span><br><span class="line">sudo chmod +x /etc/init.d/mysql</span><br><span class="line">sudo update-rc.d -f mysql defaults</span><br></pre></td></tr></table></figure>
+
 <h3 id="初始化数据库"><a href="#初始化数据库" class="headerlink" title="初始化数据库"></a>初始化数据库</h3><p>从mysql5.7开始，之前的mysql_install_db已经被废弃了，需采用新的指令进行数据库初始化操作</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo /usr/local/mysql/bin/mysqld \</span><br><span class="line">--initialize-insecure \</span><br><span class="line">--user=mysql \</span><br><span class="line">--basedir=/usr/local/mysql \</span><br><span class="line">--datadir=/usr/local/mysql/data</span><br></pre></td></tr></table></figure>
+
 <p>需要注意的是：<br>–initialize会生成一个随机密码(~/.mysql_secret)<br>–initialize-insecure不生成密码<br>–datadir目标目录下不能有数据文件</p>
 <h3 id="开启mysql服务"><a href="#开启mysql服务" class="headerlink" title="开启mysql服务"></a>开启mysql服务</h3><p>开启mysql</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo service mysql start</span><br></pre></td></tr></table></figure>
+
 <h3 id="修改数据库密码"><a href="#修改数据库密码" class="headerlink" title="修改数据库密码"></a>修改数据库密码</h3><p>之后可以使用<code>mysql -uroot -p</code>输入空密码进入mysql，采用如下语句修改mysql的密码</p>
 <figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">set</span> <span class="keyword">password</span> <span class="keyword">for</span> root@localhost = <span class="keyword">password</span>(<span class="string">'123'</span>);</span><br></pre></td></tr></table></figure>
+
 
       
     </div>
@@ -524,7 +538,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -594,7 +608,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

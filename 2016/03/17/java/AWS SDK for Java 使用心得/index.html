@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -386,12 +386,22 @@
 <li>AWS SDK for Java 中有两种上传文件的方法，一种是构造一个PutObjectRequest，调用其中的构造函数：</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PutObjectRequest(String bucketName, String key, File file)</span><br><span class="line">Constructs a new PutObjectRequest object to upload a file to the specified bucket and key.</span><br></pre></td></tr></table></figure>
-<p>构造一个上传文件的PutObjectRequest对象，然后使用AmazonS3Client类中的putObject方法来实现上传文件的操作：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public PutObjectResult putObject(PutObjectRequest putObjectRequest)</span><br><span class="line">                          throws AmazonClientException,</span><br><span class="line">                                 AmazonServiceException</span><br></pre></td></tr></table></figure></p>
+
+<p>构造一个上传文件的PutObjectRequest对象，然后使用AmazonS3Client类中的putObject方法来实现上传文件的操作：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public PutObjectResult putObject(PutObjectRequest putObjectRequest)</span><br><span class="line">                          throws AmazonClientException,</span><br><span class="line">                                 AmazonServiceException</span><br></pre></td></tr></table></figure>
+
 <a id="more"></a>
-<p>还有一种方法是使用TransferManager类中的upload方法：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">TransferManager(AmazonS3 s3)</span><br><span class="line">Constructs a new TransferManager, specifying the client to use when making requests to Amazon S3.</span><br></pre></td></tr></table></figure></p>
+<p>还有一种方法是使用TransferManager类中的upload方法：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">TransferManager(AmazonS3 s3)</span><br><span class="line">Constructs a new TransferManager, specifying the client to use when making requests to Amazon S3.</span><br></pre></td></tr></table></figure>
+
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">public Upload upload(String bucketName,</span><br><span class="line">            String key,</span><br><span class="line">            File file)</span><br><span class="line">              throws AmazonServiceException,</span><br><span class="line">                     AmazonClientException</span><br></pre></td></tr></table></figure>
-<p>upload方法同样也可以传入一个PutObjectRequest对象，作用与之前描述的相同。<br>这两种方法都可以成功上传文件，但是前一种方法传输文件的速度比较慢但是不会出现timeout的问题，是一种简单并且稳定的传输方式，缺点就是传输速度很慢，并且只能传单个文件，不能传文件夹。传文件夹可以使用递归的方式通过深度搜索来传输文件夹中的每一个文件，但是在文件夹中文件数量很多的情况下，这样传输的方式会十分缓慢。后一种方法可以使用uploadDirectory方法来传输一个文件夹：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public MultipleFileUpload uploadDirectory(String bucketName,</span><br><span class="line">                                 String virtualDirectoryKeyPrefix,</span><br><span class="line">                                 File directory,</span><br><span class="line">                                 boolean includeSubdirectories)</span><br></pre></td></tr></table></figure></p>
-<p>并且这种方式的传输在SDK内部是通过多线程的方式实现的，将文件传输分为多个线程来进行，传输速度慢，在传输一段时间之后会出现timeout的情况。<br>关于timeout的清空，网上众说纷纭，有人说通过设置AmazonS3Client的配置文件可以解决，有人说可以通过修改jre的networkaddress.cache.ttl时间为60秒可以解决。<br><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java.security.Security.setProperty(<span class="string">"networkaddress.cache.ttl"</span>, <span class="string">"60"</span>);</span><br></pre></td></tr></table></figure></p>
+
+<p>upload方法同样也可以传入一个PutObjectRequest对象，作用与之前描述的相同。<br>这两种方法都可以成功上传文件，但是前一种方法传输文件的速度比较慢但是不会出现timeout的问题，是一种简单并且稳定的传输方式，缺点就是传输速度很慢，并且只能传单个文件，不能传文件夹。传文件夹可以使用递归的方式通过深度搜索来传输文件夹中的每一个文件，但是在文件夹中文件数量很多的情况下，这样传输的方式会十分缓慢。后一种方法可以使用uploadDirectory方法来传输一个文件夹：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">public MultipleFileUpload uploadDirectory(String bucketName,</span><br><span class="line">                                 String virtualDirectoryKeyPrefix,</span><br><span class="line">                                 File directory,</span><br><span class="line">                                 boolean includeSubdirectories)</span><br></pre></td></tr></table></figure>
+
+<p>并且这种方式的传输在SDK内部是通过多线程的方式实现的，将文件传输分为多个线程来进行，传输速度慢，在传输一段时间之后会出现timeout的情况。<br>关于timeout的清空，网上众说纷纭，有人说通过设置AmazonS3Client的配置文件可以解决，有人说可以通过修改jre的networkaddress.cache.ttl时间为60秒可以解决。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java.security.Security.setProperty(<span class="string">"networkaddress.cache.ttl"</span>, <span class="string">"60"</span>);</span><br></pre></td></tr></table></figure>
+
 <p>但是经过本人的尝试，这个timeout的出现还是与你所在的地区以及你的网速决定的，当我将代码在EC2服务器上运行时，是不会出现timeout的情况的，并且运行速度很快。</p>
 <ul>
 <li>在建立transfer连接之后一定要记得使用shudownNow函数来关闭连接，否则程序会一直等待连接的断开。</li>
@@ -520,7 +530,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -590,7 +600,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

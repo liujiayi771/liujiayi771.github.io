@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -387,6 +387,7 @@
 <h3 id="编写pyspark程序"><a href="#编写pyspark程序" class="headerlink" title="编写pyspark程序"></a>编写pyspark程序</h3><ol>
 <li>pyspark程序中经常会用到一个变量sqlContext，这个变量一般是通过<code>sqlContext = SQLContext(sc)</code>生成的，变量<code>sc</code>是一个pyspark的shenll自动生成的helper变量</li>
 <li>在pyspark的shell中，这个变量是会自动生成作为helper变量的，但是在pycharm编写的程序中需要自己去定义这个变量：<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkConf, SparkContext</span><br><span class="line"><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> SQLContext</span><br><span class="line">conf = SparkConf().setAppName(<span class="string">"berkeleySpark"</span>)</span><br><span class="line">sc = SparkContext(conf=conf)</span><br><span class="line">sqlContext = SQLContext(sc)</span><br></pre></td></tr></table></figure>
+
 </li>
 </ol>
 
@@ -512,7 +513,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -582,7 +583,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

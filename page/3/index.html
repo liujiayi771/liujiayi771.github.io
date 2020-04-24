@@ -218,7 +218,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -234,7 +234,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -269,6 +269,162 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/08/08/python/普通用户安装CNVkit/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joey's Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/08/08/python/普通用户安装CNVkit/" itemprop="url">
+                  普通用户安装CNVkit
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+                
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-08T10:49:54+08:00">2017-08-08</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>安装python的library的时候经常需要sudo权限，原因是许多机器上安装的python都是使用apt-get(ubuntu)、yum(CentOS)安装的，在这种情况下python被安装到了root用户目录下，再使用pip安装各种库的时候，有时候库需要被安装到这些root用户目录下，就会出现权限问题。解决这个问题的方法是通过源码安装python到普通用户目录下，再通过源码安装setuptools和pip便能在普通用户下安装python的各种库。</p>
+<h2 id="1-编译安装python"><a href="#1-编译安装python" class="headerlink" title="1.编译安装python"></a>1.编译安装python</h2><p>下载python源码，<a href="https://www.python.org/downloads/source/" target="_blank" rel="noopener">https://www.python.org/downloads/source/</a><br>这里选择python2.7.13进行测试，<a href="https://www.python.org/downloads/release/python-2713/" target="_blank" rel="noopener">https://www.python.org/downloads/release/python-2713/</a><br>下载xz压缩格式的源码，使用<code>tar -xvf Python-2.7.13.tar.xz</code>解压后进入目录，<code>./configure --prefix=/home/spark/Softwares/python2</code>通过<code>--prefix</code>指定安装目录为普通用户目录，<code>make</code>进行编译，<code>make install</code>进行安装。之后在<code>~/.bashrc</code>文件内添加PATH指定python的安装路径<code>export PATH=/home/spark/Softwares/python2/bin:$PATH</code>，然后<code>source ~/.bashrc</code>，此时python便被指定为编译安装的python了。</p>
+<h2 id="2-编译安装setuptools和pip"><a href="#2-编译安装setuptools和pip" class="headerlink" title="2.编译安装setuptools和pip"></a>2.编译安装setuptools和pip</h2><p>下载setuptools源码，<a href="https://pypi.python.org/pypi/setuptools" target="_blank" rel="noopener">https://pypi.python.org/pypi/setuptools</a></p>
+<p>下载zip压缩格式源码，使用<code>unzip setuptools-36.2.7.zip</code>进行解压，进入目录之后使用<code>python setup.py install</code>进行安装，此时需要确保python指令指向的是之前编译安装的python。</p>
+<p>下载pip源码，<a href="https://pypi.python.org/pypi/pip" target="_blank" rel="noopener">https://pypi.python.org/pypi/pip</a></p>
+<p>下载tar.gz格式的源码，使用<code>tar -zxvf pip-9.0.1.tar.gz</code>进行解压，进入目录后，首先使用<code>python setup.py build</code>进行编译，然后使用<code>python setup.py install</code>进行安装，这之后会发现在编译安装python的路径的bin目录中会有pip和setuptools程序。由于之前已经添加该bin目录到PATH环境变量当中，此时使用pip安装即为普通用户目录下的pip，可以不需要sudo权限安装各种library。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
     
       
 
@@ -384,10 +540,12 @@
           
             <h3 id="后台断点续传大文件"><a href="#后台断点续传大文件" class="headerlink" title="后台断点续传大文件"></a>后台断点续传大文件</h3><p>使用rync指令进行断点续传</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rsync -P --rsh=ssh slurm@XXX.XXX.XXX.XXX:/path/to/file.tar.gz file.tar.gz</span><br></pre></td></tr></table></figure>
+
 <p>以上指令表示将远端的file.tar.gz文件传输到近端，输入以上指令之后需要输入密码，此时输入密码便开始进行传输。此时传输的程序是运行在前台的，我们需要将该程序转入后台运行。此时使用<code>Ctrl+z</code>挂起该传输进程，再使用<code>jobs</code>指令能够看到挂起的进程的序号以及状态，例如序号为1，接下来使用<code>bg %1</code>便能将这个序号为1的挂起任务重新再后台进行执行。但是此时如果退出登录该传输进程还是会被kill，原因是该进程此时属于这个登录用户，该用户下线之后该进程便会被自动注销关闭，所以需要将该进程的所有者由当前登录的用户移交给root用户，使用<code>disown -h %1</code>便能达到这个效果，此时该进程便能顺利的在后台进行传输了，如果需要中断，只能使用手动查找到传输的进程，使用<code>kill</code>指令进行关闭。</p>
 <p>使用ssh协议来进行rsync操作，能够在传输的时候暂停或者因为网络故障等中断传输以后下次可以继续传输，传输过程中，被传输的文件会被存储为一个隐藏文件，文件传输完毕后该隐藏文件会被转换成普通文件。如果传输过程中断，该隐藏文件也会被转换为普通文件，下次继续传输时会再转换为隐藏文件进行传输。</p>
 <h3 id="断点传输目录"><a href="#断点传输目录" class="headerlink" title="断点传输目录"></a>断点传输目录</h3><p>使用方法基本一致</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">rsync -Pr --rsh=ssh source/dirname slurm@XXX.XXX.XXX.XXX:/home/slurm/dest/dirname</span><br></pre></td></tr></table></figure>
+
 <p>断点续传目录的时候，目录中的文件会被依次以上面的那种方法的形式进行传输，传输如果中断，之前已经上传完毕的文件会被进行完整性检查，如果确认是完整传输的文件，就不会被继续传输了。</p>
 
           
@@ -544,10 +702,12 @@
 <li>刚创建的云主机只有root用户，一般用root用户操作有许多不便之处，需要先创建slurm用户来进行操作。(#表示需要sudo权限或root用户的操作)</li>
 </ol>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"># useradd slurm</span><br></pre></td></tr></table></figure>
+
 <p>之后需要增加slurm用户的sudo权限</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"># chmod -v u+w /etc/sudoers</span><br><span class="line"># yum install vim git -y</span><br><span class="line"># vim /etc/sudoers</span><br></pre></td></tr></table></figure>
+
 <p>模仿root用户的权限控制加入<code>slurm    ALL=(ALL)    ALL</code><br>之后需要恢复<code>/etc/sudoers</code>的权限，使用<code># chmod -v u-w /etc/sudoers</code></p>
-<p>接下来<code>su slurm</code>进行操作<br>
+<p>接下来<code>su slurm</code>进行操作</p>
           <!--noindex-->
           <div class="post-button text-center">
             <a class="btn" href="/2017/07/21/slurm分布式调度系统搭建/#more" rel="contents">
@@ -557,7 +717,7 @@
           <!--/noindex-->
         
       
-    </p></div>
+    </div>
 
     
 
@@ -704,6 +864,7 @@
         
           
             <h3 id="SparkFlumeProtocol"><a href="#SparkFlumeProtocol" class="headerlink" title="SparkFlumeProtocol"></a>SparkFlumeProtocol</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Error:(45, 66) not found: type SparkFlumeProtocol</span><br><span class="line">  val transactionTimeout: Int, val backOffInterval: Int) extends SparkFlumeProtocol with Logging &#123;</span><br></pre></td></tr></table></figure>
+
 <p>这个问题是由于flume-sink所需要的部分源文件idea不会自动下载，所以编译时不能通过。</p>
 <h4 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h4><p>在Intellij IDEA里面：</p>
 <ul>
@@ -712,6 +873,7 @@
 <li>点击Generate Sources and Update Folders<br>随后，Intellij IDEA会自动下载Flume Sink相关的包</li>
 </ul>
 <h3 id="SqlBaseParser"><a href="#SqlBaseParser" class="headerlink" title="SqlBaseParser"></a>SqlBaseParser</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Error:(36, 45) object SqlBaseParser is not a member of package org.apache.spark.sql.catalyst.parser</span><br><span class="line">import org.apache.spark.sql.catalyst.parser.SqlBaseParser._</span><br></pre></td></tr></table></figure>
+
 <p>这个问题和之前的问题类似，是idea不会自动下载部分catalyst相关的源文件，导致编译时不能通过。</p>
 <h4 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h4><p>在Intellij IDEA里面：</p>
 <ul>
@@ -874,12 +1036,15 @@
             <h3 id="1-配置双网卡静态IP信息"><a href="#1-配置双网卡静态IP信息" class="headerlink" title="1. 配置双网卡静态IP信息"></a>1. 配置双网卡静态IP信息</h3><p><code>sudo vim /etc/sysconfig/network-scripts/ifcfg-enp15s0</code></p>
 <p>配置该网卡为外网IP，需要添加的内容如下</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">BOOTPROTO=static</span><br><span class="line">ONBOOT=yes</span><br><span class="line">DNS1=202.114.0.242</span><br><span class="line">IPADDR=XXX.XXX.XXX.XXX</span><br><span class="line">PREFIX=23</span><br><span class="line">GATEWAY=115.156.163.254</span><br></pre></td></tr></table></figure>
+
 <p><code>sudo vim /etc/sysconfig/network-scripts/ifcfg-eno1</code></p>
 <p>配置该网卡转发enp15s0的网络包，需要添加的内容如下</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">BOOTPROTO=static</span><br><span class="line">ONBOOT=yes</span><br><span class="line">DNS1=202.114.0.242</span><br><span class="line">IPADDR=10.0.0.1</span><br><span class="line">PREFIX=24</span><br><span class="line">GATEWAY=10.0.0.1</span><br></pre></td></tr></table></figure>
+
 <h3 id="2-配置系统内核实现ipv4转发"><a href="#2-配置系统内核实现ipv4转发" class="headerlink" title="2. 配置系统内核实现ipv4转发"></a>2. 配置系统内核实现ipv4转发</h3><p><code>sudo vim /etc/sysctl.conf</code></p>
 <p>添加如下内容</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Controls IP packet forwarding</span></span><br><span class="line">net.ipv4.ip_forward = 1</span><br></pre></td></tr></table></figure>
+
 <p>如果需要不重启实现ipv4转发功能可以使用如下指令</p>
 <p><code>sysctl -w net.ipv4.ip_forward=1</code></p>
 <h3 id="3-修改iptables转发规则"><a href="#3-修改iptables转发规则" class="headerlink" title="3. 修改iptables转发规则"></a>3. 修改iptables转发规则</h3><p>运行如下指令</p>
@@ -892,8 +1057,10 @@
 <li>多网卡机器1号网卡作为内网网段，2号网卡作为外网网段不能上网的问题，可以通过修改默认路由来实现。一般来说，默认路由为1号网卡（如果没有配置的话），设置路由使用route指令，route指令说明如下：</li>
 </ul>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">Usage: route [-nNvee] [-FC] [&lt;AF&gt;]           List kernel routing tables</span><br><span class="line">       route [-v] [-FC] &#123;add|del|flush&#125; ...  Modify routing table for AF.</span><br><span class="line"></span><br><span class="line">       route &#123;-h|--help&#125; [&lt;AF&gt;]              Detailed usage syntax for specified AF.</span><br><span class="line">       route &#123;-V|--version&#125;                  Display version/author and exit.</span><br><span class="line"></span><br><span class="line">        -v, --verbose            be verbose</span><br><span class="line">        -n, --numeric            don&apos;t resolve names</span><br><span class="line">        -e, --extend             display other/more information</span><br><span class="line">        -F, --fib                display Forwarding Information Base (default)</span><br><span class="line">        -C, --cache              display routing cache instead of FIB</span><br><span class="line"></span><br><span class="line">  &lt;AF&gt;=Use -4, -6, &apos;-A &lt;af&gt;&apos; or &apos;--&lt;af&gt;&apos;; default: inet</span><br><span class="line">  List of possible address families (which support routing):</span><br><span class="line">    inet (DARPA Internet) inet6 (IPv6) ax25 (AMPR AX.25)</span><br><span class="line">    netrom (AMPR NET/ROM) ipx (Novell IPX) ddp (Appletalk DDP)</span><br><span class="line">    x25 (CCITT X.25)</span><br></pre></td></tr></table></figure>
+
 <p>使用如下指令来添加默认路由：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo route add default gw 10.0.0.1</span><br></pre></td></tr></table></figure>
+
 <p>将默认网关设置为10.0.0.1这个上网的网段即可上网</p>
 
           
@@ -1362,6 +1529,7 @@
         
           <h3 id="使用pymysql替代MySQLdb"><a href="#使用pymysql替代MySQLdb" class="headerlink" title="使用pymysql替代MySQLdb"></a>使用pymysql替代MySQLdb</h3><p>Django与mysql进行连接使用的是MySQLdb模块，但是该模块并不支持python3，需要使用别的库来替代MySQLdb，这里采用的是pymysql，可以使用pip来安装</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip3 install pymysql</span><br></pre></td></tr></table></figure>
+
 <p>之后在Django的站点文件夹中的<strong>init</strong>.py文件夹中添加如下代码即可</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> pymysql</span><br><span class="line">pymysql.install_as_MySQLdb()</span><br></pre></td></tr></table></figure>
           <!--noindex-->
@@ -1675,172 +1843,15 @@
       
         
           
-            <p>在使用linux时，sudo指令是经常会用到的，但是这个加sudo之后经常需要输入密码十分不便，可以通过设置来使加sudo的指令不需要密码，编辑<code>/etc/sudoer</code>文件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/sudoers</span><br></pre></td></tr></table></figure></p>
+            <p>在使用linux时，sudo指令是经常会用到的，但是这个加sudo之后经常需要输入密码十分不便，可以通过设置来使加sudo的指令不需要密码，编辑<code>/etc/sudoer</code>文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo vim /etc/sudoers</span><br></pre></td></tr></table></figure>
+
 <p>在其中<code>root    ALL=(ALL:ALL) ALL</code>后加一行<code>hadoop    ALL=NOPASSWD:ALL</code>，即可使hadoop用户sudo不需要密码，其他用户的设置类似</p>
 
           
         
       
     </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2016/06/17/mysql/ubuntu安装mysql5.7/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jiayi Liu">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Joey's Notes">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2016/06/17/mysql/ubuntu安装mysql5.7/" itemprop="url">
-                  ubuntu安装mysql5.7
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-                
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-06-17T12:30:47+08:00">2016-06-17</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">分类于</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/技术/" itemprop="url" rel="index"><span itemprop="name">技术</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>1.下载mysql5.7源码进行编译安装： <a href="http://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.13.tar.gz" target="_blank" rel="noopener">http://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.13.tar.gz</a><br>2.安装必备的包和工具</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install build-essential</span><br><span class="line">sudo apt install cmake</span><br><span class="line">sudo apt install bison</span><br><span class="line">sudo apt install libncurses5-dev</span><br></pre></td></tr></table></figure>
-<p>  编译安装zlib（安装nginx时一般已经安装）<br>3.安装功能需要的包</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install libxml</span><br><span class="line">sudo apt install openssl</span><br></pre></td></tr></table></figure>
-<p>4.下载Boost库<br>从mysql5.7.5开始Boost库是必须的，一般需要的版本为1_59_0，下载地址为： <a href="http://mirrors.sohu.com/mysql/MySQL-5.7/mysql-5.7.10.tar.gz" target="_blank" rel="noopener">http://mirrors.sohu.com/mysql/MySQL-5.7/mysql-5.7.10.tar.gz</a><br>下载后解压到与mysql源码相同的目录处<br>
-          <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2016/06/17/mysql/ubuntu安装mysql5.7/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
-          <!--/noindex-->
-        
-      
-    </p></div>
 
     
 
@@ -1923,7 +1934,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1993,7 +2004,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

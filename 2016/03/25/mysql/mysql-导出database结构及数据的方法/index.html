@@ -97,18 +97,18 @@
 
 
 
-  <meta name="description" content="基本的使用方法：1mysqldump -u&amp;lt;user_name&amp;gt; -p&amp;lt;password&amp;gt; -d &amp;lt;database_name&amp;gt; &amp;lt;table_name&amp;gt; &amp;lt;file_name&amp;gt;.sql 导出名称为dbname的database的所有表结构（导出database所有的表，只有结构，不包含数据）1mysqldump -u&amp;lt;user_n">
+  <meta name="description" content="基本的使用方法： 1mysqldump -u&amp;lt;user_name&amp;gt; -p&amp;lt;password&amp;gt; -d &amp;lt;database_name&amp;gt; &amp;lt;table_name&amp;gt; &amp;lt;file_name&amp;gt;.sql  导出名称为dbname的database的所有表结构（导出database所有的表，只有结构，不包含数据）1mysqldump -u&amp;lt;user">
 <meta name="keywords" content="mysql">
 <meta property="og:type" content="article">
 <meta property="og:title" content="mysql 导出database结构及数据的方法">
 <meta property="og:url" content="http://yoursite.com/2016/03/25/mysql/mysql-导出database结构及数据的方法/index.html">
 <meta property="og:site_name" content="Joey&#39;s Notes">
-<meta property="og:description" content="基本的使用方法：1mysqldump -u&amp;lt;user_name&amp;gt; -p&amp;lt;password&amp;gt; -d &amp;lt;database_name&amp;gt; &amp;lt;table_name&amp;gt; &amp;lt;file_name&amp;gt;.sql 导出名称为dbname的database的所有表结构（导出database所有的表，只有结构，不包含数据）1mysqldump -u&amp;lt;user_n">
+<meta property="og:description" content="基本的使用方法： 1mysqldump -u&amp;lt;user_name&amp;gt; -p&amp;lt;password&amp;gt; -d &amp;lt;database_name&amp;gt; &amp;lt;table_name&amp;gt; &amp;lt;file_name&amp;gt;.sql  导出名称为dbname的database的所有表结构（导出database所有的表，只有结构，不包含数据）1mysqldump -u&amp;lt;user">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2020-03-13T07:47:52.262Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="mysql 导出database结构及数据的方法">
-<meta name="twitter:description" content="基本的使用方法：1mysqldump -u&amp;lt;user_name&amp;gt; -p&amp;lt;password&amp;gt; -d &amp;lt;database_name&amp;gt; &amp;lt;table_name&amp;gt; &amp;lt;file_name&amp;gt;.sql 导出名称为dbname的database的所有表结构（导出database所有的表，只有结构，不包含数据）1mysqldump -u&amp;lt;user_n">
+<meta name="twitter:description" content="基本的使用方法： 1mysqldump -u&amp;lt;user_name&amp;gt; -p&amp;lt;password&amp;gt; -d &amp;lt;database_name&amp;gt; &amp;lt;table_name&amp;gt; &amp;lt;file_name&amp;gt;.sql  导出名称为dbname的database的所有表结构（导出database所有的表，只有结构，不包含数据）1mysqldump -u&amp;lt;user">
 
 
 
@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -380,13 +380,23 @@
       
 
       
-        <p>基本的使用方法：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -u&lt;user_name&gt; -p&lt;password&gt; -d &lt;database_name&gt; &lt;table_name&gt; &lt;file_name&gt;.sql</span><br></pre></td></tr></table></figure></p>
+        <p>基本的使用方法：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -u&lt;user_name&gt; -p&lt;password&gt; -d &lt;database_name&gt; &lt;table_name&gt; &lt;file_name&gt;.sql</span><br></pre></td></tr></table></figure>
+
 <h4 id="导出名称为dbname的database的所有表结构（导出database所有的表，只有结构，不包含数据）"><a href="#导出名称为dbname的database的所有表结构（导出database所有的表，只有结构，不包含数据）" class="headerlink" title="导出名称为dbname的database的所有表结构（导出database所有的表，只有结构，不包含数据）"></a>导出名称为dbname的database的所有表结构（导出database所有的表，只有结构，不包含数据）</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -u&lt;user_name&gt; -p&lt;password&gt; -d dbname &gt; db.sql</span><br></pre></td></tr></table></figure>
+
 <h4 id="导出名称为dbname的database的名称为tbname的表的结构（导出databse的某张表，只有结构，不包含数据）"><a href="#导出名称为dbname的database的名称为tbname的表的结构（导出databse的某张表，只有结构，不包含数据）" class="headerlink" title="导出名称为dbname的database的名称为tbname的表的结构（导出databse的某张表，只有结构，不包含数据）"></a>导出名称为dbname的database的名称为tbname的表的结构（导出databse的某张表，只有结构，不包含数据）</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -u&lt;user_name&gt; -p&lt;password&gt; -d dbname tbname &gt; db.sql</span><br></pre></td></tr></table></figure>
+
 <h4 id="导出名称为dbname的database的所有表结构及数据（导出database所有的表，不仅有结构，还包含数据）"><a href="#导出名称为dbname的database的所有表结构及数据（导出database所有的表，不仅有结构，还包含数据）" class="headerlink" title="导出名称为dbname的database的所有表结构及数据（导出database所有的表，不仅有结构，还包含数据）"></a>导出名称为dbname的database的所有表结构及数据（导出database所有的表，不仅有结构，还包含数据）</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -u&lt;user_name&gt; -p&lt;password&gt; dbname &gt; db.sql</span><br></pre></td></tr></table></figure>
+
 <h4 id="导出名称为dbname的databases的名称为tbname的表的结构及数据（导出database的某张表，不仅又结构，还包含数据）"><a href="#导出名称为dbname的databases的名称为tbname的表的结构及数据（导出database的某张表，不仅又结构，还包含数据）" class="headerlink" title="导出名称为dbname的databases的名称为tbname的表的结构及数据（导出database的某张表，不仅又结构，还包含数据）"></a>导出名称为dbname的databases的名称为tbname的表的结构及数据（导出database的某张表，不仅又结构，还包含数据）</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysqldump -u&lt;user_name&gt; -p&lt;password&gt; dbname tbname &gt; db.sql</span><br></pre></td></tr></table></figure>
-<p>从中可以看出，参数<code>-d</code>的作用在于是否只导出表结构，加<code>-d</code>之后只导出结构，不导出数据<br><a id="more"></a></p>
-<h4 id="将一个database中某个表中部分字段的数据导入另一个database的某个表的部分字段中"><a href="#将一个database中某个表中部分字段的数据导入另一个database的某个表的部分字段中" class="headerlink" title="将一个database中某个表中部分字段的数据导入另一个database的某个表的部分字段中"></a>将一个database中某个表中部分字段的数据导入另一个database的某个表的部分字段中</h4><p><a href="http://blog.163.com/l_tianwen/blog/static/35841670201431310363249/" target="_blank" rel="noopener">http://blog.163.com/l_tianwen/blog/static/35841670201431310363249/</a><br><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> databaseA.table(field1,field2,field3) <span class="keyword">SELECT</span> field1,field2,field3 <span class="keyword">FROM</span> databaseB.table</span><br></pre></td></tr></table></figure></p>
+
+<p>从中可以看出，参数<code>-d</code>的作用在于是否只导出表结构，加<code>-d</code>之后只导出结构，不导出数据</p>
+<a id="more"></a>
+
+<h4 id="将一个database中某个表中部分字段的数据导入另一个database的某个表的部分字段中"><a href="#将一个database中某个表中部分字段的数据导入另一个database的某个表的部分字段中" class="headerlink" title="将一个database中某个表中部分字段的数据导入另一个database的某个表的部分字段中"></a>将一个database中某个表中部分字段的数据导入另一个database的某个表的部分字段中</h4><p><a href="http://blog.163.com/l_tianwen/blog/static/35841670201431310363249/" target="_blank" rel="noopener">http://blog.163.com/l_tianwen/blog/static/35841670201431310363249/</a></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">INSERT</span> <span class="keyword">INTO</span> databaseA.table(field1,field2,field3) <span class="keyword">SELECT</span> field1,field2,field3 <span class="keyword">FROM</span> databaseB.table</span><br></pre></td></tr></table></figure>
+
 
       
     </div>
@@ -508,7 +518,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -578,7 +588,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

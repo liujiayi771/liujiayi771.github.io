@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -388,12 +388,15 @@
 <li>调用linux命令<code>echo &gt; &lt;log_file_name&gt;</code>来清空日志<br>经过测试发现，log4j生成的日志文件只要被移动或删除，log4j就不会继续向其中写入日志，复制过来的空的同名日志文件也是一样的情况。调用linux命令清空日志文件之后，log4j能向日志文件中写入内容，但是不能被识别为txt或log文件，无法用编辑器打开查看（有例外，Atom编辑器能查看到其中的内容），gedit会说字符编码无法识别，无法打开；sublime会直接将这个文件当作二进制文件来打开，只能看到其中的0101内容。我用vim将其打开，发现在文件的开始处有许多“@^@^”这样的内容，在网上查到这是一种正常编码格式无法识别的字符，也称为“/0”。因此，只要将这些编码无法识别的内容除去即可。在网上查到了一个sed指令可以做这件事。使用如下代码来除去“@^”：</li>
 </ol>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -r <span class="string">'s/\x0//g'</span> -i &lt;file_name&gt;</span><br></pre></td></tr></table></figure>
+
 <a id="more"></a>
 <p>除去之后果然能够用gedit、sublime等编辑器打开了，但是还是存在一个问题，当用这个语句处理过日志文件之后，相当于将日志文件做了修改（文件本身修改，<code>echo &gt; &lt;log_file_name&gt;</code>只是内容修改），log4j框架就不能继续向其中写入日志内容了。我采用的方法是先将日志文件复制到一个临时的地方，进行sed操作之后就上传到数据库，上传完成之后就删除，然后用<code>echo &gt; &lt;log_file_name&gt;</code>将原日志文件清空，使log4j继续记录。</p>
 <p>清空日志文件的linux语句：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">: &gt; filename</span><br><span class="line">&gt; filename</span><br><span class="line"><span class="built_in">echo</span> <span class="string">""</span> &gt; filename</span><br><span class="line"><span class="built_in">echo</span> /dev/null &gt; filename</span><br><span class="line">cat /dev/null &gt; filename</span><br><span class="line">truncate filename --size 0</span><br></pre></td></tr></table></figure>
+
 <p>我之后采用了最后一种方法，因为其他的方法有些会在日志文件开始产生一行空行。<br>此外，在用java的exec函数执行linux命令时，有些符号是不能在java中直接使用的，例如”&gt;”、引号等。这时候，需要加上如下代码对命令进行修正：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String[] cmdarray = &#123;<span class="string">"/bin/sh"</span>, <span class="string">"-c"</span>, cmd&#125;;</span><br><span class="line">Process ps = Runtime.getRuntime().<span class="built_in">exec</span>(cmdarray);</span><br><span class="line">ps.waitFor();</span><br></pre></td></tr></table></figure>
+
 <p>其中cmd是要执行的linux指令的String字符串。</p>
 
       
@@ -507,7 +510,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -577,7 +580,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

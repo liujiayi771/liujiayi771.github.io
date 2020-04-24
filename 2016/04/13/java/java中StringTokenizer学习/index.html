@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -383,13 +383,17 @@
         <p>在平时编程中经常会遇到对字符串进行拆分的情况，例如有些字符串代表了许多组数据，这些数据以‘,’进行分隔，需要将这些数据单独提取出来，以前总是自己去写拆分函数，十分不方便。最近发现java中有一个类叫<code>StringTokenizer</code>可以很轻松地解决这个问题。</p>
 <p>先来看看官方API文档对<code>StringTokenizer</code>的解释：</p>
 <figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">The string tokenizer class allows an application to break a string into tokens.</span><br></pre></td></tr></table></figure>
+
 <a id="more"></a>
 <p>也就是说这个类能够使我们将一个字符串拆分成小部分。官方给出了一个使用该类的例子：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">StringTokenizer st = <span class="keyword">new</span> StringTokenizer(<span class="string">"this is a test"</span>);</span><br><span class="line">     <span class="keyword">while</span> (st.hasMoreTokens()) &#123;</span><br><span class="line">         System.out.println(st.nextToken());</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
+
 <p>该段函数输出的内容为：</p>
 <figure class="highlight console"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">this</span><br><span class="line">is</span><br><span class="line">a</span><br><span class="line">test</span><br></pre></td></tr></table></figure>
+
 <p>StringTokenizer将英文句子以空格为分隔拆分成了单个单词。以上的这种方法在之前可以用字符串数组的<code>split</code>方法进行实现，如下所示：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">String[] result = <span class="string">"this is a test"</span>.split(<span class="string">"\\s"</span>);</span><br><span class="line">     <span class="keyword">for</span> (<span class="keyword">int</span> x=<span class="number">0</span>; x&lt;result.length; x++)</span><br><span class="line">         System.out.println(result[x]);</span><br></pre></td></tr></table></figure>
+
 <p>这两种方法输出的结果是一致的，但是<code>StringTokenizer</code>的方法和功能远不止这一种，还有许多新的更方便的功能。<br><code>StringTokenizer</code>一共有3种构造函数：</p>
 <ol>
 <li><code>StringTokenizer(String str)</code><br>Constructs a string tokenizer for the specified string.</li>
@@ -517,7 +521,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -587,7 +591,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -385,15 +385,19 @@
 <li>在安装PHP时，使用的configure指令如下所示：</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">./configure \</span><br><span class="line">--prefix=/usr/<span class="built_in">local</span>/php \</span><br><span class="line">--with-curl \</span><br><span class="line">--with-gd \</span><br><span class="line">--<span class="built_in">enable</span>-sockets \</span><br><span class="line">--with-freetype-dir=/usr/<span class="built_in">local</span>/freetype \</span><br><span class="line">--<span class="built_in">enable</span>-mbstring \</span><br><span class="line">--<span class="built_in">enable</span>-bcmath \</span><br><span class="line">--with-gettext \</span><br><span class="line">--with-jpeg-dir=/usr/<span class="built_in">local</span>/libjpeg \</span><br><span class="line">--with-config-file-path=/usr/<span class="built_in">local</span>/php/etc \</span><br><span class="line">--with-mysql=/usr/<span class="built_in">local</span>/mysql \</span><br><span class="line">--with-mysqli=/usr/<span class="built_in">local</span>/mysql/bin/mysql_config \</span><br><span class="line">--with-mysql-sock=/var/lib/mysql/mysql.sock \</span><br><span class="line">--with-pdo-mysql=/usr/<span class="built_in">local</span>/mysql \</span><br><span class="line">--<span class="built_in">enable</span>-fpm \</span><br><span class="line">--<span class="built_in">disable</span>-fileinfo</span><br></pre></td></tr></table></figure>
+
 <a id="more"></a>
 <p>其中with-curl需要安装curl、libcurl3、libcurl3-dev和php5-curl<br>需要指定jpeg-dir，采用apt-get安装的libjpeg不能被PHP的gd扩展识别，需要再次手动安装libjpeg，采用编译安装的方式，在 <a href="http://www.ijg.org/files/" target="_blank" rel="noopener">http://www.ijg.org/files/</a> 下载最新的libjpeg源码，进行编译安装：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr/<span class="built_in">local</span>/libjpeg</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
 <p>但是libpng是能被gd扩展库识别的，安装好之后可以在phpinfo函数的输出界面观察到支持的结果<br>freetype也需要手动编译安装，下载地址为 <a href="http://download.savannah.gnu.org/releases/freetype/" target="_blank" rel="noopener">http://download.savannah.gnu.org/releases/freetype/</a> 下载最新的版本，采用如下指令进行安装：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr/<span class="built_in">local</span>/freetype</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
 <ul>
 <li>在安装PHP扩展库的时候，使用phpize指令可能会出现<code>Cannot find autoconf.</code>的错误。在ubuntu中，我们可以使用如下指令来解决这个问题：</li>
 </ul>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install m4</span><br><span class="line">sudo apt-get install autoconf</span><br></pre></td></tr></table></figure>
+
 
       
     </div>
@@ -506,7 +510,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -576,7 +580,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>

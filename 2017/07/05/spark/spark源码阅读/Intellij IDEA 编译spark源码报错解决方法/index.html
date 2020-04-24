@@ -97,18 +97,18 @@
 
 
 
-  <meta name="description" content="SparkFlumeProtocol12Error:(45, 66) not found: type SparkFlumeProtocol  val transactionTimeout: Int, val backOffInterval: Int) extends SparkFlumeProtocol with Logging &amp;#123; 这个问题是由于flume-sink所需要的部分源文件i">
+  <meta name="description" content="SparkFlumeProtocol12Error:(45, 66) not found: type SparkFlumeProtocol  val transactionTimeout: Int, val backOffInterval: Int) extends SparkFlumeProtocol with Logging &amp;#123;  这个问题是由于flume-sink所需要的部分源文件">
 <meta name="keywords" content="spark">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Intellij IDEA 编译spark源码报错解决方法">
 <meta property="og:url" content="http://yoursite.com/2017/07/05/spark/spark源码阅读/Intellij IDEA 编译spark源码报错解决方法/index.html">
 <meta property="og:site_name" content="Joey&#39;s Notes">
-<meta property="og:description" content="SparkFlumeProtocol12Error:(45, 66) not found: type SparkFlumeProtocol  val transactionTimeout: Int, val backOffInterval: Int) extends SparkFlumeProtocol with Logging &amp;#123; 这个问题是由于flume-sink所需要的部分源文件i">
+<meta property="og:description" content="SparkFlumeProtocol12Error:(45, 66) not found: type SparkFlumeProtocol  val transactionTimeout: Int, val backOffInterval: Int) extends SparkFlumeProtocol with Logging &amp;#123;  这个问题是由于flume-sink所需要的部分源文件">
 <meta property="og:locale" content="zh-CN">
 <meta property="og:updated_time" content="2020-03-13T07:47:52.265Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Intellij IDEA 编译spark源码报错解决方法">
-<meta name="twitter:description" content="SparkFlumeProtocol12Error:(45, 66) not found: type SparkFlumeProtocol  val transactionTimeout: Int, val backOffInterval: Int) extends SparkFlumeProtocol with Logging &amp;#123; 这个问题是由于flume-sink所需要的部分源文件i">
+<meta name="twitter:description" content="SparkFlumeProtocol12Error:(45, 66) not found: type SparkFlumeProtocol  val transactionTimeout: Int, val backOffInterval: Int) extends SparkFlumeProtocol with Logging &amp;#123;  这个问题是由于flume-sink所需要的部分源文件">
 
 
 
@@ -222,7 +222,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">19</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
   </li>
         
         
@@ -238,7 +238,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">53</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
   </li>
 
       
@@ -381,6 +381,7 @@
 
       
         <h3 id="SparkFlumeProtocol"><a href="#SparkFlumeProtocol" class="headerlink" title="SparkFlumeProtocol"></a>SparkFlumeProtocol</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Error:(45, 66) not found: type SparkFlumeProtocol</span><br><span class="line">  val transactionTimeout: Int, val backOffInterval: Int) extends SparkFlumeProtocol with Logging &#123;</span><br></pre></td></tr></table></figure>
+
 <p>这个问题是由于flume-sink所需要的部分源文件idea不会自动下载，所以编译时不能通过。</p>
 <h4 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h4><p>在Intellij IDEA里面：</p>
 <ul>
@@ -389,6 +390,7 @@
 <li>点击Generate Sources and Update Folders<br>随后，Intellij IDEA会自动下载Flume Sink相关的包</li>
 </ul>
 <h3 id="SqlBaseParser"><a href="#SqlBaseParser" class="headerlink" title="SqlBaseParser"></a>SqlBaseParser</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Error:(36, 45) object SqlBaseParser is not a member of package org.apache.spark.sql.catalyst.parser</span><br><span class="line">import org.apache.spark.sql.catalyst.parser.SqlBaseParser._</span><br></pre></td></tr></table></figure>
+
 <p>这个问题和之前的问题类似，是idea不会自动下载部分catalyst相关的源文件，导致编译时不能通过。</p>
 <h4 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h4><p>在Intellij IDEA里面：</p>
 <ul>
@@ -519,7 +521,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">53</span>
+                    <span class="site-state-item-count">54</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -589,7 +591,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">19</span>
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
