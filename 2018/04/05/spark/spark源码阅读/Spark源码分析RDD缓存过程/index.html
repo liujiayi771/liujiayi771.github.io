@@ -9,6 +9,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
+<meta name="google-site-verification" content="nBL3O8Be9mH0bzPzBkFY9eTrScECyDon85pneXOb7sQ">
+<meta name="baidu-site-verification" content="7g6sOUMHy3">
 
 
 
@@ -101,7 +103,7 @@
 <meta name="keywords" content="spark">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Spark源码分析RDD缓存过程">
-<meta property="og:url" content="http://yoursite.com/2018/04/05/spark/spark源码阅读/Spark源码分析RDD缓存过程/index.html">
+<meta property="og:url" content="http://joey771.cn/2018/04/05/spark/spark源码阅读/Spark源码分析RDD缓存过程/index.html">
 <meta property="og:site_name" content="Joey&#39;s Notes">
 <meta property="og:description" content="Spark提供了一种将RDD持久化的方式(cache、persist)，这种方式适用于需要多次执行action操作的RDD，因为持久化之后的RDD中的内容不需要重新计算，可以直接使用，对于多次执行action的RDD来说，这样做能省下许多重复计算的时间。Task在启动之初读取一个分区的时候，会先判断这个分区是否已经被持久化，如果没有则会再去检查是否存在Checkpoint，还没有找到的话会根据血统">
 <meta property="og:locale" content="zh-CN">
@@ -115,7 +117,7 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2018/04/05/spark/spark源码阅读/Spark源码分析RDD缓存过程/">
+  <link rel="canonical" href="http://joey771.cn/2018/04/05/spark/spark源码阅读/Spark源码分析RDD缓存过程/">
 
 
 
@@ -289,7 +291,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/04/05/spark/spark源码阅读/Spark源码分析RDD缓存过程/">
+    <link itemprop="mainEntityOfPage" href="http://joey771.cn/2018/04/05/spark/spark源码阅读/Spark源码分析RDD缓存过程/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jiayi Liu">
