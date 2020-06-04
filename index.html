@@ -370,7 +370,7 @@
 <h2 id="OpenLDAP开启SSL"><a href="#OpenLDAP开启SSL" class="headerlink" title="OpenLDAP开启SSL"></a>OpenLDAP开启SSL</h2><p>OpenLDAP开启SSL需要生成LDAP证书，有两种证书生成方式：</p>
 <ol>
 <li>自签名证书。该方式较为简单，LDAP客户端需要进行设置不进行证书校验；</li>
-<li>CA签名证书，可以使用内部CA或外部CA签名证书。</li>
+<li>CA签名证书，可以使用内部CA或外部CA签名证书。需要将给ldap server证书签名的CA证书放在客户端的<code>/etc/openldap/cacerts/</code>目录中，以便LDAP客户端可以验证证书。同时，客户端需要在<code>/etc/openldap/ldap.conf</code>中配置<code>TLS_CACERT /etc/openldap/cacerts/ca.cert.pem</code></li>
 </ol>
 <p>两种方式任选一种即可。</p>
 <h3 id="自签名证书"><a href="#自签名证书" class="headerlink" title="自签名证书"></a>自签名证书</h3><p>在<code>/etc/openldap/certs/</code>目录中创建LDAP server自签名证书：</p>
@@ -434,8 +434,11 @@
 <h3 id="配置OpenLDAP开启SSL监听"><a href="#配置OpenLDAP开启SSL监听" class="headerlink" title="配置OpenLDAP开启SSL监听"></a>配置OpenLDAP开启SSL监听</h3><p>修改配置文件<code>/etc/sysconfig/slapd</code>，添加<code>ldaps</code>：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SLAPD_URLS=<span class="string">"ldapi:/// ldap:/// ldaps:///"</span></span><br></pre></td></tr></table></figure>
 
-<p>修改<code>/etc/openldap/ldap.conf</code>中的配置：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#TLS_CACERTDIR /etc/openldap/certs</span><br><span class="line">TLS_REQCERT never</span><br></pre></td></tr></table></figure>
+<h4 id="如果是CA签名证书"><a href="#如果是CA签名证书" class="headerlink" title="如果是CA签名证书"></a>如果是CA签名证书</h4><p>修改<code>/etc/openldap/ldap.conf</code>中的配置，添加服务端CA证书的存储路径：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#TLS_CACERTDIR /etc/openldap/certs</span><br><span class="line">TLS_CACERT /etc/openldap/cacerts/ca.cert.pem</span><br></pre></td></tr></table></figure>
+
+<h4 id="如果是自签名证书"><a href="#如果是自签名证书" class="headerlink" title="如果是自签名证书"></a>如果是自签名证书</h4><p>自签名证书需要修改<code>/etc/openldap/ldap.conf</code>中的配置，关闭校验：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#TLS_CACERTDIR /etc/openldap/certs</span></span><br><span class="line">TLS_REQCERT never</span><br></pre></td></tr></table></figure>
 
 <p>重启OpenLDAP：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart slapd</span><br></pre></td></tr></table></figure>
@@ -451,6 +454,9 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapwhoami -x -w <span class="string">"&lt;passwd&gt;"</span> -D &lt;user_dn&gt; -H ldaps://&lt;ldap_server&gt;:636</span><br></pre></td></tr></table></figure>
 
 <h2 id="配置Presto支持LDAP认证"><a href="#配置Presto支持LDAP认证" class="headerlink" title="配置Presto支持LDAP认证"></a>配置Presto支持LDAP认证</h2><p>Presto支持LDAP认证，客户端必须以HTTPS的方式访问presto server。开启LDAP认证只需要对presto coordinator进行配置使其支持SSL/TLS，presto worker不需要进行修改，只有客户端和presto coordinator之间的连接需要认证。</p>
+<h3 id="导入ldap-server证书到java-cacerts"><a href="#导入ldap-server证书到java-cacerts" class="headerlink" title="导入ldap server证书到java cacerts"></a>导入ldap server证书到java cacerts</h3><p>Presto服务要想通过ldaps与ldap server通信，必须将ldap server的证书导入java cacerts，从源码上看Presto服务会直接读取java的cacerts：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keytool -import -<span class="built_in">alias</span> ldap_server -file /etc/openldap/certs/ldap.crt -keystore <span class="variable">$&#123;JAVA_HOME&#125;</span>/jre/lib/security/cacerts -storepass changeit</span><br></pre></td></tr></table></figure>
+
 <h3 id="生成presto-server秘钥"><a href="#生成presto-server秘钥" class="headerlink" title="生成presto server秘钥"></a>生成presto server秘钥</h3><p>配置presto coordinator支持SSL/TLS，需要生成presto server的秘钥（keystore）文件。</p>
 <h4 id="1-生成presto-server私钥："><a href="#1-生成presto-server私钥：" class="headerlink" title="1. 生成presto server私钥："></a>1. 生成presto server私钥：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keytool -genkey -v -keystore presto-private.keystore -<span class="built_in">alias</span> presto-private -keyalg RSA -dname <span class="string">"CN=&lt;hostname&gt;, OU=, O=, L=, ST=, C=CN"</span> -validity 20000 -keypass &lt;passwd&gt; -storepass &lt;passwd&gt;</span><br></pre></td></tr></table></figure>
 
@@ -472,6 +478,35 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">presto --server https://&lt;presto_server&gt;:&lt;https_port&gt; --keystore-path &lt;public_keystore_path&gt; --keystore-password &lt;public_keystore_passwd&gt; --catalog hive --user &lt;ldap_username&gt; --password</span><br></pre></td></tr></table></figure>
 
 <p>输入密码之后将可以进入presto命令行。若密码输入错误，也可以进入presto命令行，但是执行presto命令会出现认证失败的报错。输入正确的ldap用户名和密码，执行<code>show schemas;</code>，若能正确输出结果说明配置正确。</p>
+<h2 id="OpenLDAP客户端通过ldaps访问ldap服务"><a href="#OpenLDAP客户端通过ldaps访问ldap服务" class="headerlink" title="OpenLDAP客户端通过ldaps访问ldap服务"></a>OpenLDAP客户端通过ldaps访问ldap服务</h2><p>下面也顺便把ldap客户端通过ldaps访问ldap服务的方法说一下，也分为自签名证书和CA签名证书。<br>客户端需要安装：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y openldap-clients nss-pam-ldapd</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-使用autoconfig生成客户端配置"><a href="#1-使用autoconfig生成客户端配置" class="headerlink" title="1. 使用autoconfig生成客户端配置"></a>1. 使用autoconfig生成客户端配置</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">authconfig --enableldap --enableldapauth --ldapserver=ldaps://&lt;ldap_server&gt; --ldapbasedn=<span class="string">"&lt;base_dn&gt;"</span> --enablemkhomedir --disableldaptls --update</span><br></pre></td></tr></table></figure>
+
+<h3 id="自签名证书需要完成的步骤"><a href="#自签名证书需要完成的步骤" class="headerlink" title="自签名证书需要完成的步骤"></a>自签名证书需要完成的步骤</h3><p>修改<code>/etc/nslcd.conf</code>配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tls_reqcert allow</span><br></pre></td></tr></table></figure>
+
+<h3 id="CA签名证书-1"><a href="#CA签名证书-1" class="headerlink" title="CA签名证书"></a>CA签名证书</h3><p>需要将ldap server的CA前面证书<code>/etc/openldap/cacerts/ca.cert.pem</code>拷贝到客户端，放在<code>/etc/openldap/cacerts/</code>目录中。<br>通过如下命令给证书生成hash：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/pki/tls/misc/c_hash /etc/openldap/cacerts/ca.cert.pem</span><br></pre></td></tr></table></figure>
+
+<p>会输出证书的hash值，需要做一个名称为hash值软链放在<code>/etc/openldap/cacerts/</code>目录中，假设hash值输出为<code>6822c9d7.0</code>，则软链为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ln -s /etc/openldap/cacerts/ca.cert.pem /etc/openldap/cacerts/6822c9d7.0</span><br></pre></td></tr></table></figure>
+
+<p>重启ldap客户端服务：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart nslcd</span><br></pre></td></tr></table></figure>
+
+<p>以上的方式比较正式，如果嫌麻烦，也可以简单配置<code>/etc/openldap/ldap.conf</code>跳过证书校验：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#TLS_CACERTDIR /etc/openldap/certs</span></span><br><span class="line">TLS_REQCERT never</span><br></pre></td></tr></table></figure>
+
+<p>CA签名证书的方式也可以将CA证书拷贝到客户端之后，修改<code>/etc/openldap/ldap.conf</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#TLS_CACERTDIR /etc/openldap/certs</span></span><br><span class="line">TLS_CACERT /etc/openldap/cacerts/ca.cert.pem</span><br></pre></td></tr></table></figure>
+
+<p>达到的效果是类似的，最后也是用如下命令在客户端上进行校验：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapwhoami -x -H ldaps://&lt;ldap_server&gt;:636</span><br></pre></td></tr></table></figure>
+
+<p>输出<code>anonymous</code>说明连接成功，在关闭匿名访问的情况下，用如下方式输入ldap的dn和密码进行校验：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapwhoami -x -w <span class="string">"&lt;passwd&gt;"</span> -D &lt;user_dn&gt; -H ldaps://&lt;ldap_server&gt;:636</span><br></pre></td></tr></table></figure>
+
 
           
         
