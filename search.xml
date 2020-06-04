@@ -1,64 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>CentOS7上安装Kerberos KDC</title>
-    <url>/2020/04/24/CentOS7%E4%B8%8A%E5%AE%89%E8%A3%85Kerberos-KDC/</url>
-    <content><![CDATA[<h3 id="yum安装软件"><a href="#yum安装软件" class="headerlink" title="yum安装软件"></a>yum安装软件</h3><p>首先通过yum安装kerberos所需要的软件</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum install -y krb5-server krb5-workstation pam_krb5</span><br></pre></td></tr></table></figure>
-
-<h3 id="修改服务端配置"><a href="#修改服务端配置" class="headerlink" title="修改服务端配置"></a>修改服务端配置</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> /var/kerberos/krb5kdc</span><br></pre></td></tr></table></figure>
-
-<p>我们需要修改该目录下的两个配置文件：</p>
-<ul>
-<li>kdc.conf</li>
-<li>kadm5.acl</li>
-</ul>
-<p>假设我们的realm为KDC.COM，修改<code>kadm5.acl</code>为如下内容：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">*/admin@KDC.COM     *</span><br></pre></td></tr></table></figure>
-
-<p>修改<code>kdc.conf</code>为如下内容：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[kdcdefaults]</span><br><span class="line"> kdc_ports = 88</span><br><span class="line"> kdc_tcp_ports = 88</span><br><span class="line"></span><br><span class="line">[realms]</span><br><span class="line"> KDC.COM = &#123;</span><br><span class="line">  <span class="comment">#master_key_type = aes256-cts</span></span><br><span class="line">  max_renewable_life = 7d</span><br><span class="line">  acl_file = /var/kerberos/krb5kdc/kadm5.acl</span><br><span class="line">  dict_file = /usr/share/dict/words</span><br><span class="line">  admin_keytab = /var/kerberos/krb5kdc/kadm5.keytab</span><br><span class="line">  supported_enctypes = aes256-cts:normal aes128-cts:normal des3-hmac-sha1:normal arcfour-hmac:normal camellia256-cts:normal camellia128-cts:normal des-hmac-sha1:normal des-cbc-md5:normal des-cbc-crc:normal</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="修改客户端配置"><a href="#修改客户端配置" class="headerlink" title="修改客户端配置"></a>修改客户端配置</h3><p>我们用作KDC服务的服务器也将会是一个Kerberos客户端，我们需要修改客户端配置文件<code>/etc/krb5.conf</code>，文件内容如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Configuration snippets may be placed in this directory as well</span></span><br><span class="line">includedir /etc/krb5.conf.d/</span><br><span class="line"></span><br><span class="line">[logging]</span><br><span class="line"> default = FILE:/var/<span class="built_in">log</span>/krb5libs.log</span><br><span class="line"> kdc = FILE:/var/<span class="built_in">log</span>/krb5kdc.log</span><br><span class="line"> admin_server = FILE:/var/<span class="built_in">log</span>/kadmind.log</span><br><span class="line"></span><br><span class="line">[libdefaults]</span><br><span class="line"> dns_lookup_realm = <span class="literal">false</span></span><br><span class="line"> ticket_lifetime = 24h</span><br><span class="line"> renew_lifetime = 7d</span><br><span class="line"> forwardable = <span class="literal">true</span></span><br><span class="line"> rdns = <span class="literal">false</span></span><br><span class="line"> pkinit_anchors = /etc/pki/tls/certs/ca-bundle.crt</span><br><span class="line"> default_realm = KDC.COM</span><br><span class="line"> default_ccache_name = KEYRING:persistent:%&#123;uid&#125;</span><br><span class="line"> default_tgs_enctypes = aes128-cts arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-hmac-sha1 aes256-cts</span><br><span class="line"> default_tkt_enctypes = aes128-cts arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-hmac-sha1 aes256-cts</span><br><span class="line"> permitted_enctypes = aes256-cts-hmac-sha1-96 des3-cbc-sha1 arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-cbc-md4</span><br><span class="line"> allow_weak_crypto = yes</span><br><span class="line"></span><br><span class="line">[realms]</span><br><span class="line"> KDC.COM = &#123;</span><br><span class="line">  kdc = kdc.hostname</span><br><span class="line">  admin_server = kdc.hostname</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line">[domain_realm]</span><br><span class="line"> .kdc.com = KDC.COM</span><br><span class="line"> kdc.com = KDC.COM</span><br></pre></td></tr></table></figure>
-
-<h3 id="创建KDC数据库"><a href="#创建KDC数据库" class="headerlink" title="创建KDC数据库"></a>创建KDC数据库</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kdb5_util create -s -r KDC.COM</span><br></pre></td></tr></table></figure>
-
-<h3 id="开启Kerberos"><a href="#开启Kerberos" class="headerlink" title="开启Kerberos"></a>开启Kerberos</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl start krb5kdc kadmin</span><br><span class="line">systemctl <span class="built_in">enable</span> krb5kdc kadmin</span><br></pre></td></tr></table></figure>
-
-<p>接下来需要创建kadmin的管理员账号：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kadmin.local</span><br><span class="line">kadmin.local: addprinc root/admin</span><br><span class="line">kadmin.local: quit</span><br></pre></td></tr></table></figure>
-
-<h3 id="修改SSH客户端配置"><a href="#修改SSH客户端配置" class="headerlink" title="修改SSH客户端配置"></a>修改SSH客户端配置</h3><p>修改<code>/etc/ssh/ssh_config</code>，添加如下配置：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">GSSAPIAuthentication yes</span><br><span class="line">GSSAPIDelegateCredentials yes</span><br></pre></td></tr></table></figure>
-
-<p>执行：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">authconfig  --enablekrb5 --update</span><br><span class="line">systemctl reload sshd</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <tags>
-        <tag>kerberos</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CentOS 7安装Facebook folly库</title>
-    <url>/2019/04/26/CentOS-7%E5%AE%89%E8%A3%85Facebook-folly%E5%BA%93/</url>
-    <content><![CDATA[<p>folly是Facebook提出的一个基于C++14的C++组件库，包含有非常多具有实用性和效率性的数据结构。其github地址为： <a href="https://github.com/facebook/folly" target="_blank" rel="noopener">https://github.com/facebook/folly</a> 。在其README当中提供了在ubuntu和MacOS中的安装教程，没有CentOS中的安装教程，并且在CentOS当中安装会遇到很多问题，本文对在CentOS 7系统中安装folly库进行了过程记录。</p>
-<p>最新的folly需要gcc的版本高于5.1，但是CentOS 7中的gcc版本为4.8，直接升级安装gcc非常麻烦，并且可能会对其他项目使用的gcc造成影响，以采用我另一篇博客中提及的方法切换到高版本的gcc： </p>
-<p><a href="http://joey771.cn/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/" target="_blank" rel="noopener">http://joey771.cn/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/</a> </p>
-<p>从官网提供的ubuntu安装教程中可以看出，其依赖于boost-devel、glog-devel、gflags-devel、double-conversion等库，有些库可以通过yum来进行安装，有些则需要通过源码编译安装。首先是可以使用yum安装的库：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install boost-devel \</span><br><span class="line">double-conversion-devel \</span><br><span class="line">libevent-devel \</span><br><span class="line">openssl-devel \</span><br><span class="line">lz4-devel \</span><br><span class="line">xz-devel \</span><br><span class="line">snappy-devel \</span><br><span class="line">zlib-devel \</span><br><span class="line">jemalloc-devel \</span><br><span class="line">libtool \</span><br><span class="line">scons</span><br></pre></td></tr></table></figure>
-
-<p>编译安装gflags、glog</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/schuhschuh/gflags.git</span><br><span class="line">mkdir gflags/build</span><br><span class="line"><span class="built_in">cd</span> gflags/build</span><br><span class="line">cmake -DGFLAGS_NAMESPACE=google -DBUILD_SHARED_LIBS=on ..</span><br><span class="line">make -j 8</span><br><span class="line">sudo make install</span><br><span class="line"></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/google/glog.git</span><br><span class="line"><span class="built_in">cd</span> glog</span><br><span class="line">autoreconf -ivf</span><br><span class="line">./configure --with-gflags=/usr/<span class="built_in">local</span>/lib</span><br><span class="line">make -j 8</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
-
-<p>编译安装folly</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/facebook/folly.git</span><br><span class="line"><span class="built_in">cd</span> folly</span><br><span class="line">mkdir _build &amp;&amp; <span class="built_in">cd</span> _build</span><br><span class="line">cmake ..</span><br><span class="line">make -j 8</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>]]></content>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Gradle中添加C/C++代码编译打包流程</title>
     <url>/2018/10/29/Gradle%E4%B8%AD%E6%B7%BB%E5%8A%A0C-C-%E4%BB%A3%E7%A0%81%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85%E6%B5%81%E7%A8%8B/</url>
     <content><![CDATA[<p>写过JNI代码的同学应该都有遇到过这样的问题，我们可以很方便的使用Maven、Gradle等工具将我们写好的Java代码打包成一个jar包进行发布，但是当我们的代码当中包含有C/C++的代码时，我们可能需要额外再去运行一次make指令去编译C/C++的代码，并将编译出的库和jar包一起发布（在大多数情况下so文件和jar包是分开的）。实际上，我们可以使用Gradle在打包的同时自动编译我们的C/C++代码，同时将so文件打包到jar包之中，这样在运行jar包时不需要指定<code>java.library.path</code>也能正确读取到so文件，并且发布时只有一个文件，更为方便。</p>
@@ -71,6 +13,119 @@
 
 <p>这里buildLib这个task就是一个Exec Task，其中定义的流程就是执行make all指令来编译C/C++代码，clean的作用就是清除编译产生的lib文件和o文件（在调用gradle clean的时候调用清除工作），processResources即处理资源文件，其作用就是将编译产生的库文件拷贝到jar包当中。</p>
 ]]></content>
+  </entry>
+  <entry>
+    <title>Presto使用OpenLDAP进行登录认证</title>
+    <url>/2020/06/04/Presto%E4%BD%BF%E7%94%A8OpenLDAP%E8%BF%9B%E8%A1%8C%E7%99%BB%E5%BD%95%E8%AE%A4%E8%AF%81/</url>
+    <content><![CDATA[<p>presto对接OpenLDAP只支持ldaps，需要OpenLDAP开启SSL，本文将首先介绍OpenLDAP如何开启SSL。</p>
+<h2 id="OpenLDAP开启SSL"><a href="#OpenLDAP开启SSL" class="headerlink" title="OpenLDAP开启SSL"></a>OpenLDAP开启SSL</h2><p>OpenLDAP开启SSL需要生成LDAP证书，有两种证书生成方式：</p>
+<ol>
+<li>自签名证书。该方式较为简单，LDAP客户端需要进行设置不进行证书校验；</li>
+<li>CA签名证书，可以使用内部CA或外部CA签名证书。需要将给LDAP证书进行签名的CA证书放置在<code>/etc/openldap/cacerts</code>中，使得LDAP客户端能够对证书进行校验。</li>
+</ol>
+<p>两种方式任选一种即可。</p>
+<h3 id="自签名证书"><a href="#自签名证书" class="headerlink" title="自签名证书"></a>自签名证书</h3><p>在<code>/etc/openldap/certs/</code>目录中创建LDAP server自签名证书：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">openssl req -new -x509 -nodes -out /etc/openldap/certs/ldap.crt -keyout /etc/openldap/certs/ldap.key -days 1460</span><br></pre></td></tr></table></figure>
+
+<p>填写信息中比较重要的是Common Name，需要填写安装OpenLDAP的主机的hostname，其他信息可以不填写：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">Country Name (2 letter code) [XX]: CN</span><br><span class="line">State or Province Name (full name) []:</span><br><span class="line">Locality Name (eg, city) [Default City]:</span><br><span class="line">Organization Name (eg, company) [Default Company Ltd]:</span><br><span class="line">Organizational Unit Name (eg, section) []:</span><br><span class="line">Common Name (eg, your name or your server<span class="string">'s hostname) []: localhost</span></span><br><span class="line"><span class="string">Email Address []:</span></span><br></pre></td></tr></table></figure>
+
+<p>创建完成后，在<code>/etc/openldap/certs</code>目录下会产生<code>ldap.key</code>和<code>ldap.crt</code>，修改这两个文件的属主：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chown ldap:ldap /etc/openldap/certs/ldap.*</span><br></pre></td></tr></table></figure>
+
+<p>之后，我们通过ldif文件修改配置的方式修改OpenLDAP中关于证书信息的配置项，新建<code>certs.ldif</code>文件，内容如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dn: cn=config</span><br><span class="line">changetype: modify</span><br><span class="line">replace: olcTLSCertificateFile</span><br><span class="line">olcTLSCertificateFile: /etc/openldap/certs/ldap.crt</span><br><span class="line">-</span><br><span class="line">replace: olcTLSCertificateKeyFile</span><br><span class="line">olcTLSCertificateKeyFile: /etc/openldap/certs/ldap.key</span><br></pre></td></tr></table></figure>
+
+<p>在修改配置前，我们先看一下原有配置的内容：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">slapcat -b <span class="string">"cn=config"</span> | egrep <span class="string">"olcTLSCertificateKeyFile|olcTLSCertificateFile"</span></span><br></pre></td></tr></table></figure>
+
+<p>使用<code>certs.ldif</code>修改配置的命令为：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ldapmodify -Y EXTERNAL  -H ldapi:/// -f certs.ldif</span><br></pre></td></tr></table></figure>
+
+<p>修改完成后可以使用上述检查配置的命令检查一下修改是否生效了。</p>
+<h3 id="CA签名证书"><a href="#CA签名证书" class="headerlink" title="CA签名证书"></a>CA签名证书</h3><p>在<code>/etc/pki/CA</code>目录中创建<code>serial</code>和<code>index.txt</code>文件用于记录生成证书过程：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> /etc/pki/CA</span><br><span class="line"><span class="built_in">echo</span> 0001 &gt; serial</span><br><span class="line">touch index.txt</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-生成CA所使用的密钥"><a href="#1-生成CA所使用的密钥" class="headerlink" title="1. 生成CA所使用的密钥"></a>1. 生成CA所使用的密钥</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">openssl genrsa -aes256 -out /etc/pki/CA/private/ca.key.pem</span><br></pre></td></tr></table></figure>
+
+<p>输入秘钥的密码。</p>
+<h4 id="2-创建CA的证书文件"><a href="#2-创建CA的证书文件" class="headerlink" title="2. 创建CA的证书文件"></a>2. 创建CA的证书文件</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">openssl req -new -x509 -days 3650 -key /etc/pki/CA/private/ca.key.pem -extensions v3_ca -out /etc/pki/CA/certs/ca.cert.pem</span><br></pre></td></tr></table></figure>
+
+<p>创建证书需要输入一些信息，这其中比较重要的是Common Name，需要填写安装OpenLDAP的主机的hostname，其他信息可以不写。</p>
+<blockquote>
+<p>注意：CN（Common Name）和主机名必须要匹配</p>
+</blockquote>
+<h4 id="3-创建ldap-server使用的秘钥"><a href="#3-创建ldap-server使用的秘钥" class="headerlink" title="3. 创建ldap server使用的秘钥"></a>3. 创建ldap server使用的秘钥</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">openssl genrsa -out /etc/pki/CA/private/ldap.key</span><br></pre></td></tr></table></figure>
+
+<p>输入秘钥的密码。</p>
+<h4 id="4-创建ldap-server的证书文件"><a href="#4-创建ldap-server的证书文件" class="headerlink" title="4. 创建ldap server的证书文件"></a>4. 创建ldap server的证书文件</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">openssl req -new -key /etc/pki/CA/private/ldap.key -out /etc/pki/CA/certs/ldap.csr</span><br></pre></td></tr></table></figure>
+
+<p>输入信息，CN填入OpenLDAP安装主机的hostname，其他可以不写。</p>
+<h4 id="5-使用CA对ldap-server的证书进行签名"><a href="#5-使用CA对ldap-server的证书进行签名" class="headerlink" title="5. 使用CA对ldap server的证书进行签名"></a>5. 使用CA对ldap server的证书进行签名</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">openssl ca -keyfile /etc/pki/CA/private/ca.key.pem -cert /etc/pki/CA/certs/ca.cert.pem -<span class="keyword">in</span> /etc/pki/CA/certs/ldap.csr -out /etc/pki/CA/certs/ldap.crt</span><br></pre></td></tr></table></figure>
+
+<p>这时候已经完成了ldap server证书由我们创建的CA进行签名的过程，此时<code>index.txt</code>文件中的内容应该已经发生了变化，使用<code>cat /etc/pki/CA/index.txt</code>进行查看。我们也可以使用<code>openssl</code>来验证ldap server证书是否被CA正确签名：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">openssl verify -CAfile /etc/pki/CA/certs/ca.cert.pem /etc/pki/CA/certs/ldap.crt</span><br></pre></td></tr></table></figure>
+
+<p>我们需要将证书、秘钥文件拷贝到<code>/etc/openldap/certs</code>目录中，将CA证书放到<code>/etc/openldap/cacerts/</code>目录中：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cp -v /etc/pki/CA/certs/* /etc/openldap/certs/</span><br><span class="line">cp -v /etc/pki/CA/private/ldap.key /etc/openldap/certs/</span><br><span class="line">mkdir /etc/openldap/cacerts/</span><br><span class="line">cp -v /etc/pki/CA/certs/ca.cert.pem /etc/openldap/cacerts/</span><br></pre></td></tr></table></figure>
+
+<p>修改目录属主：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">chown -R ldap:ldap /etc/openldap/certs</span><br><span class="line">chown -R ldap:ldap /etc/openldap/cacerts</span><br></pre></td></tr></table></figure>
+
+<h4 id="6-修改OpenLDAP配置生效CA签名证书"><a href="#6-修改OpenLDAP配置生效CA签名证书" class="headerlink" title="6. 修改OpenLDAP配置生效CA签名证书"></a>6. 修改OpenLDAP配置生效CA签名证书</h4><p>新建<code>certs.ldif</code>文件，其内容如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">dn: cn=config</span><br><span class="line">changetype: modify</span><br><span class="line">replace: olcTLSCertificateFile</span><br><span class="line">olcTLSCertificateFile: /etc/openldap/certs/ldap.crt</span><br><span class="line">-</span><br><span class="line">replace: olcTLSCertificateKeyFile</span><br><span class="line">olcTLSCertificateKeyFile: /etc/openldap/certs/ldap.key</span><br><span class="line">-</span><br><span class="line">add: olcTLSCACertificateFile</span><br><span class="line">olcTLSCACertificateFile: /etc/openldap/cacerts/ca.cert.pem</span><br></pre></td></tr></table></figure>
+
+<p>执行如下命令进行修改：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ldapmodify -Y EXTERNAL -H ldapi:// -f certs.ldif</span><br></pre></td></tr></table></figure>
+
+<p>使用如下命令确保生效：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">slapcat -b <span class="string">"cn=config"</span> | egrep <span class="string">"olcTLSCertificateFile|olcTLSCertificateKeyFile|olcTLSCACertificateFile"</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="配置OpenLDAP开启SSL监听"><a href="#配置OpenLDAP开启SSL监听" class="headerlink" title="配置OpenLDAP开启SSL监听"></a>配置OpenLDAP开启SSL监听</h3><p>修改配置文件<code>/etc/sysconfig/slapd</code>，添加<code>ldaps</code>：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">SLAPD_URLS=<span class="string">"ldapi:/// ldap:/// ldaps:///"</span></span><br></pre></td></tr></table></figure>
+
+<p>修改<code>/etc/openldap/certs</code>中的配置：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">#TLS_CACERTDIR /etc/openldap/certs</span><br><span class="line">TLS_REQCERT never</span><br></pre></td></tr></table></figure>
+
+<p>重启OpenLDAP：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl restart slapd</span><br></pre></td></tr></table></figure>
+
+<p>重启完成后，首先检查ldaps所使用的636端口是否已经启动：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">netstat -nlp | grep 636</span><br></pre></td></tr></table></figure>
+
+<p>可以使用如下命令来测试ldaps连接：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ldapwhoami -x -H ldaps://&lt;ldap_server&gt;:636</span><br></pre></td></tr></table></figure>
+
+<p>如果能够成功显示anonymous，说明成功通过SSL连上了OpenLDAP server，同时OpenLDAP server是支持匿名访问的（Presto对接OpenLDAP需要OpenLDAP支持匿名访问）。</p>
+<p>也可以使用如下简单认证的方式来验证ldaps连接是否正确（该方法不能测试匿名连接，如果上面方法失败，但是这个方法成功，说明ldaps连接没问题，但是匿名访问不被允许，需要进行OpenLDAP ACL配置或者删除disallow匿名访问的配置）：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ldapwhoami -x -w <span class="string">"&lt;passwd&gt;"</span> -D &lt;user_dn&gt; -H ldaps://&lt;ldap_server&gt;:636</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置Presto支持LDAP认证"><a href="#配置Presto支持LDAP认证" class="headerlink" title="配置Presto支持LDAP认证"></a>配置Presto支持LDAP认证</h2><p>Presto支持LDAP认证，客户端必须以HTTPS的方式访问presto server。开启LDAP认证只需要对presto coordinator进行配置使其支持SSL/TLS，presto worker不需要进行修改，只有客户端和presto coordinator之间的连接需要认证。</p>
+<h3 id="生成presto-server秘钥"><a href="#生成presto-server秘钥" class="headerlink" title="生成presto server秘钥"></a>生成presto server秘钥</h3><p>配置presto coordinator支持SSL/TLS，需要生成presto server的秘钥（keystore）文件。</p>
+<h4 id="1-生成presto-server私钥："><a href="#1-生成presto-server私钥：" class="headerlink" title="1. 生成presto server私钥："></a>1. 生成presto server私钥：</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">keytool -genkey -v -keystore presto-private.keystore -<span class="built_in">alias</span> presto-private -keyalg RSA -dname <span class="string">"CN=&lt;hostname&gt;, OU=, O=, L=, ST=, C=CN"</span> -validity 20000 -keypass &lt;passwd&gt; -storepass &lt;passwd&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这里CN（Common Name）必须填写presto server所在主机的hostname，其他的可以不需要填写。</p>
+<h4 id="2-导出证书文件"><a href="#2-导出证书文件" class="headerlink" title="2. 导出证书文件"></a>2. 导出证书文件</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">keytool -<span class="built_in">export</span> -<span class="built_in">alias</span> presto-private -keystore presto-private.keystore -file presto-public.cer -storepass &lt;passwd&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-由证书文件生成公钥给客户端使用"><a href="#3-由证书文件生成公钥给客户端使用" class="headerlink" title="3. 由证书文件生成公钥给客户端使用"></a>3. 由证书文件生成公钥给客户端使用</h4><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">keytool -import -<span class="built_in">alias</span> presto-public -file presto-public.cer -keystore presto.keystore -storepass &lt;passwd&gt;</span><br></pre></td></tr></table></figure>
+
+<p>此处<code>&lt;passwd&gt;</code>可与私钥不同，后续客户端登录时需要显示输入该密码</p>
+<h3 id="修改Presto-coordinator配置"><a href="#修改Presto-coordinator配置" class="headerlink" title="修改Presto coordinator配置"></a>修改Presto coordinator配置</h3><p>修改<code>etc/config.properties</code>文件，添加如下配置：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">http-server.authentication.type=PASSWORD</span><br><span class="line">http-server.https.enabled=<span class="literal">true</span></span><br><span class="line">http-server.https.port=8443</span><br><span class="line"></span><br><span class="line">http-server.https.keystore.path=&lt;private_keystore_path&gt;</span><br><span class="line">http-server.https.keystore.key=&lt;keystore_passwd&gt;</span><br></pre></td></tr></table></figure>
+
+<p>修改<code>etc/password-authenticator.properties</code>文件，添加如下配置：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">password-authenticator.name=ldap</span><br><span class="line">ldap.url=ldaps://&lt;ldap_server&gt;:636</span><br><span class="line">ldap.user-bind-pattern=uid=<span class="variable">$&#123;USER&#125;</span>,dc=example,dc=com</span><br></pre></td></tr></table></figure>
+
+<p><code>ldap.user-bind-pattern</code>需要填写登录用户如何映射到ldap的dn，其中<code>${USER}</code>表示登录的用户名，即presto cli登录时<code>--username</code>参数填写的内容。</p>
+<p>配置完成后需要重启Presto coordinator使配置生效，之后便可以使用客户端登录，进行ldap认证了。</p>
+<h3 id="Presto-cli登录配置"><a href="#Presto-cli登录配置" class="headerlink" title="Presto cli登录配置"></a>Presto cli登录配置</h3><p>使用如下命令连接presto server，相比没有ldap认证时候需要填写keystore、user、password等内容：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">presto --server https://&lt;presto_server&gt;:&lt;https_port&gt; --keystore-path &lt;public_keystore_path&gt; --keystore-password &lt;public_keystore_passwd&gt; --catalog hive --user &lt;ldap_username&gt; --password</span><br></pre></td></tr></table></figure>
+
+<p>输入密码之后将可以进入presto命令行。若密码输入错误，也可以进入presto命令行，但是执行presto命令会出现认证失败的报错。输入正确的ldap用户名和密码，执行<code>show schemas;</code>，若能正确输出结果说明配置正确。</p>
+]]></content>
+      <tags>
+        <tag>LDAP</tag>
+      </tags>
   </entry>
   <entry>
     <title>Mac上制作Linux的U盘启动盘</title>
@@ -162,6 +217,24 @@
 
 <p><code>owner</code>设置属主，<code>group</code>设置属组，<code>recurse</code>设置是否对目录进行递归进行设置。</p>
 ]]></content>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CentOS 7安装Facebook folly库</title>
+    <url>/2019/04/26/CentOS-7%E5%AE%89%E8%A3%85Facebook-folly%E5%BA%93/</url>
+    <content><![CDATA[<p>folly是Facebook提出的一个基于C++14的C++组件库，包含有非常多具有实用性和效率性的数据结构。其github地址为： <a href="https://github.com/facebook/folly" target="_blank" rel="noopener">https://github.com/facebook/folly</a> 。在其README当中提供了在ubuntu和MacOS中的安装教程，没有CentOS中的安装教程，并且在CentOS当中安装会遇到很多问题，本文对在CentOS 7系统中安装folly库进行了过程记录。</p>
+<p>最新的folly需要gcc的版本高于5.1，但是CentOS 7中的gcc版本为4.8，直接升级安装gcc非常麻烦，并且可能会对其他项目使用的gcc造成影响，以采用我另一篇博客中提及的方法切换到高版本的gcc： </p>
+<p><a href="http://joey771.cn/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/">http://joey771.cn/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/</a> </p>
+<p>从官网提供的ubuntu安装教程中可以看出，其依赖于boost-devel、glog-devel、gflags-devel、double-conversion等库，有些库可以通过yum来进行安装，有些则需要通过源码编译安装。首先是可以使用yum安装的库：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install boost-devel \</span><br><span class="line">double-conversion-devel \</span><br><span class="line">libevent-devel \</span><br><span class="line">openssl-devel \</span><br><span class="line">lz4-devel \</span><br><span class="line">xz-devel \</span><br><span class="line">snappy-devel \</span><br><span class="line">zlib-devel \</span><br><span class="line">jemalloc-devel \</span><br><span class="line">libtool \</span><br><span class="line">scons</span><br></pre></td></tr></table></figure>
+
+<p>编译安装gflags、glog</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/schuhschuh/gflags.git</span><br><span class="line">mkdir gflags/build</span><br><span class="line"><span class="built_in">cd</span> gflags/build</span><br><span class="line">cmake -DGFLAGS_NAMESPACE=google -DBUILD_SHARED_LIBS=on ..</span><br><span class="line">make -j 8</span><br><span class="line">sudo make install</span><br><span class="line"></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/google/glog.git</span><br><span class="line"><span class="built_in">cd</span> glog</span><br><span class="line">autoreconf -ivf</span><br><span class="line">./configure --with-gflags=/usr/<span class="built_in">local</span>/lib</span><br><span class="line">make -j 8</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+
+<p>编译安装folly</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/facebook/folly.git</span><br><span class="line"><span class="built_in">cd</span> folly</span><br><span class="line">mkdir _build &amp;&amp; <span class="built_in">cd</span> _build</span><br><span class="line">cmake ..</span><br><span class="line">make -j 8</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>]]></content>
       <tags>
         <tag>Linux</tag>
       </tags>
@@ -321,6 +394,38 @@
       </tags>
   </entry>
   <entry>
+    <title>修改Microsoft Offince加载项加载行为</title>
+    <url>/2019/04/09/%E4%BF%AE%E6%94%B9Microsoft-Offince%E5%8A%A0%E8%BD%BD%E9%A1%B9%E5%8A%A0%E8%BD%BD%E8%A1%8C%E4%B8%BA/</url>
+    <content><![CDATA[<p>最近在写论文时，需要将word文档导出为pdf文档。将word导出为pdf之前一直使用的是另存为的方法，也可以使用打印选择Adobe PDF来生成pdf文件，但是这两种方法都有一定的局限性。打印的方法生成pdf不能选择添加书签，但是能控制输出文件的清晰度，调到比较高时，能生成非常清晰的pdf文件。word2016中已经可以使用另存为来导出pdf，并且在选项当中也可以设置是否导出书签，但是输出的pdf文件的清晰度调整选项不够多，输出的pdf中图片会被压缩，变得模糊。<br>实际上，安装了Adobe Acrobat的word当中有一个Acrobat的加载项菜单，里面的首选项菜单可以很详细地配置导出的pdf文件的一些参数，可以选择高质量打印，并且将其中的图片的压缩和采样全都关掉，并且可以设置输出的清晰度以及书签等等。但是这个加载项在生成pdf结束后，会导致word崩溃，出来一个提示问我是否要禁用该加载项，一时手滑点到了是，结果这个加载项就被禁用了。禁用之后也好办，可以在word的选项-加载项-转到里面勾选Adobe PDFMaker加载项进行加载。但是这个加载项原本是随word启动自动加载的，现在变成了每次都要去选项里面设置加载，非常麻烦，并且选项里面并没有菜单可以选择让这个加载项自动加载。这里便需要修改注册表来实现随word启动自动加载，注册表的位置为:</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">HKEY_CURRENT_USER\Software\Microsoft\Office\Word\Addins\PDFMaker.OfficeAddin</span><br></pre></td></tr></table></figure>
+
+<p>进去之后发现有一个LoadBehavior的键的值现在是0，我观察到Addins里面还有有道词典的加载项，这个加载项是会随word自动启动的，其LoadBehavior的值为3，于是将PDFMaker.OfficeAddin中LoadBehavior的值也改为3便能自动随word启动了，大功告成。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>苹果电脑U盘安装新版MacOS</title>
+    <url>/2019/04/11/%E8%8B%B9%E6%9E%9C%E7%94%B5%E8%84%91U%E7%9B%98%E5%AE%89%E8%A3%85%E6%96%B0%E7%89%88MacOS/</url>
+    <content><![CDATA[<p>最近拿到了一台2012年中的MacBook Air，其系统版本非常老，还是10.7，需要对其系统进行升级。一开时以为直接用系统更新就能升级上去，但是第一次更新就遇到了“不能存储更新”的问题，无法升级，试了好几次都在最后快下完的时候报这个错误。查资料说是因为系统版本太老了，要手动下载组合更新包才能升级。</p>
+<p>在<a href="https://support.apple.com/zh_CN/downloads/macos" target="_blank" rel="noopener">https://support.apple.com/zh_CN/downloads/macos</a> 上可以找到所有MacOS的组合更新包，一直往下拉找到10.7.5的组合更新包，下下来以后直接安装非常容易就安装上去了。接下来继续检查更新，更新了一些软件内容，之后就提示所有内容已经是最新的了，但是这时候系统版本还是10.7.5，已经无法再往上升级了，于是去下了10.8版本最早的组合更新包10.8.2，点击安装确提示只能支持10.8的系统。</p>
+<p>查了资料才知道，当时10.8发布的时候从10.7.5升上去是要19美元的，人民币好像120多，之后苹果系统都是免费的了。App Store里面10.8的升级早就下架了，已经无法以正常的更新途径来更新系统了，只能自己制作U盘启动盘来更新这个系统。首先查了一下各个版本的MacOS对老机型的兼容性。</p>
+<ul>
+<li>10.11 OS X El Capitan <a href="https://support.apple.com/zh-cn/HT206886" target="_blank" rel="noopener">https://support.apple.com/zh-cn/HT206886</a></li>
+<li>10.12 macOS Sierra <a href="https://support.apple.com/zh-cn/HT208202" target="_blank" rel="noopener">https://support.apple.com/zh-cn/HT208202</a></li>
+<li>10.13 macOS High Sierra <a href="https://support.apple.com/zh-cn/HT208969" target="_blank" rel="noopener">https://support.apple.com/zh-cn/HT208969</a></li>
+<li>10.14 macOS Mojave <a href="https://support.apple.com/zh-cn/HT201475" target="_blank" rel="noopener">https://support.apple.com/zh-cn/HT201475</a></li>
+</ul>
+<p>看了一下，这些系统都是支持这台MacBook Air的，最新的10.14应该是这台电脑最高能升的系统了，以后再有新系统的更新估计就上不去了。我决定直接升级到10.11，于是找了一个10.11.6的系统镜像dmg文件，下了半天才下好，打开的时候却说什么“校验和”有问题，后来查了一下直接打开的时候点跳过就可以了，里面有一个<code>Install OS X El Capitan.app</code>，把它随便拖到一个文件夹里面。</p>
+<p>之后准备一个8G以上的U盘插入电脑，打开磁盘工具，点击左上角的显示，选择显示所有设备。找到自己的U盘，点最外层的设备，选择抹掉，分区类型选GUID，格式选Mac OS扩展（日志式），取一个名字叫OSX。格式化完毕之后，输入以下命令来进行启动盘制作。</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo /Users/joey/Downloads/xxx.app/Contents/Resources/createinstallmedia --volume /Volumes/OSX --applicationpath /Users/joey/Downloads/xxx.app --nointeraction</span><br></pre></td></tr></table></figure>
+
+<p>我是把app文件拖到了Downloads目录下的，这里xxx就代表了这个app文件的名字，其他版本的MacOS制作U盘启动盘的命令都是一样的，这个过程持续的时间比较长。做好之后重启电脑，按住option键，选择U盘启动，之后的过程很简单，一步一步点就行了。但是到最后还是安装失败了，报了一个错“应用程序副本不能验证 它在下载过程中可能已遭破坏或篡改”。这个问题很多人都说在安装的时候在终端里通过date修改时间就可以解决，我试了一下没办法解决这个问题。但是我看了一下，遇到这个问题的大多数都是安装10.11以及之前版本的MacOS的，那时候系统还不叫MacOS，叫OSX。估计OSX有个时间上的验证机制，于是放弃安装10.11，毕竟这台电脑还可以装10.12，10.13和10.14，估计就不会有这个问题了。重新制作启动盘，流程和上面一样，然后就顺利安装上去了。</p>
+<p>接下来就是用boot camp安装win10双系统，又遇到了奇葩问题，用boot camp做了启动盘之后一直会出现无法引导的问题，可以用efi引导进去安装，但是会遇到分区表类型无法兼容efi的问题，删除分区和格式化都没法解决，找到一个比较挫的方法是先在Mac系统里把BOOTCAMP的分区格式化成Mac OS扩展（日志式），然后安装windows的时候删除那个分区即可安装上去，但是这样那个分区在Mac系统中就不受boot camp控制了，删除windows系统还原分区的时候比较麻烦。查了很久，一个帖子恰好也是这一款MacBook Air，也出现了一样的问题，被我查到了<a href="https://www.cnblogs.com/pinganzi/p/10354296.html" target="_blank" rel="noopener">https://www.cnblogs.com/pinganzi/p/10354296.html</a> ，他的第一个问题我没遇到，第二个问题和我一样，于是我换了一个USB2.0的U盘，马上就解决问题了，但是安装win10的时候会说需要先格式化成NTFS，直接点格式化就可以安装了。</p>
+]]></content>
+      <tags>
+        <tag>Mac</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>ubuntu安装OpenCL运行及编译环境</title>
     <url>/2019/01/18/ubuntu%E5%AE%89%E8%A3%85OpenCL%E8%BF%90%E8%A1%8C%E5%8F%8A%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/</url>
     <content><![CDATA[<p>最近需要运行一个基于OpenCL开发的软件，服务器上的NVIDIA 1080Ti和Intel CPU都支持OpenCL，安装OpenCL之前可以安装一个clinfo的软件可以看到服务器上目前支持的OpenCL设备。</p>
@@ -361,35 +466,43 @@
       </tags>
   </entry>
   <entry>
-    <title>修改Microsoft Offince加载项加载行为</title>
-    <url>/2019/04/09/%E4%BF%AE%E6%94%B9Microsoft-Offince%E5%8A%A0%E8%BD%BD%E9%A1%B9%E5%8A%A0%E8%BD%BD%E8%A1%8C%E4%B8%BA/</url>
-    <content><![CDATA[<p>最近在写论文时，需要将word文档导出为pdf文档。将word导出为pdf之前一直使用的是另存为的方法，也可以使用打印选择Adobe PDF来生成pdf文件，但是这两种方法都有一定的局限性。打印的方法生成pdf不能选择添加书签，但是能控制输出文件的清晰度，调到比较高时，能生成非常清晰的pdf文件。word2016中已经可以使用另存为来导出pdf，并且在选项当中也可以设置是否导出书签，但是输出的pdf文件的清晰度调整选项不够多，输出的pdf中图片会被压缩，变得模糊。<br>实际上，安装了Adobe Acrobat的word当中有一个Acrobat的加载项菜单，里面的首选项菜单可以很详细地配置导出的pdf文件的一些参数，可以选择高质量打印，并且将其中的图片的压缩和采样全都关掉，并且可以设置输出的清晰度以及书签等等。但是这个加载项在生成pdf结束后，会导致word崩溃，出来一个提示问我是否要禁用该加载项，一时手滑点到了是，结果这个加载项就被禁用了。禁用之后也好办，可以在word的选项-加载项-转到里面勾选Adobe PDFMaker加载项进行加载。但是这个加载项原本是随word启动自动加载的，现在变成了每次都要去选项里面设置加载，非常麻烦，并且选项里面并没有菜单可以选择让这个加载项自动加载。这里便需要修改注册表来实现随word启动自动加载，注册表的位置为:</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">HKEY_CURRENT_USER\Software\Microsoft\Office\Word\Addins\PDFMaker.OfficeAddin</span><br></pre></td></tr></table></figure>
+    <title>CentOS7上安装Kerberos KDC</title>
+    <url>/2020/04/24/CentOS7%E4%B8%8A%E5%AE%89%E8%A3%85Kerberos-KDC/</url>
+    <content><![CDATA[<h3 id="yum安装软件"><a href="#yum安装软件" class="headerlink" title="yum安装软件"></a>yum安装软件</h3><p>首先通过yum安装kerberos所需要的软件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum install -y krb5-server krb5-workstation pam_krb5</span><br></pre></td></tr></table></figure>
 
-<p>进去之后发现有一个LoadBehavior的键的值现在是0，我观察到Addins里面还有有道词典的加载项，这个加载项是会随word自动启动的，其LoadBehavior的值为3，于是将PDFMaker.OfficeAddin中LoadBehavior的值也改为3便能自动随word启动了，大功告成。</p>
-]]></content>
-  </entry>
-  <entry>
-    <title>苹果电脑U盘安装新版MacOS</title>
-    <url>/2019/04/11/%E8%8B%B9%E6%9E%9C%E7%94%B5%E8%84%91U%E7%9B%98%E5%AE%89%E8%A3%85%E6%96%B0%E7%89%88MacOS/</url>
-    <content><![CDATA[<p>最近拿到了一台2012年中的MacBook Air，其系统版本非常老，还是10.7，需要对其系统进行升级。一开时以为直接用系统更新就能升级上去，但是第一次更新就遇到了“不能存储更新”的问题，无法升级，试了好几次都在最后快下完的时候报这个错误。查资料说是因为系统版本太老了，要手动下载组合更新包才能升级。</p>
-<p>在<a href="https://support.apple.com/zh_CN/downloads/macos" target="_blank" rel="noopener">https://support.apple.com/zh_CN/downloads/macos</a> 上可以找到所有MacOS的组合更新包，一直往下拉找到10.7.5的组合更新包，下下来以后直接安装非常容易就安装上去了。接下来继续检查更新，更新了一些软件内容，之后就提示所有内容已经是最新的了，但是这时候系统版本还是10.7.5，已经无法再往上升级了，于是去下了10.8版本最早的组合更新包10.8.2，点击安装确提示只能支持10.8的系统。</p>
-<p>查了资料才知道，当时10.8发布的时候从10.7.5升上去是要19美元的，人民币好像120多，之后苹果系统都是免费的了。App Store里面10.8的升级早就下架了，已经无法以正常的更新途径来更新系统了，只能自己制作U盘启动盘来更新这个系统。首先查了一下各个版本的MacOS对老机型的兼容性。</p>
+<h3 id="修改服务端配置"><a href="#修改服务端配置" class="headerlink" title="修改服务端配置"></a>修改服务端配置</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> /var/kerberos/krb5kdc</span><br></pre></td></tr></table></figure>
+
+<p>我们需要修改该目录下的两个配置文件：</p>
 <ul>
-<li>10.11 OS X El Capitan <a href="https://support.apple.com/zh-cn/HT206886" target="_blank" rel="noopener">https://support.apple.com/zh-cn/HT206886</a></li>
-<li>10.12 macOS Sierra <a href="https://support.apple.com/zh-cn/HT208202" target="_blank" rel="noopener">https://support.apple.com/zh-cn/HT208202</a></li>
-<li>10.13 macOS High Sierra <a href="https://support.apple.com/zh-cn/HT208969" target="_blank" rel="noopener">https://support.apple.com/zh-cn/HT208969</a></li>
-<li>10.14 macOS Mojave <a href="https://support.apple.com/zh-cn/HT201475" target="_blank" rel="noopener">https://support.apple.com/zh-cn/HT201475</a></li>
+<li>kdc.conf</li>
+<li>kadm5.acl</li>
 </ul>
-<p>看了一下，这些系统都是支持这台MacBook Air的，最新的10.14应该是这台电脑最高能升的系统了，以后再有新系统的更新估计就上不去了。我决定直接升级到10.11，于是找了一个10.11.6的系统镜像dmg文件，下了半天才下好，打开的时候却说什么“校验和”有问题，后来查了一下直接打开的时候点跳过就可以了，里面有一个<code>Install OS X El Capitan.app</code>，把它随便拖到一个文件夹里面。</p>
-<p>之后准备一个8G以上的U盘插入电脑，打开磁盘工具，点击左上角的显示，选择显示所有设备。找到自己的U盘，点最外层的设备，选择抹掉，分区类型选GUID，格式选Mac OS扩展（日志式），取一个名字叫OSX。格式化完毕之后，输入以下命令来进行启动盘制作。</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo /Users/joey/Downloads/xxx.app/Contents/Resources/createinstallmedia --volume /Volumes/OSX --applicationpath /Users/joey/Downloads/xxx.app --nointeraction</span><br></pre></td></tr></table></figure>
+<p>假设我们的realm为KDC.COM，修改<code>kadm5.acl</code>为如下内容：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">*/admin@KDC.COM     *</span><br></pre></td></tr></table></figure>
 
-<p>我是把app文件拖到了Downloads目录下的，这里xxx就代表了这个app文件的名字，其他版本的MacOS制作U盘启动盘的命令都是一样的，这个过程持续的时间比较长。做好之后重启电脑，按住option键，选择U盘启动，之后的过程很简单，一步一步点就行了。但是到最后还是安装失败了，报了一个错“应用程序副本不能验证 它在下载过程中可能已遭破坏或篡改”。这个问题很多人都说在安装的时候在终端里通过date修改时间就可以解决，我试了一下没办法解决这个问题。但是我看了一下，遇到这个问题的大多数都是安装10.11以及之前版本的MacOS的，那时候系统还不叫MacOS，叫OSX。估计OSX有个时间上的验证机制，于是放弃安装10.11，毕竟这台电脑还可以装10.12，10.13和10.14，估计就不会有这个问题了。重新制作启动盘，流程和上面一样，然后就顺利安装上去了。</p>
-<p>接下来就是用boot camp安装win10双系统，又遇到了奇葩问题，用boot camp做了启动盘之后一直会出现无法引导的问题，可以用efi引导进去安装，但是会遇到分区表类型无法兼容efi的问题，删除分区和格式化都没法解决，找到一个比较挫的方法是先在Mac系统里把BOOTCAMP的分区格式化成Mac OS扩展（日志式），然后安装windows的时候删除那个分区即可安装上去，但是这样那个分区在Mac系统中就不受boot camp控制了，删除windows系统还原分区的时候比较麻烦。查了很久，一个帖子恰好也是这一款MacBook Air，也出现了一样的问题，被我查到了<a href="https://www.cnblogs.com/pinganzi/p/10354296.html" target="_blank" rel="noopener">https://www.cnblogs.com/pinganzi/p/10354296.html</a> ，他的第一个问题我没遇到，第二个问题和我一样，于是我换了一个USB2.0的U盘，马上就解决问题了，但是安装win10的时候会说需要先格式化成NTFS，直接点格式化就可以安装了。</p>
+<p>修改<code>kdc.conf</code>为如下内容：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[kdcdefaults]</span><br><span class="line"> kdc_ports = 88</span><br><span class="line"> kdc_tcp_ports = 88</span><br><span class="line"></span><br><span class="line">[realms]</span><br><span class="line"> KDC.COM = &#123;</span><br><span class="line">  <span class="comment">#master_key_type = aes256-cts</span></span><br><span class="line">  max_renewable_life = 7d</span><br><span class="line">  acl_file = /var/kerberos/krb5kdc/kadm5.acl</span><br><span class="line">  dict_file = /usr/share/dict/words</span><br><span class="line">  admin_keytab = /var/kerberos/krb5kdc/kadm5.keytab</span><br><span class="line">  supported_enctypes = aes256-cts:normal aes128-cts:normal des3-hmac-sha1:normal arcfour-hmac:normal camellia256-cts:normal camellia128-cts:normal des-hmac-sha1:normal des-cbc-md5:normal des-cbc-crc:normal</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改客户端配置"><a href="#修改客户端配置" class="headerlink" title="修改客户端配置"></a>修改客户端配置</h3><p>我们用作KDC服务的服务器也将会是一个Kerberos客户端，我们需要修改客户端配置文件<code>/etc/krb5.conf</code>，文件内容如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Configuration snippets may be placed in this directory as well</span></span><br><span class="line">includedir /etc/krb5.conf.d/</span><br><span class="line"></span><br><span class="line">[logging]</span><br><span class="line"> default = FILE:/var/<span class="built_in">log</span>/krb5libs.log</span><br><span class="line"> kdc = FILE:/var/<span class="built_in">log</span>/krb5kdc.log</span><br><span class="line"> admin_server = FILE:/var/<span class="built_in">log</span>/kadmind.log</span><br><span class="line"></span><br><span class="line">[libdefaults]</span><br><span class="line"> dns_lookup_realm = <span class="literal">false</span></span><br><span class="line"> ticket_lifetime = 24h</span><br><span class="line"> renew_lifetime = 7d</span><br><span class="line"> forwardable = <span class="literal">true</span></span><br><span class="line"> rdns = <span class="literal">false</span></span><br><span class="line"> pkinit_anchors = /etc/pki/tls/certs/ca-bundle.crt</span><br><span class="line"> default_realm = KDC.COM</span><br><span class="line"> default_ccache_name = KEYRING:persistent:%&#123;uid&#125;</span><br><span class="line"> default_tgs_enctypes = aes128-cts arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-hmac-sha1 aes256-cts</span><br><span class="line"> default_tkt_enctypes = aes128-cts arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-hmac-sha1 aes256-cts</span><br><span class="line"> permitted_enctypes = aes256-cts-hmac-sha1-96 des3-cbc-sha1 arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-cbc-md4</span><br><span class="line"> allow_weak_crypto = yes</span><br><span class="line"></span><br><span class="line">[realms]</span><br><span class="line"> KDC.COM = &#123;</span><br><span class="line">  kdc = kdc.hostname</span><br><span class="line">  admin_server = kdc.hostname</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line">[domain_realm]</span><br><span class="line"> .kdc.com = KDC.COM</span><br><span class="line"> kdc.com = KDC.COM</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建KDC数据库"><a href="#创建KDC数据库" class="headerlink" title="创建KDC数据库"></a>创建KDC数据库</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kdb5_util create -s -r KDC.COM</span><br></pre></td></tr></table></figure>
+
+<h3 id="开启Kerberos"><a href="#开启Kerberos" class="headerlink" title="开启Kerberos"></a>开启Kerberos</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl start krb5kdc kadmin</span><br><span class="line">systemctl <span class="built_in">enable</span> krb5kdc kadmin</span><br></pre></td></tr></table></figure>
+
+<p>接下来需要创建kadmin的管理员账号：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kadmin.local</span><br><span class="line">kadmin.local: addprinc root/admin</span><br><span class="line">kadmin.local: quit</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改SSH客户端配置"><a href="#修改SSH客户端配置" class="headerlink" title="修改SSH客户端配置"></a>修改SSH客户端配置</h3><p>修改<code>/etc/ssh/ssh_config</code>，添加如下配置：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">GSSAPIAuthentication yes</span><br><span class="line">GSSAPIDelegateCredentials yes</span><br></pre></td></tr></table></figure>
+
+<p>执行：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">authconfig  --enablekrb5 --update</span><br><span class="line">systemctl reload sshd</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <tags>
-        <tag>Mac</tag>
+        <tag>kerberos</tag>
       </tags>
   </entry>
   <entry>
@@ -456,6 +569,36 @@
       </tags>
   </entry>
   <entry>
+    <title>MPI的helloworld教程</title>
+    <url>/2016/10/21/MPI/MPI%E7%9A%84helloworld%E6%95%99%E7%A8%8B/</url>
+    <content><![CDATA[<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mpi.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Initialize the MPI environment</span></span><br><span class="line">    MPI_Init(<span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the number of processes</span></span><br><span class="line">    <span class="keyword">int</span> world_size;</span><br><span class="line">    MPI_Comm_size(MPI_COMM_WORLD, &amp;world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the rank of the process</span></span><br><span class="line">    <span class="keyword">int</span> world_rank;</span><br><span class="line">    MPI_Comm_rank(MPI_COMM_WORLD, &amp;world_rank);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the name of the processor</span></span><br><span class="line">    <span class="keyword">char</span> processor_name[MPI_MAX_PROCESSOR_NAME];</span><br><span class="line">    <span class="keyword">int</span> name_len;</span><br><span class="line">    MPI_Get_processor_name(processor_name, &amp;name_len);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Print off a hello world message</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Hello world from processor %s, rank %d"</span></span><br><span class="line">           <span class="string">" out of %d processors\n"</span>,</span><br><span class="line">           processor_name, world_rank, world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Finalize the MPI environment.</span></span><br><span class="line">    MPI_Finalize();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+<p>MPI程序首先需要includeMPI的头文件<code>#include &lt;mpi.h&gt;</code>，之后，MPI环境需要使用如下语句进行初始化</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Init(</span><br><span class="line">	<span class="keyword">int</span>* argc,</span><br><span class="line">	<span class="keyword">char</span>*** argv)</span><br></pre></td></tr></table></figure>
+
+<p><code>MPI_Init</code>之后，所有的MPI需要的全局和内部变量都会被创建完成，例如会产生一个通信域communicator负责所有产生的进程之间的通信，并且每一个MPI进程都会有一个唯一的rank值产生。<br><code>MPI_Init</code>之后，一般会调用两个函数</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Comm_size(</span><br><span class="line">	MPI_Comm communicator,</span><br><span class="line">	<span class="keyword">int</span>* <span class="built_in">size</span>)</span><br></pre></td></tr></table></figure>
+
+<p><code>MPI_Comm_size</code>会返回communicator的大小，<code>MPI_COMM_WORLD</code>（由MPI产生）封装了所有MPI job中的进程，因此这个函数的调用会返回MPI job中所需要的进程的数量。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Comm_rank(</span><br><span class="line">	MPI_Comm communicator,</span><br><span class="line">	<span class="keyword">int</span>* rank)</span><br></pre></td></tr></table></figure>
+
+<p><code>MPI_Comm_rank</code>返回在一个communicator中某一个节点的rank值。在communicator中的每一个进程都会被赋予一个从0开始递增的rank值。所有进程的rank值主要作用为在发送和接受信息时起到标识的作用。<br>在这个例子中用到了一个使用很少的函数</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Get_processor_name(</span><br><span class="line">	<span class="keyword">char</span>* name,</span><br><span class="line">	<span class="keyword">int</span>* name_length)</span><br></pre></td></tr></table></figure>
+
+<p><code>MPI_Get_processor_name</code>获得正在执行的进程的真实名字，这个程序最后会执行</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Finalize()</span><br></pre></td></tr></table></figure>
+
+<p><code>MPI_Finalize</code>的作用是情理MPI环境，这个函数调用之后，MPI的其他操作将不能再继续调用</p>
+]]></content>
+      <categories>
+        <category>分布式</category>
+      </categories>
+      <tags>
+        <tag>MPI</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>CentOS 7.0 安装Nginx</title>
     <url>/2016/01/07/centos/CentOS%207.0%20%E5%AE%89%E8%A3%85Nginx/</url>
     <content><![CDATA[<h2 id="1-所需库的安装"><a href="#1-所需库的安装" class="headerlink" title="1. 所需库的安装"></a>1. 所需库的安装</h2><ul>
@@ -502,84 +645,44 @@
       </tags>
   </entry>
   <entry>
-    <title>CentOS 7.0 安装PHP 5.6</title>
-    <url>/2016/01/07/centos/CentOS%207.0%20%E5%AE%89%E8%A3%85PHP%205.6/</url>
-    <content><![CDATA[<h2 id="1-下载和安装PHP-5-6"><a href="#1-下载和安装PHP-5-6" class="headerlink" title="1. 下载和安装PHP 5.6"></a>1. 下载和安装PHP 5.6</h2><ul>
-<li>下载地址： <a href="http://php.net/downloads.php" target="_blank" rel="noopener">http://php.net/downloads.php</a></li>
-<li>解压之后使用如下指令进行安装<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure \</span><br><span class="line">--prefix=/usr/<span class="built_in">local</span>/php \</span><br><span class="line">--with-curl \</span><br><span class="line">--with-gd \</span><br><span class="line">--<span class="built_in">enable</span>-sockets \</span><br><span class="line">--with-freetype-dir=/usr/<span class="built_in">local</span>/freetype \</span><br><span class="line">--<span class="built_in">enable</span>-mbstring \</span><br><span class="line">--<span class="built_in">enable</span>-bcmath \</span><br><span class="line">--<span class="built_in">enable</span>-gettext \</span><br><span class="line">--with-jpeg-dir=/usr/<span class="built_in">local</span>/jpeg \</span><br><span class="line">--with-config-file-path=/usr/<span class="built_in">local</span>/php/etc \</span><br><span class="line">--with-mysql=/usr/<span class="built_in">local</span>/mysql \</span><br><span class="line">--with-mysqli=/usr/<span class="built_in">local</span>/mysql/bin/mysql_config \</span><br><span class="line">--with-mysql-sock=/var/lib/mysql/mysql.sock \</span><br><span class="line">--with-pdo-mysql=/usr/<span class="built_in">local</span>/mysql \</span><br><span class="line">--<span class="built_in">enable</span>-fpm \</span><br><span class="line">--<span class="built_in">disable</span>-fileinfo</span><br><span class="line"></span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+    <title>CentOS 7.0 编译安装VIPS dzsave</title>
+    <url>/2016/01/13/centos/CentOS%207.0%20%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85VIPS%20dzsave/</url>
+    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>VIPS 是一个能够处理大型图片的很棒的图片处理系统。特别是它能通过dzsave很简单地生成deepzoon图片（.dzi）。从VIPS版本7.40开始，它需要使用libgsf库来激活对dzsave的支持。</p>
+<h2 id="安装libgsf库"><a href="#安装libgsf库" class="headerlink" title="安装libgsf库"></a>安装libgsf库</h2><p>libgsf库的作用在于能够使用dzsave指令，没有安装libgsf的话会报dzsave不存在的错误。安装libgsf之后需要重新编译安装vips才能使用dzsave。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum install libgsf</span><br></pre></td></tr></table></figure>
 
-</li>
-</ul>
-<a id="more"></a>
-<ul>
-<li><p>对于内存小于1G的电脑来说，make时可能会出现内存溢出的问题，解决方法为./configure加上选项–disable-fileinfo</p>
-<h2 id="2-配置PHP"><a href="#2-配置PHP" class="headerlink" title="2. 配置PHP"></a>2. 配置PHP</h2></li>
-<li><p>复制PHP配置文件到安装目录</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cp php.in-production /usr/<span class="built_in">local</span>/php/etc/php.ini</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>修改php.ini文件，将其中的date.timezone = PRC</p>
-</li>
-<li><p>删除系统自带的PHP配置文件</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rm -rf /etc/php.ini</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>添加软连接到 /etc 目录</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ln -s /usr/<span class="built_in">local</span>/php/etc/php.ini /etc/php.ini</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>拷贝模板文件为php-fpm配置文件</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cp /usr/<span class="built_in">local</span>/php/etc/php-fpm.conf.default /usr/<span class="built_in">local</span>/php/etc/php-fpm.conf</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>添加软连接到 /etc 目录</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ln -s /usr/<span class="built_in">local</span>/php/etc/php-fpm.conf /etc/php-fpm.conf</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>修改php-fpm.conf文件，在user和group处添加当前用户名和组，取消pid=run/php-fpm.pid前的分号</p>
-<h2 id="3-启动、关闭和重启PHP"><a href="#3-启动、关闭和重启PHP" class="headerlink" title="3. 启动、关闭和重启PHP"></a>3. 启动、关闭和重启PHP</h2></li>
-<li><p>启动PHP</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">/usr/local/php/sbin/php-fpm</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>关闭PHP</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">kill</span> -INT `cat /usr/<span class="built_in">local</span>/php/var/run/php-fpm.pid`</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>重启PHP</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">kill</span> -USR2 `cat /usr/<span class="built_in">local</span>/php/var/run/php-fpm.pid`</span><br></pre></td></tr></table></figure>
+<p>ubuntu中安装libgsf库的方法为：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get install libgsf-1-dev</span><br></pre></td></tr></table></figure>
 
-</li>
-</ul>
+<h2 id="安装libjpeg和libpng库"><a href="#安装libjpeg和libpng库" class="headerlink" title="安装libjpeg和libpng库"></a>安装libjpeg和libpng库</h2><p>vips要支持png和jpeg还需要安装libpng和libjpeg，在CentOS中安装的方法为：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install libjpeg libjpeg-devel libpng libpng-devel</span><br></pre></td></tr></table></figure>
+
+<p>在ubuntu中安装方法为：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get install linpng12-0</span><br><span class="line">sudo apt-get install libjpeg-dev</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装VIPS"><a href="#安装VIPS" class="headerlink" title="安装VIPS"></a>安装VIPS</h2><p>简单的编译安装，采用<code>vips dzsave --version</code>来检查dzsave是否安装成功</p>
+<h2 id="使用VIPS"><a href="#使用VIPS" class="headerlink" title="使用VIPS"></a>使用VIPS</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/vips dzsave &lt;source_file&gt; &lt;destination_file&gt; --suffix .png</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <categories>
         <category>技术</category>
       </categories>
-      <tags>
-        <tag>PHP</tag>
-      </tags>
   </entry>
   <entry>
-    <title>MPI的helloworld教程</title>
-    <url>/2016/10/21/MPI/MPI%E7%9A%84helloworld%E6%95%99%E7%A8%8B/</url>
-    <content><![CDATA[<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mpi.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Initialize the MPI environment</span></span><br><span class="line">    MPI_Init(<span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the number of processes</span></span><br><span class="line">    <span class="keyword">int</span> world_size;</span><br><span class="line">    MPI_Comm_size(MPI_COMM_WORLD, &amp;world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the rank of the process</span></span><br><span class="line">    <span class="keyword">int</span> world_rank;</span><br><span class="line">    MPI_Comm_rank(MPI_COMM_WORLD, &amp;world_rank);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the name of the processor</span></span><br><span class="line">    <span class="keyword">char</span> processor_name[MPI_MAX_PROCESSOR_NAME];</span><br><span class="line">    <span class="keyword">int</span> name_len;</span><br><span class="line">    MPI_Get_processor_name(processor_name, &amp;name_len);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Print off a hello world message</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Hello world from processor %s, rank %d"</span></span><br><span class="line">           <span class="string">" out of %d processors\n"</span>,</span><br><span class="line">           processor_name, world_rank, world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Finalize the MPI environment.</span></span><br><span class="line">    MPI_Finalize();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    <title>hadoop安装完成后50030页面能打开50070页面无法打开解决方法</title>
+    <url>/2015/12/25/hadoop/hadoop%E5%AE%89%E8%A3%85%E5%AE%8C%E6%88%90%E5%90%8E50030%E9%A1%B5%E9%9D%A2%E8%83%BD%E6%89%93%E5%BC%8050070%E9%A1%B5%E9%9D%A2%E6%97%A0%E6%B3%95%E6%89%93%E5%BC%80%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</url>
+    <content><![CDATA[<p>hadoop-1.2.1安装完毕之后，执行</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/hadoop/bin/hadoop namenode -format</span><br><span class="line">/usr/<span class="built_in">local</span>/hadoop/bin/start-all.sh</span><br></pre></td></tr></table></figure>
 
+<p>在浏览器中输入 <a href="http://localhost:50030" target="_blank" rel="noopener">http://localhost:50030</a> 可以访问<br>在浏览器中输入 <a href="http://localhost:50070" target="_blank" rel="noopener">http://localhost:50070</a> 无法访问</p>
 <a id="more"></a>
-<p>MPI程序首先需要includeMPI的头文件<code>#include &lt;mpi.h&gt;</code>，之后，MPI环境需要使用如下语句进行初始化</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Init(</span><br><span class="line">	<span class="keyword">int</span>* argc,</span><br><span class="line">	<span class="keyword">char</span>*** argv)</span><br></pre></td></tr></table></figure>
-
-<p><code>MPI_Init</code>之后，所有的MPI需要的全局和内部变量都会被创建完成，例如会产生一个通信域communicator负责所有产生的进程之间的通信，并且每一个MPI进程都会有一个唯一的rank值产生。<br><code>MPI_Init</code>之后，一般会调用两个函数</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Comm_size(</span><br><span class="line">	MPI_Comm communicator,</span><br><span class="line">	<span class="keyword">int</span>* <span class="built_in">size</span>)</span><br></pre></td></tr></table></figure>
-
-<p><code>MPI_Comm_size</code>会返回communicator的大小，<code>MPI_COMM_WORLD</code>（由MPI产生）封装了所有MPI job中的进程，因此这个函数的调用会返回MPI job中所需要的进程的数量。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Comm_rank(</span><br><span class="line">	MPI_Comm communicator,</span><br><span class="line">	<span class="keyword">int</span>* rank)</span><br></pre></td></tr></table></figure>
-
-<p><code>MPI_Comm_rank</code>返回在一个communicator中某一个节点的rank值。在communicator中的每一个进程都会被赋予一个从0开始递增的rank值。所有进程的rank值主要作用为在发送和接受信息时起到标识的作用。<br>在这个例子中用到了一个使用很少的函数</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Get_processor_name(</span><br><span class="line">	<span class="keyword">char</span>* name,</span><br><span class="line">	<span class="keyword">int</span>* name_length)</span><br></pre></td></tr></table></figure>
-
-<p><code>MPI_Get_processor_name</code>获得正在执行的进程的真实名字，这个程序最后会执行</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Finalize()</span><br></pre></td></tr></table></figure>
-
-<p><code>MPI_Finalize</code>的作用是情理MPI环境，这个函数调用之后，MPI的其他操作将不能再继续调用</p>
+<p>原因是在执行<code>/usr/local/hadoop/bin/hadoop namenode -format</code>后要求输入”Y/N”时输入了小写的y，必须输入大写的Y，namenode才能正常启动，50070页面才能正常显示</p>
 ]]></content>
       <categories>
         <category>分布式</category>
       </categories>
       <tags>
-        <tag>MPI</tag>
+        <tag>hadoop</tag>
       </tags>
   </entry>
   <entry>
@@ -653,6 +756,57 @@
       </tags>
   </entry>
   <entry>
+    <title>CentOS 7.0 安装PHP 5.6</title>
+    <url>/2016/01/07/centos/CentOS%207.0%20%E5%AE%89%E8%A3%85PHP%205.6/</url>
+    <content><![CDATA[<h2 id="1-下载和安装PHP-5-6"><a href="#1-下载和安装PHP-5-6" class="headerlink" title="1. 下载和安装PHP 5.6"></a>1. 下载和安装PHP 5.6</h2><ul>
+<li>下载地址： <a href="http://php.net/downloads.php" target="_blank" rel="noopener">http://php.net/downloads.php</a></li>
+<li>解压之后使用如下指令进行安装<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure \</span><br><span class="line">--prefix=/usr/<span class="built_in">local</span>/php \</span><br><span class="line">--with-curl \</span><br><span class="line">--with-gd \</span><br><span class="line">--<span class="built_in">enable</span>-sockets \</span><br><span class="line">--with-freetype-dir=/usr/<span class="built_in">local</span>/freetype \</span><br><span class="line">--<span class="built_in">enable</span>-mbstring \</span><br><span class="line">--<span class="built_in">enable</span>-bcmath \</span><br><span class="line">--<span class="built_in">enable</span>-gettext \</span><br><span class="line">--with-jpeg-dir=/usr/<span class="built_in">local</span>/jpeg \</span><br><span class="line">--with-config-file-path=/usr/<span class="built_in">local</span>/php/etc \</span><br><span class="line">--with-mysql=/usr/<span class="built_in">local</span>/mysql \</span><br><span class="line">--with-mysqli=/usr/<span class="built_in">local</span>/mysql/bin/mysql_config \</span><br><span class="line">--with-mysql-sock=/var/lib/mysql/mysql.sock \</span><br><span class="line">--with-pdo-mysql=/usr/<span class="built_in">local</span>/mysql \</span><br><span class="line">--<span class="built_in">enable</span>-fpm \</span><br><span class="line">--<span class="built_in">disable</span>-fileinfo</span><br><span class="line"></span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<a id="more"></a>
+<ul>
+<li><p>对于内存小于1G的电脑来说，make时可能会出现内存溢出的问题，解决方法为./configure加上选项–disable-fileinfo</p>
+<h2 id="2-配置PHP"><a href="#2-配置PHP" class="headerlink" title="2. 配置PHP"></a>2. 配置PHP</h2></li>
+<li><p>复制PHP配置文件到安装目录</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cp php.in-production /usr/<span class="built_in">local</span>/php/etc/php.ini</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改php.ini文件，将其中的date.timezone = PRC</p>
+</li>
+<li><p>删除系统自带的PHP配置文件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">rm -rf /etc/php.ini</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加软连接到 /etc 目录</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ln -s /usr/<span class="built_in">local</span>/php/etc/php.ini /etc/php.ini</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>拷贝模板文件为php-fpm配置文件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cp /usr/<span class="built_in">local</span>/php/etc/php-fpm.conf.default /usr/<span class="built_in">local</span>/php/etc/php-fpm.conf</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>添加软连接到 /etc 目录</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ln -s /usr/<span class="built_in">local</span>/php/etc/php-fpm.conf /etc/php-fpm.conf</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>修改php-fpm.conf文件，在user和group处添加当前用户名和组，取消pid=run/php-fpm.pid前的分号</p>
+<h2 id="3-启动、关闭和重启PHP"><a href="#3-启动、关闭和重启PHP" class="headerlink" title="3. 启动、关闭和重启PHP"></a>3. 启动、关闭和重启PHP</h2></li>
+<li><p>启动PHP</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">/usr/local/php/sbin/php-fpm</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>关闭PHP</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">kill</span> -INT `cat /usr/<span class="built_in">local</span>/php/var/run/php-fpm.pid`</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>重启PHP</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">kill</span> -USR2 `cat /usr/<span class="built_in">local</span>/php/var/run/php-fpm.pid`</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>PHP</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>hadoop中YARN模块功能</title>
     <url>/2015/12/24/hadoop/hadoop%E4%B8%ADYARN%E6%A8%A1%E5%9D%97%E5%8A%9F%E8%83%BD/</url>
     <content><![CDATA[<h3 id="ResourceManager"><a href="#ResourceManager" class="headerlink" title="ResourceManager"></a><strong>ResourceManager</strong></h3><ul>
@@ -673,47 +827,6 @@
 <h3 id="Container"><a href="#Container" class="headerlink" title="Container"></a><strong>Container</strong></h3><ul>
 <li>对任务运行环境的抽象，封装了CPU、内存等多维资源以及环境变量、启动命令等任务运行相关的信息</li>
 </ul>
-]]></content>
-      <categories>
-        <category>分布式</category>
-      </categories>
-      <tags>
-        <tag>hadoop</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CentOS 7.0 编译安装VIPS dzsave</title>
-    <url>/2016/01/13/centos/CentOS%207.0%20%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85VIPS%20dzsave/</url>
-    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>VIPS 是一个能够处理大型图片的很棒的图片处理系统。特别是它能通过dzsave很简单地生成deepzoon图片（.dzi）。从VIPS版本7.40开始，它需要使用libgsf库来激活对dzsave的支持。</p>
-<h2 id="安装libgsf库"><a href="#安装libgsf库" class="headerlink" title="安装libgsf库"></a>安装libgsf库</h2><p>libgsf库的作用在于能够使用dzsave指令，没有安装libgsf的话会报dzsave不存在的错误。安装libgsf之后需要重新编译安装vips才能使用dzsave。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum install libgsf</span><br></pre></td></tr></table></figure>
-
-<p>ubuntu中安装libgsf库的方法为：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get install libgsf-1-dev</span><br></pre></td></tr></table></figure>
-
-<h2 id="安装libjpeg和libpng库"><a href="#安装libjpeg和libpng库" class="headerlink" title="安装libjpeg和libpng库"></a>安装libjpeg和libpng库</h2><p>vips要支持png和jpeg还需要安装libpng和libjpeg，在CentOS中安装的方法为：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install libjpeg libjpeg-devel libpng libpng-devel</span><br></pre></td></tr></table></figure>
-
-<p>在ubuntu中安装方法为：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get install linpng12-0</span><br><span class="line">sudo apt-get install libjpeg-dev</span><br></pre></td></tr></table></figure>
-
-<h2 id="安装VIPS"><a href="#安装VIPS" class="headerlink" title="安装VIPS"></a>安装VIPS</h2><p>简单的编译安装，采用<code>vips dzsave --version</code>来检查dzsave是否安装成功</p>
-<h2 id="使用VIPS"><a href="#使用VIPS" class="headerlink" title="使用VIPS"></a>使用VIPS</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/vips dzsave &lt;source_file&gt; &lt;destination_file&gt; --suffix .png</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>hadoop安装完成后50030页面能打开50070页面无法打开解决方法</title>
-    <url>/2015/12/25/hadoop/hadoop%E5%AE%89%E8%A3%85%E5%AE%8C%E6%88%90%E5%90%8E50030%E9%A1%B5%E9%9D%A2%E8%83%BD%E6%89%93%E5%BC%8050070%E9%A1%B5%E9%9D%A2%E6%97%A0%E6%B3%95%E6%89%93%E5%BC%80%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</url>
-    <content><![CDATA[<p>hadoop-1.2.1安装完毕之后，执行</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/hadoop/bin/hadoop namenode -format</span><br><span class="line">/usr/<span class="built_in">local</span>/hadoop/bin/start-all.sh</span><br></pre></td></tr></table></figure>
-
-<p>在浏览器中输入 <a href="http://localhost:50030" target="_blank" rel="noopener">http://localhost:50030</a> 可以访问<br>在浏览器中输入 <a href="http://localhost:50070" target="_blank" rel="noopener">http://localhost:50070</a> 无法访问</p>
-<a id="more"></a>
-<p>原因是在执行<code>/usr/local/hadoop/bin/hadoop namenode -format</code>后要求输入”Y/N”时输入了小写的y，必须输入大写的Y，namenode才能正常启动，50070页面才能正常显示</p>
 ]]></content>
       <categories>
         <category>分布式</category>
@@ -840,21 +953,6 @@
       </tags>
   </entry>
   <entry>
-    <title>导入hadoop源码至Eclipse</title>
-    <url>/2015/12/24/hadoop/%E5%AF%BC%E5%85%A5hadoop%E6%BA%90%E7%A0%81%E8%87%B3Eclipse/</url>
-    <content><![CDATA[<p>从hadoop官网下载hadoop源码，解压后进入目录，阅读BUILDING.txt文件，文件中讲到了如何将hadoop源码工程文件导入到Eclipse中。首先需要给Eclipse安装hadoop-maven-plugins插件，进入hadoop-maven-plugins目录执行指令</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> hadoop-maven-pligins</span><br><span class="line">mvn install</span><br><span class="line">mvn eclipse:eclipse -DskipTests</span><br></pre></td></tr></table></figure>
-
-<p>最后，在Eclipse中点击[File] &gt; [Import] &gt; [Existing Projects into Workspace]</p>
-]]></content>
-      <categories>
-        <category>分布式</category>
-      </categories>
-      <tags>
-        <tag>hadoop</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>hadoop目录结构</title>
     <url>/2015/12/24/hadoop/hadoop%E7%9B%AE%E5%BD%95%E7%BB%93%E6%9E%84/</url>
     <content><![CDATA[<h2 id="bin"><a href="#bin" class="headerlink" title="bin"></a><strong>bin</strong></h2><p>hadoop最基本的管理脚本和使用脚本所在的目录，这些脚本是sbin目录下管理脚本的基础实现，用户可以直接使用这些脚本管理和使用hadoop</p>
@@ -865,6 +963,21 @@
 <h2 id="libexec"><a href="#libexec" class="headerlink" title="libexec"></a><strong>libexec</strong></h2><p>各个服务对应的shell配置文件所在目录，可用于配置日志输出目录、启动参数（比如JVM参数）等基本信息</p>
 <h2 id="sbin"><a href="#sbin" class="headerlink" title="sbin"></a><strong>sbin</strong></h2><p>hadoop管理脚本所在目录，主要包含HDFS和YARN中各类服务的启动/关闭脚本</p>
 <h2 id="share"><a href="#share" class="headerlink" title="share"></a><strong>share</strong></h2><p>hadoop各个模块编译后的jar包所在目录</p>
+]]></content>
+      <categories>
+        <category>分布式</category>
+      </categories>
+      <tags>
+        <tag>hadoop</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>导入hadoop源码至Eclipse</title>
+    <url>/2015/12/24/hadoop/%E5%AF%BC%E5%85%A5hadoop%E6%BA%90%E7%A0%81%E8%87%B3Eclipse/</url>
+    <content><![CDATA[<p>从hadoop官网下载hadoop源码，解压后进入目录，阅读BUILDING.txt文件，文件中讲到了如何将hadoop源码工程文件导入到Eclipse中。首先需要给Eclipse安装hadoop-maven-plugins插件，进入hadoop-maven-plugins目录执行指令</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> hadoop-maven-pligins</span><br><span class="line">mvn install</span><br><span class="line">mvn eclipse:eclipse -DskipTests</span><br></pre></td></tr></table></figure>
+
+<p>最后，在Eclipse中点击[File] &gt; [Import] &gt; [Existing Projects into Workspace]</p>
 ]]></content>
       <categories>
         <category>分布式</category>
@@ -965,6 +1078,46 @@
       </tags>
   </entry>
   <entry>
+    <title>java中StringTokenizer学习</title>
+    <url>/2016/04/13/java/java%E4%B8%ADStringTokenizer%E5%AD%A6%E4%B9%A0/</url>
+    <content><![CDATA[<p>在平时编程中经常会遇到对字符串进行拆分的情况，例如有些字符串代表了许多组数据，这些数据以‘,’进行分隔，需要将这些数据单独提取出来，以前总是自己去写拆分函数，十分不方便。最近发现java中有一个类叫<code>StringTokenizer</code>可以很轻松地解决这个问题。</p>
+<p>先来看看官方API文档对<code>StringTokenizer</code>的解释：</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">The string tokenizer class allows an application to break a string into tokens.</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+<p>也就是说这个类能够使我们将一个字符串拆分成小部分。官方给出了一个使用该类的例子：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">StringTokenizer st = <span class="keyword">new</span> StringTokenizer(<span class="string">"this is a test"</span>);</span><br><span class="line">     <span class="keyword">while</span> (st.hasMoreTokens()) &#123;</span><br><span class="line">         System.out.println(st.nextToken());</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
+
+<p>该段函数输出的内容为：</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">this</span><br><span class="line">is</span><br><span class="line">a</span><br><span class="line">test</span><br></pre></td></tr></table></figure>
+
+<p>StringTokenizer将英文句子以空格为分隔拆分成了单个单词。以上的这种方法在之前可以用字符串数组的<code>split</code>方法进行实现，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String[] result = <span class="string">"this is a test"</span>.split(<span class="string">"\\s"</span>);</span><br><span class="line">     <span class="keyword">for</span> (<span class="keyword">int</span> x=<span class="number">0</span>; x&lt;result.length; x++)</span><br><span class="line">         System.out.println(result[x]);</span><br></pre></td></tr></table></figure>
+
+<p>这两种方法输出的结果是一致的，但是<code>StringTokenizer</code>的方法和功能远不止这一种，还有许多新的更方便的功能。<br><code>StringTokenizer</code>一共有3种构造函数：</p>
+<ol>
+<li><code>StringTokenizer(String str)</code><br>Constructs a string tokenizer for the specified string.</li>
+<li><code>StringTokenizer(String str, String delim)</code><br>Constructs a string tokenizer for the specified string.</li>
+<li><code>StringTokenizer(String str, String delim, boolean returnDelims)</code><br>Constructs a string tokenizer for the specified string.<br>这三种构造函数的功能显而易见，第一种使用了默认的分隔符对字符串进行分割，默认的分隔符有<code>\t\n\r\f</code>，分别为空格（space character）、Tab制表符（tab character）、换行符（newline character）、回车符（carriage-return character）、换页符（form-feed character）。第二种和第三种指定了分隔符，并且第三种返回的Token中可以选择是否包含分隔符，若选择包含分隔符，分割符将会被当做一个长度为1的字符串单独作为一个Token。</li>
+</ol>
+<p><code>StringTokenizer</code>有6种方法：</p>
+<ol>
+<li><code>public boolean hasMoreTokens()</code><br>测试是否有更多的Token</li>
+<li><code>public String nextToken()</code><br>返回下一个字符串Token</li>
+<li><code>public String nextToken(String delim)</code><br>按照指定的分隔符返回下一个Token</li>
+<li><code>public boolean hasMoreElements</code><br>功能与第一种方法完全相同，只是为了实现Enumeration的接口</li>
+<li><code>public Object nextElement()</code><br>功能与第二种方法完全相同，只是为了实现Enumeration的接口</li>
+<li><code>public int countTokens()</code><br>返回拆分的Token数量</li>
+</ol>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Gradle中使用proguard</title>
     <url>/2018/05/23/java/Gradle%E4%B8%AD%E4%BD%BF%E7%94%A8proguard/</url>
     <content><![CDATA[<p>最近做了一个Java项目，老板让我们将核心部分的代码进行混淆，防止jar包被反编译出来。Java项目是基于Gradle进行构建的，使用了shadowJar这个插件将源码生成的jar包和所有的依赖的jar包打包到一起，称为一个fat-jar。我之前单独使用过proguard的gui，也使用过maven的proguard plugin以及sbt的plugin，都踩了很多坑最终混淆成功了，以为这次应该很轻松能完成任务，但事实上我遇到了很多之前没有遇到过的问题，现在将我解决这个问题的每个阶段记录下来。</p>
@@ -1011,6 +1164,35 @@
       </tags>
   </entry>
   <entry>
+    <title>log4j日志文件在程序运行过程中进行清空操作</title>
+    <url>/2016/03/28/java/log4j%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E5%9C%A8%E7%A8%8B%E5%BA%8F%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%BF%9B%E8%A1%8C%E6%B8%85%E7%A9%BA%E6%93%8D%E4%BD%9C/</url>
+    <content><![CDATA[<p>log4j是Apache基金会的一个开源项目，作为一个java日志框架，能够方便地在程序中记录日志，提供许多记录日志的选项和功能。日志文件一般是不允许修改的，在隐藏权限中加入了只能增加不能删减的权限。但是，我在近期做了一个项目，需要在程序运行过程中将日志文件上传至数据库，上传之后要清空日志文件重新记录。我尝试了一下几种方法：</p>
+<ol>
+<li>将记录日志的文件删除，让日志框架重新生成</li>
+<li>将记录日志的文件删除，并手动创建名称一致的日志文件</li>
+<li>复制一个log4j自动生成的空的同名日志文件来覆盖旧的日志文件</li>
+<li>调用linux命令<code>echo &gt; &lt;log_file_name&gt;</code>来清空日志<br>经过测试发现，log4j生成的日志文件只要被移动或删除，log4j就不会继续向其中写入日志，复制过来的空的同名日志文件也是一样的情况。调用linux命令清空日志文件之后，log4j能向日志文件中写入内容，但是不能被识别为txt或log文件，无法用编辑器打开查看（有例外，Atom编辑器能查看到其中的内容），gedit会说字符编码无法识别，无法打开；sublime会直接将这个文件当作二进制文件来打开，只能看到其中的0101内容。我用vim将其打开，发现在文件的开始处有许多“@^@^”这样的内容，在网上查到这是一种正常编码格式无法识别的字符，也称为“/0”。因此，只要将这些编码无法识别的内容除去即可。在网上查到了一个sed指令可以做这件事。使用如下代码来除去“@^”：</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sed -r <span class="string">'s/\x0//g'</span> -i &lt;file_name&gt;</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+<p>除去之后果然能够用gedit、sublime等编辑器打开了，但是还是存在一个问题，当用这个语句处理过日志文件之后，相当于将日志文件做了修改（文件本身修改，<code>echo &gt; &lt;log_file_name&gt;</code>只是内容修改），log4j框架就不能继续向其中写入日志内容了。我采用的方法是先将日志文件复制到一个临时的地方，进行sed操作之后就上传到数据库，上传完成之后就删除，然后用<code>echo &gt; &lt;log_file_name&gt;</code>将原日志文件清空，使log4j继续记录。</p>
+<p>清空日志文件的linux语句：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">: &gt; filename</span><br><span class="line">&gt; filename</span><br><span class="line"><span class="built_in">echo</span> <span class="string">""</span> &gt; filename</span><br><span class="line"><span class="built_in">echo</span> /dev/null &gt; filename</span><br><span class="line">cat /dev/null &gt; filename</span><br><span class="line">truncate filename --size 0</span><br></pre></td></tr></table></figure>
+
+<p>我之后采用了最后一种方法，因为其他的方法有些会在日志文件开始产生一行空行。<br>此外，在用java的exec函数执行linux命令时，有些符号是不能在java中直接使用的，例如”&gt;”、引号等。这时候，需要加上如下代码对命令进行修正：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">String[] cmdarray = &#123;<span class="string">"/bin/sh"</span>, <span class="string">"-c"</span>, cmd&#125;;</span><br><span class="line">Process ps = Runtime.getRuntime().<span class="built_in">exec</span>(cmdarray);</span><br><span class="line">ps.waitFor();</span><br></pre></td></tr></table></figure>
+
+<p>其中cmd是要执行的linux指令的String字符串。</p>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>AWS SDK for Java 使用心得</title>
     <url>/2016/03/17/java/AWS%20SDK%20for%20Java%20%E4%BD%BF%E7%94%A8%E5%BF%83%E5%BE%97/</url>
     <content><![CDATA[<p>AWS SDK 是一套用于开发者与 Amazon Web Services进行交互的系统，其功能繁多，对于普通开发者来说，本人主要使用了其针对Java开发的向S3云存储上传文件和文件夹的功能。AWS开发工具包的下载地址：<br><a href="https://aws.amazon.com/cn/tools/" target="_blank" rel="noopener">https://aws.amazon.com/cn/tools/</a><br>其中的Java开发工具包的API文档地址：<br><a href="http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/index.html" target="_blank" rel="noopener">http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/index.html</a><br>进行开发之前建议自习阅读其官方的开发引导：<br><a href="http://docs.aws.amazon.com/AWSSdkDocsJava/latest/DeveloperGuide/welcome.html" target="_blank" rel="noopener">http://docs.aws.amazon.com/AWSSdkDocsJava/latest/DeveloperGuide/welcome.html</a></p>
@@ -1051,106 +1233,6 @@
       </tags>
   </entry>
   <entry>
-    <title>java中StringTokenizer学习</title>
-    <url>/2016/04/13/java/java%E4%B8%ADStringTokenizer%E5%AD%A6%E4%B9%A0/</url>
-    <content><![CDATA[<p>在平时编程中经常会遇到对字符串进行拆分的情况，例如有些字符串代表了许多组数据，这些数据以‘,’进行分隔，需要将这些数据单独提取出来，以前总是自己去写拆分函数，十分不方便。最近发现java中有一个类叫<code>StringTokenizer</code>可以很轻松地解决这个问题。</p>
-<p>先来看看官方API文档对<code>StringTokenizer</code>的解释：</p>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">The string tokenizer class allows an application to break a string into tokens.</span><br></pre></td></tr></table></figure>
-
-<a id="more"></a>
-<p>也就是说这个类能够使我们将一个字符串拆分成小部分。官方给出了一个使用该类的例子：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">StringTokenizer st = <span class="keyword">new</span> StringTokenizer(<span class="string">"this is a test"</span>);</span><br><span class="line">     <span class="keyword">while</span> (st.hasMoreTokens()) &#123;</span><br><span class="line">         System.out.println(st.nextToken());</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
-
-<p>该段函数输出的内容为：</p>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">this</span><br><span class="line">is</span><br><span class="line">a</span><br><span class="line">test</span><br></pre></td></tr></table></figure>
-
-<p>StringTokenizer将英文句子以空格为分隔拆分成了单个单词。以上的这种方法在之前可以用字符串数组的<code>split</code>方法进行实现，如下所示：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String[] result = <span class="string">"this is a test"</span>.split(<span class="string">"\\s"</span>);</span><br><span class="line">     <span class="keyword">for</span> (<span class="keyword">int</span> x=<span class="number">0</span>; x&lt;result.length; x++)</span><br><span class="line">         System.out.println(result[x]);</span><br></pre></td></tr></table></figure>
-
-<p>这两种方法输出的结果是一致的，但是<code>StringTokenizer</code>的方法和功能远不止这一种，还有许多新的更方便的功能。<br><code>StringTokenizer</code>一共有3种构造函数：</p>
-<ol>
-<li><code>StringTokenizer(String str)</code><br>Constructs a string tokenizer for the specified string.</li>
-<li><code>StringTokenizer(String str, String delim)</code><br>Constructs a string tokenizer for the specified string.</li>
-<li><code>StringTokenizer(String str, String delim, boolean returnDelims)</code><br>Constructs a string tokenizer for the specified string.<br>这三种构造函数的功能显而易见，第一种使用了默认的分隔符对字符串进行分割，默认的分隔符有<code>\t\n\r\f</code>，分别为空格（space character）、Tab制表符（tab character）、换行符（newline character）、回车符（carriage-return character）、换页符（form-feed character）。第二种和第三种指定了分隔符，并且第三种返回的Token中可以选择是否包含分隔符，若选择包含分隔符，分割符将会被当做一个长度为1的字符串单独作为一个Token。</li>
-</ol>
-<p><code>StringTokenizer</code>有6种方法：</p>
-<ol>
-<li><code>public boolean hasMoreTokens()</code><br>测试是否有更多的Token</li>
-<li><code>public String nextToken()</code><br>返回下一个字符串Token</li>
-<li><code>public String nextToken(String delim)</code><br>按照指定的分隔符返回下一个Token</li>
-<li><code>public boolean hasMoreElements</code><br>功能与第一种方法完全相同，只是为了实现Enumeration的接口</li>
-<li><code>public Object nextElement()</code><br>功能与第二种方法完全相同，只是为了实现Enumeration的接口</li>
-<li><code>public int countTokens()</code><br>返回拆分的Token数量</li>
-</ol>
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>log4j日志文件在程序运行过程中进行清空操作</title>
-    <url>/2016/03/28/java/log4j%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E5%9C%A8%E7%A8%8B%E5%BA%8F%E8%BF%90%E8%A1%8C%E8%BF%87%E7%A8%8B%E4%B8%AD%E8%BF%9B%E8%A1%8C%E6%B8%85%E7%A9%BA%E6%93%8D%E4%BD%9C/</url>
-    <content><![CDATA[<p>log4j是Apache基金会的一个开源项目，作为一个java日志框架，能够方便地在程序中记录日志，提供许多记录日志的选项和功能。日志文件一般是不允许修改的，在隐藏权限中加入了只能增加不能删减的权限。但是，我在近期做了一个项目，需要在程序运行过程中将日志文件上传至数据库，上传之后要清空日志文件重新记录。我尝试了一下几种方法：</p>
-<ol>
-<li>将记录日志的文件删除，让日志框架重新生成</li>
-<li>将记录日志的文件删除，并手动创建名称一致的日志文件</li>
-<li>复制一个log4j自动生成的空的同名日志文件来覆盖旧的日志文件</li>
-<li>调用linux命令<code>echo &gt; &lt;log_file_name&gt;</code>来清空日志<br>经过测试发现，log4j生成的日志文件只要被移动或删除，log4j就不会继续向其中写入日志，复制过来的空的同名日志文件也是一样的情况。调用linux命令清空日志文件之后，log4j能向日志文件中写入内容，但是不能被识别为txt或log文件，无法用编辑器打开查看（有例外，Atom编辑器能查看到其中的内容），gedit会说字符编码无法识别，无法打开；sublime会直接将这个文件当作二进制文件来打开，只能看到其中的0101内容。我用vim将其打开，发现在文件的开始处有许多“@^@^”这样的内容，在网上查到这是一种正常编码格式无法识别的字符，也称为“/0”。因此，只要将这些编码无法识别的内容除去即可。在网上查到了一个sed指令可以做这件事。使用如下代码来除去“@^”：</li>
-</ol>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sed -r <span class="string">'s/\x0//g'</span> -i &lt;file_name&gt;</span><br></pre></td></tr></table></figure>
-
-<a id="more"></a>
-<p>除去之后果然能够用gedit、sublime等编辑器打开了，但是还是存在一个问题，当用这个语句处理过日志文件之后，相当于将日志文件做了修改（文件本身修改，<code>echo &gt; &lt;log_file_name&gt;</code>只是内容修改），log4j框架就不能继续向其中写入日志内容了。我采用的方法是先将日志文件复制到一个临时的地方，进行sed操作之后就上传到数据库，上传完成之后就删除，然后用<code>echo &gt; &lt;log_file_name&gt;</code>将原日志文件清空，使log4j继续记录。</p>
-<p>清空日志文件的linux语句：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">: &gt; filename</span><br><span class="line">&gt; filename</span><br><span class="line"><span class="built_in">echo</span> <span class="string">""</span> &gt; filename</span><br><span class="line"><span class="built_in">echo</span> /dev/null &gt; filename</span><br><span class="line">cat /dev/null &gt; filename</span><br><span class="line">truncate filename --size 0</span><br></pre></td></tr></table></figure>
-
-<p>我之后采用了最后一种方法，因为其他的方法有些会在日志文件开始产生一行空行。<br>此外，在用java的exec函数执行linux命令时，有些符号是不能在java中直接使用的，例如”&gt;”、引号等。这时候，需要加上如下代码对命令进行修正：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">String[] cmdarray = &#123;<span class="string">"/bin/sh"</span>, <span class="string">"-c"</span>, cmd&#125;;</span><br><span class="line">Process ps = Runtime.getRuntime().<span class="built_in">exec</span>(cmdarray);</span><br><span class="line">ps.waitFor();</span><br></pre></td></tr></table></figure>
-
-<p>其中cmd是要执行的linux指令的String字符串。</p>
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>将毫秒数转化为用年日小时分秒毫秒表示</title>
-    <url>/2016/04/12/java/%E5%B0%86%E6%AF%AB%E7%A7%92%E6%95%B0%E8%BD%AC%E5%8C%96%E4%B8%BA%E5%B9%B4%E6%97%A5%E5%B0%8F%E6%97%B6%E5%88%86%E7%A7%92%E6%AF%AB%E7%A7%92/</url>
-    <content><![CDATA[<p>在编写程序时经常会需要读取系统的时间，但是大多数语言获取的时间都是距1970年1月1日的毫秒数，十分不方便，在hadoop给出的计算<code>π</code>值的mapreduce例子中有一个millis2string函数能将毫秒数转化为年日小时分秒毫秒显示的String，书写十分简洁，值得学习借鉴。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** Covert milliseconds to a String. */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">millis2String</span><span class="params">(<span class="keyword">long</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n &lt; <span class="number">0</span>)</span><br><span class="line">      <span class="keyword">return</span> <span class="string">"-"</span> + millis2String(-n);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (n &lt; <span class="number">1000</span>)</span><br><span class="line">      <span class="keyword">return</span> n + <span class="string">"ms"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> StringBuilder b = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> millis = (<span class="keyword">int</span>)(n % <span class="number">1000L</span>);</span><br><span class="line">    <span class="keyword">if</span> (millis != <span class="number">0</span>)</span><br><span class="line">      b.append(String.format(<span class="string">".%03d"</span>, millis));</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">1000</span>) &lt; <span class="number">60</span>)</span><br><span class="line">      <span class="keyword">return</span> b.insert(<span class="number">0</span>, n).append(<span class="string">"s"</span>).toString();</span><br><span class="line"></span><br><span class="line">    b.insert(<span class="number">0</span>, String.format(<span class="string">":%02d"</span>, (<span class="keyword">int</span>)(n % <span class="number">60L</span>)));</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">60</span>) &lt; <span class="number">60</span>)</span><br><span class="line">      <span class="keyword">return</span> b.insert(<span class="number">0</span>, n).toString();</span><br><span class="line"></span><br><span class="line">    b.insert(<span class="number">0</span>, String.format(<span class="string">":%02d"</span>, (<span class="keyword">int</span>)(n % <span class="number">60L</span>)));</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">60</span>) &lt; <span class="number">24</span>)</span><br><span class="line">      <span class="keyword">return</span> b.insert(<span class="number">0</span>, n).toString();</span><br><span class="line"></span><br><span class="line">    b.insert(<span class="number">0</span>, n % <span class="number">24L</span>);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> days = (<span class="keyword">int</span>)((n /= <span class="number">24</span>) % <span class="number">365L</span>);</span><br><span class="line">    b.insert(<span class="number">0</span>, days == <span class="number">1</span>? <span class="string">" day "</span>: <span class="string">" days "</span>).insert(<span class="number">0</span>, days);</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">365L</span>) &gt; <span class="number">0</span>)</span><br><span class="line">      b.insert(<span class="number">0</span>, n == <span class="number">1</span>? <span class="string">" year "</span>: <span class="string">" years "</span>).insert(<span class="number">0</span>, n);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> b.toString();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-
-<p>写一个函数输出现在与1970年1月1日的时间间隔，输出结果：</p>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">46 years 113 days 7:07:31.820</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CentOS安装高版本gcc</title>
-    <url>/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/</url>
-    <content><![CDATA[<p>最近需要在CentOS 7.2上安装matlab，发现matlabR2017b Linux版本安装需要gcc 4.9.x，但是CentOS 7.2 使用yum安装的gcc版本最高为4.8.5，于是决定将gcc版本进行升级。升级gcc一般建议采用编译安装的方式，但是这种方式比较麻烦，需要先编译安装mpfr、gmp、mpc等，于是在网上找到了一种通过yum比较方便的升级方式，而且可以随时在bash、zsh等当中切换各种gcc版本，特记录在此。</p>
-<h2 id="gcc-4-9安装"><a href="#gcc-4-9安装" class="headerlink" title="gcc 4.9安装"></a>gcc 4.9安装</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install centos-release-scl</span><br><span class="line">sudo yum install devtoolset-3-toolchain</span><br><span class="line">scl <span class="built_in">enable</span> devtoolset-3 bash</span><br></pre></td></tr></table></figure>
-
-<p>这里scl enable就是用来切换不同版本的gcc的。这个切换是临时的，表示在bash中临时切换到gcc4.9的工作环境，当使用<code>exit</code>指令之后，就会回退到原始的gcc版本，可以使用<code>scl -l</code>来查看所有可以切换的开发工具集。</p>
-<h2 id="gcc-5-2"><a href="#gcc-5-2" class="headerlink" title="gcc 5.2"></a>gcc 5.2</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install centos-release-scl</span><br><span class="line">sudo yum install devtoolset-4-toolchain</span><br><span class="line">scl <span class="built_in">enable</span> devtoolset-4 bash</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>初学maven管理java项目</title>
     <url>/2016/03/24/java/%E5%88%9D%E5%AD%A6maven%E7%AE%A1%E7%90%86java%E9%A1%B9%E7%9B%AE/</url>
     <content><![CDATA[<ul>
@@ -1184,43 +1266,34 @@
       </tags>
   </entry>
   <entry>
-    <title>Linux搭建NAT共享网络</title>
-    <url>/2017/06/14/linux/Linux%E6%90%AD%E5%BB%BANAT%E5%85%B1%E4%BA%AB%E7%BD%91%E7%BB%9C/</url>
-    <content><![CDATA[<h3 id="1-配置双网卡静态IP信息"><a href="#1-配置双网卡静态IP信息" class="headerlink" title="1. 配置双网卡静态IP信息"></a>1. 配置双网卡静态IP信息</h3><p><code>sudo vim /etc/sysconfig/network-scripts/ifcfg-enp15s0</code></p>
-<p>配置该网卡为外网IP，需要添加的内容如下</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">BOOTPROTO=static</span><br><span class="line">ONBOOT=yes</span><br><span class="line">DNS1=202.114.0.242</span><br><span class="line">IPADDR=XXX.XXX.XXX.XXX</span><br><span class="line">PREFIX=23</span><br><span class="line">GATEWAY=115.156.163.254</span><br></pre></td></tr></table></figure>
+    <title>CentOS安装高版本gcc</title>
+    <url>/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/</url>
+    <content><![CDATA[<p>最近需要在CentOS 7.2上安装matlab，发现matlabR2017b Linux版本安装需要gcc 4.9.x，但是CentOS 7.2 使用yum安装的gcc版本最高为4.8.5，于是决定将gcc版本进行升级。升级gcc一般建议采用编译安装的方式，但是这种方式比较麻烦，需要先编译安装mpfr、gmp、mpc等，于是在网上找到了一种通过yum比较方便的升级方式，而且可以随时在bash、zsh等当中切换各种gcc版本，特记录在此。</p>
+<h2 id="gcc-4-9安装"><a href="#gcc-4-9安装" class="headerlink" title="gcc 4.9安装"></a>gcc 4.9安装</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install centos-release-scl</span><br><span class="line">sudo yum install devtoolset-3-toolchain</span><br><span class="line">scl <span class="built_in">enable</span> devtoolset-3 bash</span><br></pre></td></tr></table></figure>
 
-<p><code>sudo vim /etc/sysconfig/network-scripts/ifcfg-eno1</code></p>
-<p>配置该网卡转发enp15s0的网络包，需要添加的内容如下</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">BOOTPROTO=static</span><br><span class="line">ONBOOT=yes</span><br><span class="line">DNS1=202.114.0.242</span><br><span class="line">IPADDR=10.0.0.1</span><br><span class="line">PREFIX=24</span><br><span class="line">GATEWAY=10.0.0.1</span><br></pre></td></tr></table></figure>
+<p>这里scl enable就是用来切换不同版本的gcc的。这个切换是临时的，表示在bash中临时切换到gcc4.9的工作环境，当使用<code>exit</code>指令之后，就会回退到原始的gcc版本，可以使用<code>scl -l</code>来查看所有可以切换的开发工具集。</p>
+<h2 id="gcc-5-2"><a href="#gcc-5-2" class="headerlink" title="gcc 5.2"></a>gcc 5.2</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install centos-release-scl</span><br><span class="line">sudo yum install devtoolset-4-toolchain</span><br><span class="line">scl <span class="built_in">enable</span> devtoolset-4 bash</span><br></pre></td></tr></table></figure>
 
-<h3 id="2-配置系统内核实现ipv4转发"><a href="#2-配置系统内核实现ipv4转发" class="headerlink" title="2. 配置系统内核实现ipv4转发"></a>2. 配置系统内核实现ipv4转发</h3><p><code>sudo vim /etc/sysctl.conf</code></p>
-<p>添加如下内容</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Controls IP packet forwarding</span></span><br><span class="line">net.ipv4.ip_forward = 1</span><br></pre></td></tr></table></figure>
+]]></content>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>将毫秒数转化为用年日小时分秒毫秒表示</title>
+    <url>/2016/04/12/java/%E5%B0%86%E6%AF%AB%E7%A7%92%E6%95%B0%E8%BD%AC%E5%8C%96%E4%B8%BA%E5%B9%B4%E6%97%A5%E5%B0%8F%E6%97%B6%E5%88%86%E7%A7%92%E6%AF%AB%E7%A7%92/</url>
+    <content><![CDATA[<p>在编写程序时经常会需要读取系统的时间，但是大多数语言获取的时间都是距1970年1月1日的毫秒数，十分不方便，在hadoop给出的计算<code>π</code>值的mapreduce例子中有一个millis2string函数能将毫秒数转化为年日小时分秒毫秒显示的String，书写十分简洁，值得学习借鉴。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** Covert milliseconds to a String. */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">millis2String</span><span class="params">(<span class="keyword">long</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n &lt; <span class="number">0</span>)</span><br><span class="line">      <span class="keyword">return</span> <span class="string">"-"</span> + millis2String(-n);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (n &lt; <span class="number">1000</span>)</span><br><span class="line">      <span class="keyword">return</span> n + <span class="string">"ms"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> StringBuilder b = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> millis = (<span class="keyword">int</span>)(n % <span class="number">1000L</span>);</span><br><span class="line">    <span class="keyword">if</span> (millis != <span class="number">0</span>)</span><br><span class="line">      b.append(String.format(<span class="string">".%03d"</span>, millis));</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">1000</span>) &lt; <span class="number">60</span>)</span><br><span class="line">      <span class="keyword">return</span> b.insert(<span class="number">0</span>, n).append(<span class="string">"s"</span>).toString();</span><br><span class="line"></span><br><span class="line">    b.insert(<span class="number">0</span>, String.format(<span class="string">":%02d"</span>, (<span class="keyword">int</span>)(n % <span class="number">60L</span>)));</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">60</span>) &lt; <span class="number">60</span>)</span><br><span class="line">      <span class="keyword">return</span> b.insert(<span class="number">0</span>, n).toString();</span><br><span class="line"></span><br><span class="line">    b.insert(<span class="number">0</span>, String.format(<span class="string">":%02d"</span>, (<span class="keyword">int</span>)(n % <span class="number">60L</span>)));</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">60</span>) &lt; <span class="number">24</span>)</span><br><span class="line">      <span class="keyword">return</span> b.insert(<span class="number">0</span>, n).toString();</span><br><span class="line"></span><br><span class="line">    b.insert(<span class="number">0</span>, n % <span class="number">24L</span>);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> days = (<span class="keyword">int</span>)((n /= <span class="number">24</span>) % <span class="number">365L</span>);</span><br><span class="line">    b.insert(<span class="number">0</span>, days == <span class="number">1</span>? <span class="string">" day "</span>: <span class="string">" days "</span>).insert(<span class="number">0</span>, days);</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">365L</span>) &gt; <span class="number">0</span>)</span><br><span class="line">      b.insert(<span class="number">0</span>, n == <span class="number">1</span>? <span class="string">" year "</span>: <span class="string">" years "</span>).insert(<span class="number">0</span>, n);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> b.toString();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
 
-<p>如果需要不重启实现ipv4转发功能可以使用如下指令</p>
-<p><code>sysctl -w net.ipv4.ip_forward=1</code></p>
-<h3 id="3-修改iptables转发规则"><a href="#3-修改iptables转发规则" class="headerlink" title="3. 修改iptables转发规则"></a>3. 修改iptables转发规则</h3><p>运行如下指令</p>
-<p><code>sudo iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o enp15s0 -j SNAT --to XXX.XXX.XXX.XXX</code></p>
-<p><code>iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT</code></p>
-<p><code>iptables -A OUTPUT -p udp --dport 53 -j ACCEPT</code></p>
-<p>保存iptables配置的结果防止重启失效</p>
-<p><code>sudo iptables-save</code></p>
-<h3 id="4-其他一些关于网络的问题"><a href="#4-其他一些关于网络的问题" class="headerlink" title="4. 其他一些关于网络的问题"></a>4. 其他一些关于网络的问题</h3><ul>
-<li>多网卡机器1号网卡作为内网网段，2号网卡作为外网网段不能上网的问题，可以通过修改默认路由来实现。一般来说，默认路由为1号网卡（如果没有配置的话），设置路由使用route指令，route指令说明如下：</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Usage: route [-nNvee] [-FC] [&lt;AF&gt;]           List kernel routing tables</span><br><span class="line">       route [-v] [-FC] &#123;add|del|flush&#125; ...  Modify routing table for AF.</span><br><span class="line"></span><br><span class="line">       route &#123;-h|--help&#125; [&lt;AF&gt;]              Detailed usage syntax for specified AF.</span><br><span class="line">       route &#123;-V|--version&#125;                  Display version/author and exit.</span><br><span class="line"></span><br><span class="line">        -v, --verbose            be verbose</span><br><span class="line">        -n, --numeric            don&apos;t resolve names</span><br><span class="line">        -e, --extend             display other/more information</span><br><span class="line">        -F, --fib                display Forwarding Information Base (default)</span><br><span class="line">        -C, --cache              display routing cache instead of FIB</span><br><span class="line"></span><br><span class="line">  &lt;AF&gt;=Use -4, -6, &apos;-A &lt;af&gt;&apos; or &apos;--&lt;af&gt;&apos;; default: inet</span><br><span class="line">  List of possible address families (which support routing):</span><br><span class="line">    inet (DARPA Internet) inet6 (IPv6) ax25 (AMPR AX.25)</span><br><span class="line">    netrom (AMPR NET/ROM) ipx (Novell IPX) ddp (Appletalk DDP)</span><br><span class="line">    x25 (CCITT X.25)</span><br></pre></td></tr></table></figure>
+<p>写一个函数输出现在与1970年1月1日的时间间隔，输出结果：</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">46 years 113 days 7:07:31.820</span><br></pre></td></tr></table></figure>
 
-<p>使用如下指令来添加默认路由：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo route add default gw 10.0.0.1</span><br></pre></td></tr></table></figure>
-
-<p>将默认网关设置为10.0.0.1这个上网的网段即可上网</p>
 ]]></content>
       <categories>
         <category>技术</category>
       </categories>
       <tags>
-        <tag>Linux</tag>
+        <tag>Java</tag>
       </tags>
   </entry>
   <entry>
@@ -1318,6 +1391,46 @@
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">rsync -Pr --rsh=ssh source/dirname slurm@XXX.XXX.XXX.XXX:/home/slurm/dest/dirname</span><br></pre></td></tr></table></figure>
 
 <p>断点续传目录的时候，目录中的文件会被依次以上面的那种方法的形式进行传输，传输如果中断，之前已经上传完毕的文件会被进行完整性检查，如果确认是完整传输的文件，就不会被继续传输了。</p>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux搭建NAT共享网络</title>
+    <url>/2017/06/14/linux/Linux%E6%90%AD%E5%BB%BANAT%E5%85%B1%E4%BA%AB%E7%BD%91%E7%BB%9C/</url>
+    <content><![CDATA[<h3 id="1-配置双网卡静态IP信息"><a href="#1-配置双网卡静态IP信息" class="headerlink" title="1. 配置双网卡静态IP信息"></a>1. 配置双网卡静态IP信息</h3><p><code>sudo vim /etc/sysconfig/network-scripts/ifcfg-enp15s0</code></p>
+<p>配置该网卡为外网IP，需要添加的内容如下</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">BOOTPROTO=static</span><br><span class="line">ONBOOT=yes</span><br><span class="line">DNS1=202.114.0.242</span><br><span class="line">IPADDR=XXX.XXX.XXX.XXX</span><br><span class="line">PREFIX=23</span><br><span class="line">GATEWAY=115.156.163.254</span><br></pre></td></tr></table></figure>
+
+<p><code>sudo vim /etc/sysconfig/network-scripts/ifcfg-eno1</code></p>
+<p>配置该网卡转发enp15s0的网络包，需要添加的内容如下</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">BOOTPROTO=static</span><br><span class="line">ONBOOT=yes</span><br><span class="line">DNS1=202.114.0.242</span><br><span class="line">IPADDR=10.0.0.1</span><br><span class="line">PREFIX=24</span><br><span class="line">GATEWAY=10.0.0.1</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-配置系统内核实现ipv4转发"><a href="#2-配置系统内核实现ipv4转发" class="headerlink" title="2. 配置系统内核实现ipv4转发"></a>2. 配置系统内核实现ipv4转发</h3><p><code>sudo vim /etc/sysctl.conf</code></p>
+<p>添加如下内容</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Controls IP packet forwarding</span></span><br><span class="line">net.ipv4.ip_forward = 1</span><br></pre></td></tr></table></figure>
+
+<p>如果需要不重启实现ipv4转发功能可以使用如下指令</p>
+<p><code>sysctl -w net.ipv4.ip_forward=1</code></p>
+<h3 id="3-修改iptables转发规则"><a href="#3-修改iptables转发规则" class="headerlink" title="3. 修改iptables转发规则"></a>3. 修改iptables转发规则</h3><p>运行如下指令</p>
+<p><code>sudo iptables -t nat -A POSTROUTING -s 10.0.0.0/24 -o enp15s0 -j SNAT --to XXX.XXX.XXX.XXX</code></p>
+<p><code>iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT</code></p>
+<p><code>iptables -A OUTPUT -p udp --dport 53 -j ACCEPT</code></p>
+<p>保存iptables配置的结果防止重启失效</p>
+<p><code>sudo iptables-save</code></p>
+<h3 id="4-其他一些关于网络的问题"><a href="#4-其他一些关于网络的问题" class="headerlink" title="4. 其他一些关于网络的问题"></a>4. 其他一些关于网络的问题</h3><ul>
+<li>多网卡机器1号网卡作为内网网段，2号网卡作为外网网段不能上网的问题，可以通过修改默认路由来实现。一般来说，默认路由为1号网卡（如果没有配置的话），设置路由使用route指令，route指令说明如下：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Usage: route [-nNvee] [-FC] [&lt;AF&gt;]           List kernel routing tables</span><br><span class="line">       route [-v] [-FC] &#123;add|del|flush&#125; ...  Modify routing table for AF.</span><br><span class="line"></span><br><span class="line">       route &#123;-h|--help&#125; [&lt;AF&gt;]              Detailed usage syntax for specified AF.</span><br><span class="line">       route &#123;-V|--version&#125;                  Display version/author and exit.</span><br><span class="line"></span><br><span class="line">        -v, --verbose            be verbose</span><br><span class="line">        -n, --numeric            don&apos;t resolve names</span><br><span class="line">        -e, --extend             display other/more information</span><br><span class="line">        -F, --fib                display Forwarding Information Base (default)</span><br><span class="line">        -C, --cache              display routing cache instead of FIB</span><br><span class="line"></span><br><span class="line">  &lt;AF&gt;=Use -4, -6, &apos;-A &lt;af&gt;&apos; or &apos;--&lt;af&gt;&apos;; default: inet</span><br><span class="line">  List of possible address families (which support routing):</span><br><span class="line">    inet (DARPA Internet) inet6 (IPv6) ax25 (AMPR AX.25)</span><br><span class="line">    netrom (AMPR NET/ROM) ipx (Novell IPX) ddp (Appletalk DDP)</span><br><span class="line">    x25 (CCITT X.25)</span><br></pre></td></tr></table></figure>
+
+<p>使用如下指令来添加默认路由：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo route add default gw 10.0.0.1</span><br></pre></td></tr></table></figure>
+
+<p>将默认网关设置为10.0.0.1这个上网的网段即可上网</p>
 ]]></content>
       <categories>
         <category>技术</category>
@@ -1541,6 +1654,94 @@
       </tags>
   </entry>
   <entry>
+    <title>安装redis&amp;memcache及PHP扩展</title>
+    <url>/2016/01/07/php/%E5%AE%89%E8%A3%85redis%E5%92%8Cmemcache%E5%8F%8APHP%E6%89%A9%E5%B1%95/</url>
+    <content><![CDATA[<h2 id="安装redis"><a href="#安装redis" class="headerlink" title="安装redis"></a>安装redis</h2><ul>
+<li><p>下载地址： <a href="http://redis.io/download" target="_blank" rel="noopener">http://redis.io/download</a></p>
+</li>
+<li><p>解压并进入解压目录，并进行编译安装。直接make &amp; make install</p>
+</li>
+<li><p>拷贝配置文件到 /etc 目录，将其中的daemonize no改为daemonize yes</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cp redis.conf /etc/</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>将解压目录中 src/ 中的redis-benchmark redis-cli redis-server 拷贝到 /usr/bin 中，方便之后启动</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cp src/redis-benchmark redis-cli redis-server /usr/bin/</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<a id="more"></a>
+<ul>
+<li><p>启动redis</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">redis-server /etc/redis.conf</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>进入redis</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">redis-cli</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>关闭redis服务</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">redis-cli shutdown</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h2 id="安装redis的PHP扩展库"><a href="#安装redis的PHP扩展库" class="headerlink" title="安装redis的PHP扩展库"></a>安装redis的PHP扩展库</h2><ul>
+<li><p>下载地址： <a href="http://pecl.php.net/package/redis" target="_blank" rel="noopener">http://pecl.php.net/package/redis</a></p>
+</li>
+<li><p>将phpize软链接到 /usr/bin</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ln -s /usr/<span class="built_in">local</span>/php/bin/phpize /usr/bin</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>解压并进入解压目录，使用如下命令进行安装</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">phpize</span><br><span class="line">./configure --with-php-config=/usr/<span class="built_in">local</span>/php/bin/php-config</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>查看输出信息，会告诉你redis.so放置在哪个文件夹下，并复制到PHP的扩展目录下，扩展目录一般为 /usr/local/php/lib/php/extensions/no-debug-non-zts-20131226/，在正常情况下，该文件已经被拷贝到正确的位置</p>
+</li>
+<li><p>在php.ini中添加一句extension=redis.so</p>
+</li>
+<li><p>重启PHP，在phpinfo界面会有redis信息显示则说明安装成功</p>
+<h2 id="安装memcache"><a href="#安装memcache" class="headerlink" title="安装memcache"></a>安装memcache</h2></li>
+<li><p>memcache需要使用libevent这个库用于socket的处理，需要安装libevent，下载地址： <a href="http://libevent.org/" target="_blank" rel="noopener">http://libevent.org/</a></p>
+</li>
+<li><p>编译安装libevent</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure --prefix=/usr</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>memcache下载地址： <a href="http://memcached.org/" target="_blank" rel="noopener">http://memcached.org/</a></p>
+</li>
+<li><p>编译安装memcache</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure --with-libevent=/usr</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>启动memcache</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<p>-p 指定端口号（默认11211）<br>-m 指定最大使用内存大小（默认64MB）<br>-t 线程数（默认4）<br>-l 连接的IP地址, 默认是本机<br>-d start 启动memcached服务<br>-d restart 重起memcached服务<br>-d stop|shutdown 关闭正在运行的memcached服务<br>-m 最大内存使用，单位MB。默认64MB<br>-M 内存耗尽时返回错误，而不是删除项<br>-c 最大同时连接数，默认是1024<br>-f 块大小增长因子，默认是1.25<br>-n 最小分配空间，key+value+flags默认是48</p>
+<h2 id="安装memcache的PHP扩展库"><a href="#安装memcache的PHP扩展库" class="headerlink" title="安装memcache的PHP扩展库"></a>安装memcache的PHP扩展库</h2><ul>
+<li><p>下载地址： <a href="http://pecl.php.net/package/memcache" target="_blank" rel="noopener">http://pecl.php.net/package/memcache</a></p>
+</li>
+<li><p>用如下指令进行安装</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">phpize</span><br><span class="line">./configure --<span class="built_in">enable</span>-memcache --with-php-config=/usr/<span class="built_in">local</span>/php/bin/php-config --with-zlib-dir</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>在php.ini中增加一行：extension=memcache.so</p>
+</li>
+<li><p>查看phpinfo()的输出，观察memcache的扩展库是否存在</p>
+</li>
+</ul>
+<h2 id="PHP7安装memcache的PHP扩展库的问题"><a href="#PHP7安装memcache的PHP扩展库的问题" class="headerlink" title="PHP7安装memcache的PHP扩展库的问题"></a>PHP7安装memcache的PHP扩展库的问题</h2><ul>
+<li><p>原生的memcache扩展库在PHP7中已经不能编译了，需要使用github上的pecl-memcache分支版本<br><a href="https://github.com/websupport-sk/pecl-memcache" target="_blank" rel="noopener">https://github.com/websupport-sk/pecl-memcache</a></p>
+</li>
+<li><p>此外，还有一个扩展库叫memcached，与memcache不同，功能更强大，可以在<a href="https://github.com/rlerdorf/php-memcached" target="_blank" rel="noopener">https://github.com/rlerdorf/php-memcached</a> 进行下载安装，编译需要安装libmemcached</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo apt install libmemcached-dev</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>再提供一个redis扩展库的github地址<a href="https://github.com/phpredis/phpredis/" target="_blank" rel="noopener">https://github.com/phpredis/phpredis/</a> ，后续redis扩展库对PHP7支持不好可以从该地址下载进行扩展库安装</p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>PHP</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Spark对大规模数据进行分区</title>
     <url>/2018/03/17/spark/Spark%E5%AF%B9%E5%A4%A7%E8%A7%84%E6%A8%A1%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C%E5%88%86%E5%8C%BA/</url>
     <content><![CDATA[<h1 id="groupByKey"><a href="#groupByKey" class="headerlink" title="groupByKey"></a>groupByKey</h1><p>在编写处理大规模数据的Spark代码的时候遇到一个问题，对大规模数据进行groupByKey操作的时候时间非常长，而且很容易出现OOM的情况。这其中的主要原因有几点，一是groupByKey会造成大量的数据shuffle，大量的IO会影响程序的运行时间；二是每一个key下对应的数据非常不均匀，有的key对应的key非常多，在某个executor上的数据可能会超出内存大小，造成OOM的情况。</p>
@@ -1568,6 +1769,28 @@
         <category>分布式</category>
       </categories>
       <tags>
+        <tag>spark</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>在pycharm上运行pyspark程序</title>
+    <url>/2016/06/28/spark/%E5%9C%A8pycharm%E4%B8%8A%E8%BF%90%E8%A1%8Cpyspark%E7%A8%8B%E5%BA%8F/</url>
+    <content><![CDATA[<h3 id="配置pycharm"><a href="#配置pycharm" class="headerlink" title="配置pycharm"></a>配置pycharm</h3><ol>
+<li>在pycharm上创建project之后，在Run-&gt;Edit Configurations-&gt;Environment variables中添加两个环境变量：<br><code>PYTHONPATH = /opt/spark/spark1.6.2/python</code><br><code>SPARK_HOME = /opt/spark/spark1.6.2</code><a id="more"></a></li>
+<li>将<code>spark/python</code>目录中的pyspark目录拷贝到工程文件夹中</li>
+</ol>
+<h3 id="编写pyspark程序"><a href="#编写pyspark程序" class="headerlink" title="编写pyspark程序"></a>编写pyspark程序</h3><ol>
+<li>pyspark程序中经常会用到一个变量sqlContext，这个变量一般是通过<code>sqlContext = SQLContext(sc)</code>生成的，变量<code>sc</code>是一个pyspark的shenll自动生成的helper变量</li>
+<li>在pyspark的shell中，这个变量是会自动生成作为helper变量的，但是在pycharm编写的程序中需要自己去定义这个变量：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkConf, SparkContext</span><br><span class="line"><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> SQLContext</span><br><span class="line">conf = SparkConf().setAppName(<span class="string">"berkeleySpark"</span>)</span><br><span class="line">sc = SparkContext(conf=conf)</span><br><span class="line">sqlContext = SQLContext(sc)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>分布式</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
         <tag>spark</tag>
       </tags>
   </entry>
@@ -1627,28 +1850,6 @@
       </tags>
   </entry>
   <entry>
-    <title>在pycharm上运行pyspark程序</title>
-    <url>/2016/06/28/spark/%E5%9C%A8pycharm%E4%B8%8A%E8%BF%90%E8%A1%8Cpyspark%E7%A8%8B%E5%BA%8F/</url>
-    <content><![CDATA[<h3 id="配置pycharm"><a href="#配置pycharm" class="headerlink" title="配置pycharm"></a>配置pycharm</h3><ol>
-<li>在pycharm上创建project之后，在Run-&gt;Edit Configurations-&gt;Environment variables中添加两个环境变量：<br><code>PYTHONPATH = /opt/spark/spark1.6.2/python</code><br><code>SPARK_HOME = /opt/spark/spark1.6.2</code><a id="more"></a></li>
-<li>将<code>spark/python</code>目录中的pyspark目录拷贝到工程文件夹中</li>
-</ol>
-<h3 id="编写pyspark程序"><a href="#编写pyspark程序" class="headerlink" title="编写pyspark程序"></a>编写pyspark程序</h3><ol>
-<li>pyspark程序中经常会用到一个变量sqlContext，这个变量一般是通过<code>sqlContext = SQLContext(sc)</code>生成的，变量<code>sc</code>是一个pyspark的shenll自动生成的helper变量</li>
-<li>在pyspark的shell中，这个变量是会自动生成作为helper变量的，但是在pycharm编写的程序中需要自己去定义这个变量：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkConf, SparkContext</span><br><span class="line"><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> SQLContext</span><br><span class="line">conf = SparkConf().setAppName(<span class="string">"berkeleySpark"</span>)</span><br><span class="line">sc = SparkContext(conf=conf)</span><br><span class="line">sqlContext = SQLContext(sc)</span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>分布式</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
-        <tag>spark</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>远程调试Spark程序</title>
     <url>/2018/10/26/spark/%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95Spark%E7%A8%8B%E5%BA%8F/</url>
     <content><![CDATA[<p>我们在写Spark程序的时候免不了要对我们的代码进行debug，在代码当中打上断点来查看程序执行过程中各个变量的变化情况。我一般使用Intellij IDEA来写Spark程序，可以直接在其中以local的方式运行Spark程序，也可以在其中打上断点进行调试，但这样做有一些问题：</p>
@@ -1693,100 +1894,6 @@
 ]]></content>
       <tags>
         <tag>Spark</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Intellij IDEA 编译spark源码报错解决方法</title>
-    <url>/2017/07/05/spark/spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/Intellij%20IDEA%20%E7%BC%96%E8%AF%91spark%E6%BA%90%E7%A0%81%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</url>
-    <content><![CDATA[<h3 id="SparkFlumeProtocol"><a href="#SparkFlumeProtocol" class="headerlink" title="SparkFlumeProtocol"></a>SparkFlumeProtocol</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Error:(45, 66) not found: type SparkFlumeProtocol</span><br><span class="line">  val transactionTimeout: Int, val backOffInterval: Int) extends SparkFlumeProtocol with Logging &#123;</span><br></pre></td></tr></table></figure>
-
-<p>这个问题是由于flume-sink所需要的部分源文件idea不会自动下载，所以编译时不能通过。</p>
-<h4 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h4><p>在Intellij IDEA里面：</p>
-<ul>
-<li>打开View -&gt; Tool Windows -&gt; Maven Projects</li>
-<li>右击Spark Project External Flume Sink</li>
-<li>点击Generate Sources and Update Folders<br>随后，Intellij IDEA会自动下载Flume Sink相关的包</li>
-</ul>
-<h3 id="SqlBaseParser"><a href="#SqlBaseParser" class="headerlink" title="SqlBaseParser"></a>SqlBaseParser</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Error:(36, 45) object SqlBaseParser is not a member of package org.apache.spark.sql.catalyst.parser</span><br><span class="line">import org.apache.spark.sql.catalyst.parser.SqlBaseParser._</span><br></pre></td></tr></table></figure>
-
-<p>这个问题和之前的问题类似，是idea不会自动下载部分catalyst相关的源文件，导致编译时不能通过。</p>
-<h4 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h4><p>在Intellij IDEA里面：</p>
-<ul>
-<li>打开View -&gt; Tool Windows -&gt; Maven Projects</li>
-<li>右击Spark Project Catalyst</li>
-<li>点击Generate Sources and Update Folders<br>随后，Intellij IDEA会自动下载Catalyst相关的包</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>IDEA编译spark源码出错大多都是不能正确下载相关的源文件，在Maven的管理菜单内选择相对应的库选择下载源码并更新即可解决大多数问题。</p>
-<p>spark build error集合：<br><a href="https://www.mail-archive.com/search?l=user@spark.apache.org&amp;q=subject:%22Build+error%22&amp;o=newest&amp;f=1" target="_blank" rel="noopener">https://www.mail-archive.com/search?l=user@spark.apache.org&amp;q=subject:%22Build+error%22&amp;o=newest&amp;f=1</a></p>
-]]></content>
-      <categories>
-        <category>Spark源码阅读</category>
-      </categories>
-      <tags>
-        <tag>spark</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Spark源码分析RDD缓存过程</title>
-    <url>/2018/04/05/spark/spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/Spark%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90RDD%E7%BC%93%E5%AD%98%E8%BF%87%E7%A8%8B/</url>
-    <content><![CDATA[<p>Spark提供了一种将RDD持久化的方式(cache、persist)，这种方式适用于需要多次执行action操作的RDD，因为持久化之后的RDD中的内容不需要重新计算，可以直接使用，对于多次执行action的RDD来说，这样做能省下许多重复计算的时间。Task在启动之初读取一个分区的时候，会先判断这个分区是否已经被持久化，如果没有则会再去检查是否存在Checkpoint，还没有找到的话会根据血统重新计算。RDD的缓存是一种特殊的持久化操作，即<code>RDD.cache()</code>等同于<code>RDD.persist(MEMORY_ONLY)</code>即缓存是一种只将RDD持久化到内存当中的方式。本文基于Spark 2.1版本的源码对RDD的缓存过程进行了分析，文章中涉及到的源码文件主要有以下几个：</p>
-<ul>
-<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/storage/memory/MemoryStore.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/storage/memory/MemoryStorage.scala</code></a></li>
-<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/memory/StorageMemoryPool.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/memory/StorageMemoryPool.scala</code></a></li>
-<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/util/collection/SizeTrackingVector.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/util/collection/SizeTrackingVector.scala</code></a></li>
-<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/util/collection/SizeTracker.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/util/collection/SizeTracker.scala</code></a></li>
-</ul>
-<h2 id="RDD缓存分析"><a href="#RDD缓存分析" class="headerlink" title="RDD缓存分析"></a>RDD缓存分析</h2><p>RDD在缓存到内存之前，Partition中的数据一般以迭代器(Iterator)的数据结构来访问，通过Iterator可以获得分区中每一条序列化或者非序列化的Record，这些Record在访问的时候占用的是JVM堆内存中other部分的内存区域，同一个Partition的不同Record的空间并不是连续的。RDD被缓存之后，会由Partition转化为Block，并且存储位置变为了Storage Memory区域，并且此时Block中的Record所占用的内存空间是连续的。我们可以在Spark的源码当中多次看到unroll这个词，字面意思是展开，在Spark当中的意义就是将存储在Partition中的Record由不连续的存储空间转换为连续存储空间的过程。Unroll操作的时候需要在Storage Memory当中通过<code>reserveUnrollMemoryForThisTask</code>来申请Unroll操作所需要的内存，使用完毕之后，又通过<code>releaseUnrollMemoryForThisTask</code>方法来释放这部分内存。这与1.6.0版本之前固定Unroll内存的方式不同，是动态申请的，因为这部分内存只在Unroll的时候有用，动态申请这块内存能够在不需要Unroll的时候将这块内存区域用于其他的用途上，提升内存资源的利用率。Block有两种存储方式，分别为序列化存储和非序列化存储，这两种存储方式具有其对应的Entry，在MemoryStore类中通过一个<code>LinkedHashMap</code>来存储堆内和对外内存中的所有Block对象的实例：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Note: all changes to memory allocations, notably putting blocks, evicting blocks, and</span></span><br><span class="line"><span class="comment">// acquiring or releasing unroll memory, must be synchronized on `memoryManager`!</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">val</span> entries = <span class="keyword">new</span> <span class="type">LinkedHashMap</span>[<span class="type">BlockId</span>, <span class="type">MemoryEntry</span>[_]](<span class="number">32</span>, <span class="number">0.75</span>f, <span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
-
-<p>通过这段源码的注释我们也可以知道，对这个map的数据结构进行操作的时候需要严格遵循同步的原则，因为一个Executor会对应一个MemoryStore，而一个Executor有多个core的时候会并行执行Task，就会有多个线程共享使用一块Storage Memory，即共享使用这一个LinkedHashMap，修改LinkedHashMap时需要做到同步。<br>因为不能保证存储空间可以一次容纳 Iterator 中的所有数据，当前的计算任务在 Unroll 时要向 MemoryManager 申请足够的 Unroll 空间来临时占位，空间不足则 Unroll 失败，空间足够时可以继续进行。至于为何要选择LinkedHashMap来存储也是有原因的，因为LinkedHashMap能够很好地支持LRU算法(最近最少使用，常用于页面置换算法)，我们可以看到定义LinkedHashMap的第三个参数<code>accessOrder=true</code>，即基于访问顺序，被访问到的元素会被加到LinkedHashMap的最后。基于这个特性，当新Block加入的时候发现内存空间不足的时候，会按照最近最少使用的顺序淘汰LinkedHashMap中的Block。</p>
-<h3 id="序列化存储"><a href="#序列化存储" class="headerlink" title="序列化存储"></a>序列化存储</h3><p>序列化存储使用了一个名为SerializedMemoryEntry的case class：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">case</span> <span class="class"><span class="keyword">class</span> <span class="title">SerializedMemoryEntry</span>[<span class="type">T</span>](<span class="params"></span></span></span><br><span class="line"><span class="class"><span class="params">    buffer: <span class="type">ChunkedByteBuffer</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    memoryMode: <span class="type">MemoryMode</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]</span>) <span class="keyword">extends</span> <span class="title">MemoryEntry</span>[<span class="type">T</span>] </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>: <span class="type">Long</span> = buffer.size</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这里的主要存储结构为<code>ChunkedByteBuffer</code>，实际上这个类是Spark自己实现的用于存储<code>ByteBuffer</code>的数据结构，其本质为<code>Array[ByteBuffer]</code>，Array的每一个元素被称为一个chunk。对于已经序列化的Partition在转化为Block进行存储时，因为在存储时就已经知道序列化的ByteBuffer的size，其所需要的Unroll空间可以直接累加计算，一次申请。存储所使用的方法为<code>putBytes</code>，需要输入Block的ID、占用的内存空间大小、存储模式为堆内内存还是堆外内存以及存放序列化数据的ByteBuffer，其返回的内容指示了是否缓存成功：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">putBytes</span></span>[<span class="type">T</span>: <span class="type">ClassTag</span>](</span><br><span class="line">      blockId: <span class="type">BlockId</span>,</span><br><span class="line">      size: <span class="type">Long</span>,</span><br><span class="line">      memoryMode: <span class="type">MemoryMode</span>,</span><br><span class="line">      _bytes: () =&gt; <span class="type">ChunkedByteBuffer</span>): <span class="type">Boolean</span></span><br></pre></td></tr></table></figure>
-
-<p>获取序列化缓存的内容可以直接使用<code>getBytes</code>方法，输入Block的ID，获取对应的ChunkByteBuffer。</p>
-<a id="more"></a>
-<h3 id="非序列化存储"><a href="#非序列化存储" class="headerlink" title="非序列化存储"></a>非序列化存储</h3><p>非序列化存储使用了一个名为DeserializedMemoryEntry的case class：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">case</span> <span class="class"><span class="keyword">class</span> <span class="title">DeserializedMemoryEntry</span>[<span class="type">T</span>](<span class="params"></span></span></span><br><span class="line"><span class="class"><span class="params">    value: <span class="type">Array</span>[<span class="type">T</span>],</span></span></span><br><span class="line"><span class="class"><span class="params">    size: <span class="type">Long</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]</span>) <span class="keyword">extends</span> <span class="title">MemoryEntry</span>[<span class="type">T</span>] </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> memoryMode: <span class="type">MemoryMode</span> = <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>可以看到，非序列化的存储方式为将元素直接按照Array的方式进行存储，获取其中的存储内容时，可以直接返回装有数据的Iterator。非序列化的存储方式在遍历Record并申请内存时较为复杂，因为无法直接估计Block中所有Record的总空间大小，需要在遍历Record过程中一次申请，即每读取一条Record，采样估算其所需的Unroll空间并进行申请，空间不足时可以中断，释放已占用的Unroll空间。如果最终Unroll成功，当前Partition所占用的Unroll空间被转换为正常的缓存RDD的存储空间。采用估算使用的是<code>SizeTrackingVector</code>，其实现了<code>SizeTracker</code>接口，可以通过采样的方式，在O(1)时间估计出输入的Block的大小，若估计出的大小超出了申请的内存的临界值，便会再申请内存来存放新加入的Record。这种依次申请内存的方式，其占用的内存是通过周期性地采样近似估算而得，即并不是每次新增的数据项都会计算一次占用的内存大小，这种方法降低了时间开销但是有可能误差较大，导致某一时刻的实际内存有可能远远超出预期。但这也是一种权衡方式，即在计算以及申请内存的时间开销和申请内存准确度上的平衡，在大多数情况下，采样获得的内存大小估计还是准确的。<br>非序列化的Block有两种存储方式，一种是按照Array的方式存储原值，另一种为将原值进行序列化后存储，所调用的方法为<code>putIteratorAsValues</code>和<code>putIteratorAsBytes</code>：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Attempt to put the given block in memory store as values.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * It's possible that the iterator is too large to materialize and store in memory. To avoid</span></span><br><span class="line"><span class="comment"> * OOM exceptions, this method will gradually unroll the iterator while periodically checking</span></span><br><span class="line"><span class="comment"> * whether there is enough free memory. If the block is successfully materialized, then the</span></span><br><span class="line"><span class="comment"> * temporary unroll memory used during the materialization is "transferred" to storage memory,</span></span><br><span class="line"><span class="comment"> * so we won't acquire more memory than is actually needed to store the block.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * @return in case of success, the estimated size of the stored data. In case of failure, return</span></span><br><span class="line"><span class="comment"> *         an iterator containing the values of the block. The returned iterator will be backed</span></span><br><span class="line"><span class="comment"> *         by the combination of the partially-unrolled block and the remaining elements of the</span></span><br><span class="line"><span class="comment"> *         original input iterator. The caller must either fully consume this iterator or call</span></span><br><span class="line"><span class="comment"> *         `close()` on it in order to free the storage memory consumed by the partially-unrolled</span></span><br><span class="line"><span class="comment"> *         block.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span>[storage] <span class="function"><span class="keyword">def</span> <span class="title">putIteratorAsValues</span></span>[<span class="type">T</span>](</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    values: <span class="type">Iterator</span>[<span class="type">T</span>],</span><br><span class="line">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]): <span class="type">Either</span>[<span class="type">PartiallyUnrolledIterator</span>[<span class="type">T</span>], <span class="type">Long</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>[storage] <span class="function"><span class="keyword">def</span> <span class="title">putIteratorAsBytes</span></span>[<span class="type">T</span>](</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    values: <span class="type">Iterator</span>[<span class="type">T</span>],</span><br><span class="line">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>],</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Either</span>[<span class="type">PartiallySerializedBlock</span>[<span class="type">T</span>], <span class="type">Long</span>]</span><br></pre></td></tr></table></figure>
-
-<h2 id="RDD的持久化级别"><a href="#RDD的持久化级别" class="headerlink" title="RDD的持久化级别"></a>RDD的持久化级别</h2><p>前面既然说道了RDD缓存时会有序列化存储和非序列化存储两种方式，我们就顺便说一下RDD持久化的存储级别，这里涉及到的Spark源码当中的文件为<code>spark/core/src/main/scala/org/apache/spark/storage/StorageLevel.scala</code>，其中描述了Spark持久化存储级别当中5个重要的变量，这5个变量能组合称为RDD的11中存储级别：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _useDisk: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _useMemory: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _useOffHeap: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _deserialized: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _replication: <span class="type">Int</span> = <span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-<p>这5个变量的前3个表示的是存储的位置，分别为磁盘、堆内内存和堆外内存。例如<code>DISK_ONLY</code>表示只存储在磁盘当中，<code>MEMORY_AND_DISK</code>表示可以存储在堆内内存和磁盘上，<code>OFF_HEAP</code>则只能存储在堆外内存上。<br><code>_deserialized</code>表示是否序列化，例如<code>MEMORY_ONLY_SER</code>表示序列化存储在堆内内存上，不加SER的存储级别则为不进行序列化。<br><code>_replication</code>表示备份的数量，默认不会进行冗余备份，<code>MEMORY_AND_DISK_2</code>则表示可以存储在堆内内存和磁盘上，并且创建一个副本进行备份，一般冗余备份会备份到其他的节点，保证持久化的数据的容错性。</p>
-<h2 id="Block存储的淘汰和落盘"><a href="#Block存储的淘汰和落盘" class="headerlink" title="Block存储的淘汰和落盘"></a>Block存储的淘汰和落盘</h2><p>我们可以从Spark源码的一些注释当中看到，当有新的Block要存储，内存又不够用时，会通过LRU淘汰一部分最近不常使用的Block，释放其内存给新加入的Block进行存储，如果被淘汰的Block的持久化级别当中有DISK，则会将其写入磁盘当中，称为落盘。Block的淘汰也不是仅仅依赖于LRU算法，其具有一定的规则：</p>
-<blockquote>
-<ul>
-<li>被淘汰的旧 Block 要与新 Block 的 MemoryMode 相同，即同属于堆外或堆内内存</li>
-<li>新旧 Block 不能属于同一个 RDD，避免循环淘汰</li>
-<li>旧 Block 所属 RDD 不能处于被读状态，避免引发一致性问题</li>
-<li>遍历 LinkedHashMap 中 Block，按照最近最少使用（LRU）的顺序淘汰，直到满足新 Block 所需的空间。其中 LRU 是 LinkedHashMap 的特性</li>
-</ul>
-</blockquote>
-<p>淘汰Block并释放其内存调用的方法为<code>evictBlocksToFreeSpace</code>：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Try to evict blocks to free up a given amount of space to store a particular block.</span></span><br><span class="line"><span class="comment"> * Can fail if either the block is bigger than our memory or it would require replacing</span></span><br><span class="line"><span class="comment"> * another block from the same RDD (which leads to a wasteful cyclic replacement pattern for</span></span><br><span class="line"><span class="comment"> * RDDs that don't fit into memory that we want to avoid).</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * @param blockId the ID of the block we are freeing space for, if any</span></span><br><span class="line"><span class="comment"> * @param space the size of this block</span></span><br><span class="line"><span class="comment"> * @param memoryMode the type of memory to free (on- or off-heap)</span></span><br><span class="line"><span class="comment"> * @return the amount of memory (in bytes) freed by eviction</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span>[spark] <span class="function"><span class="keyword">def</span> <span class="title">evictBlocksToFreeSpace</span></span>(</span><br><span class="line">    blockId: <span class="type">Option</span>[<span class="type">BlockId</span>],</span><br><span class="line">    space: <span class="type">Long</span>,</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Long</span></span><br></pre></td></tr></table></figure>
-
-<p>我们也可以在这段代码的注释当中看到一些淘汰Block可能会出现fail的情况，包括新存储的Block所占用的空间大于总内存，或者需要替换处于同一个RDD的不同的Block。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文主要从Spark源码的角度分析了Storage Memory部分，RDD的缓存机制，同时简略介绍了RDD持久化的存储级别。Spark对堆内内存的管理是一种逻辑上的”规划式”的管理，因为对象实例占用内存的申请和释放都由JVM完成，Spark只能在申请后和释放前记录这些内存。所谓记录就是Spark不会有具体的释放内存的操作，只是记录内存变化而已(释放内存时会将不需要的对象置为null，让JVM的GC来回收)，从源码当中我们也可以看到对各种内存的释放和申请调用的方法只是在StorageManager当中进行一个数字的记录和改变，例如如下这段代码：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transferUnrollToStorage</span></span>(amount: <span class="type">Long</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">  <span class="comment">// Synchronize so that transfer is atomic</span></span><br><span class="line">  memoryManager.synchronized &#123;</span><br><span class="line">    releaseUnrollMemoryForThisTask(<span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>, amount)</span><br><span class="line">    <span class="keyword">val</span> success = memoryManager.acquireStorageMemory(blockId, amount, <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>)</span><br><span class="line">    assert(success, <span class="string">"transferring unroll memory to storage memory failed"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Acquire storage memory if necessary to store this block in memory.</span></span><br><span class="line"><span class="keyword">val</span> enoughStorageMemory = &#123;</span><br><span class="line">  <span class="keyword">if</span> (unrollMemoryUsedByThisBlock &lt;= size) &#123;</span><br><span class="line">    <span class="keyword">val</span> acquiredExtra =</span><br><span class="line">      memoryManager.acquireStorageMemory(</span><br><span class="line">        blockId, size - unrollMemoryUsedByThisBlock, <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>)</span><br><span class="line">    <span class="keyword">if</span> (acquiredExtra) &#123;</span><br><span class="line">      transferUnrollToStorage(unrollMemoryUsedByThisBlock)</span><br><span class="line">    &#125;</span><br><span class="line">    acquiredExtra</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123; <span class="comment">// unrollMemoryUsedByThisBlock &gt; size</span></span><br><span class="line">    <span class="comment">// If this task attempt already owns more unroll memory than is necessary to store the</span></span><br><span class="line">    <span class="comment">// block, then release the extra memory that will not be used.</span></span><br><span class="line">    <span class="keyword">val</span> excessUnrollMemory = unrollMemoryUsedByThisBlock - size</span><br><span class="line">    releaseUnrollMemoryForThisTask(<span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>, excessUnrollMemory)</span><br><span class="line">    transferUnrollToStorage(size)</span><br><span class="line">    <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>unrollMemory在释放的时候，需要比较申请到的unrollMemory是否大于最后存储Block的entry的size，如果小于size，会有一个申请不足的storageMemory的过程，并将unrollMemroy转换(transfer)为storageMemory，而Storage Memory的申请还是释放最终都归结为StorageMemoryPool中一个Long类型的<code>_memoryUsed</code>变量的值的改变而已。例如如下StorageMemoryPool释放内存的代码：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">releaseMemory</span></span>(size: <span class="type">Long</span>): <span class="type">Unit</span> = lock.synchronized &#123;</span><br><span class="line">  <span class="keyword">if</span> (size &gt; _memoryUsed) &#123;</span><br><span class="line">    logWarning(<span class="string">s"Attempted to release <span class="subst">$size</span> bytes of storage "</span> +</span><br><span class="line">      <span class="string">s"memory when we only have <span class="subst">$&#123;_memoryUsed&#125;</span> bytes"</span>)</span><br><span class="line">    _memoryUsed = <span class="number">0</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    _memoryUsed -= size</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>对于Spark的内存管理，在被Spark标记为释放的对象实例，很有可能在实际上并没有被JVM回收，导致实际可用的内存小于Spark记录的可用内存，所以Spark并不能准确记录实际可用的堆内内存，从而也就无法完全OOM的异常，我们在平时管理Spark内存的时候要做好充分的内存监控以及调优，保证我们的程序能够在有限的内存环境下正常快速的运行。有时候为了调优可能还需要深刻了解JVM GC的机制，才能做到最大程度的内存充分理由和不出现OOM的异常。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
-<li><a href="https://www.ibm.com/developerworks/cn/analytics/library/ba-cn-apache-spark-memory-management/index.html" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/analytics/library/ba-cn-apache-spark-memory-management/index.html</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Spark源码阅读</category>
-      </categories>
-      <tags>
-        <tag>spark</tag>
       </tags>
   </entry>
   <entry>
@@ -1905,91 +2012,97 @@ DAGScheduler是一个高层调度器，能够将DAG的各个RDD划分到不同�
       </tags>
   </entry>
   <entry>
-    <title>安装redis&amp;memcache及PHP扩展</title>
-    <url>/2016/01/07/php/%E5%AE%89%E8%A3%85redis%E5%92%8Cmemcache%E5%8F%8APHP%E6%89%A9%E5%B1%95/</url>
-    <content><![CDATA[<h2 id="安装redis"><a href="#安装redis" class="headerlink" title="安装redis"></a>安装redis</h2><ul>
-<li><p>下载地址： <a href="http://redis.io/download" target="_blank" rel="noopener">http://redis.io/download</a></p>
-</li>
-<li><p>解压并进入解压目录，并进行编译安装。直接make &amp; make install</p>
-</li>
-<li><p>拷贝配置文件到 /etc 目录，将其中的daemonize no改为daemonize yes</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cp redis.conf /etc/</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>将解压目录中 src/ 中的redis-benchmark redis-cli redis-server 拷贝到 /usr/bin 中，方便之后启动</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">cp src/redis-benchmark redis-cli redis-server /usr/bin/</span><br></pre></td></tr></table></figure>
-
-</li>
-</ul>
-<a id="more"></a>
+    <title>Spark源码分析RDD缓存过程</title>
+    <url>/2018/04/05/spark/spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/Spark%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90RDD%E7%BC%93%E5%AD%98%E8%BF%87%E7%A8%8B/</url>
+    <content><![CDATA[<p>Spark提供了一种将RDD持久化的方式(cache、persist)，这种方式适用于需要多次执行action操作的RDD，因为持久化之后的RDD中的内容不需要重新计算，可以直接使用，对于多次执行action的RDD来说，这样做能省下许多重复计算的时间。Task在启动之初读取一个分区的时候，会先判断这个分区是否已经被持久化，如果没有则会再去检查是否存在Checkpoint，还没有找到的话会根据血统重新计算。RDD的缓存是一种特殊的持久化操作，即<code>RDD.cache()</code>等同于<code>RDD.persist(MEMORY_ONLY)</code>即缓存是一种只将RDD持久化到内存当中的方式。本文基于Spark 2.1版本的源码对RDD的缓存过程进行了分析，文章中涉及到的源码文件主要有以下几个：</p>
 <ul>
-<li><p>启动redis</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">redis-server /etc/redis.conf</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>进入redis</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">redis-cli</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>关闭redis服务</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">redis-cli shutdown</span><br></pre></td></tr></table></figure>
+<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/storage/memory/MemoryStore.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/storage/memory/MemoryStorage.scala</code></a></li>
+<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/memory/StorageMemoryPool.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/memory/StorageMemoryPool.scala</code></a></li>
+<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/util/collection/SizeTrackingVector.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/util/collection/SizeTrackingVector.scala</code></a></li>
+<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/util/collection/SizeTracker.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/util/collection/SizeTracker.scala</code></a></li>
+</ul>
+<h2 id="RDD缓存分析"><a href="#RDD缓存分析" class="headerlink" title="RDD缓存分析"></a>RDD缓存分析</h2><p>RDD在缓存到内存之前，Partition中的数据一般以迭代器(Iterator)的数据结构来访问，通过Iterator可以获得分区中每一条序列化或者非序列化的Record，这些Record在访问的时候占用的是JVM堆内存中other部分的内存区域，同一个Partition的不同Record的空间并不是连续的。RDD被缓存之后，会由Partition转化为Block，并且存储位置变为了Storage Memory区域，并且此时Block中的Record所占用的内存空间是连续的。我们可以在Spark的源码当中多次看到unroll这个词，字面意思是展开，在Spark当中的意义就是将存储在Partition中的Record由不连续的存储空间转换为连续存储空间的过程。Unroll操作的时候需要在Storage Memory当中通过<code>reserveUnrollMemoryForThisTask</code>来申请Unroll操作所需要的内存，使用完毕之后，又通过<code>releaseUnrollMemoryForThisTask</code>方法来释放这部分内存。这与1.6.0版本之前固定Unroll内存的方式不同，是动态申请的，因为这部分内存只在Unroll的时候有用，动态申请这块内存能够在不需要Unroll的时候将这块内存区域用于其他的用途上，提升内存资源的利用率。Block有两种存储方式，分别为序列化存储和非序列化存储，这两种存储方式具有其对应的Entry，在MemoryStore类中通过一个<code>LinkedHashMap</code>来存储堆内和对外内存中的所有Block对象的实例：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Note: all changes to memory allocations, notably putting blocks, evicting blocks, and</span></span><br><span class="line"><span class="comment">// acquiring or releasing unroll memory, must be synchronized on `memoryManager`!</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">val</span> entries = <span class="keyword">new</span> <span class="type">LinkedHashMap</span>[<span class="type">BlockId</span>, <span class="type">MemoryEntry</span>[_]](<span class="number">32</span>, <span class="number">0.75</span>f, <span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
 
-</li>
-</ul>
-<h2 id="安装redis的PHP扩展库"><a href="#安装redis的PHP扩展库" class="headerlink" title="安装redis的PHP扩展库"></a>安装redis的PHP扩展库</h2><ul>
-<li><p>下载地址： <a href="http://pecl.php.net/package/redis" target="_blank" rel="noopener">http://pecl.php.net/package/redis</a></p>
-</li>
-<li><p>将phpize软链接到 /usr/bin</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">ln -s /usr/<span class="built_in">local</span>/php/bin/phpize /usr/bin</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>解压并进入解压目录，使用如下命令进行安装</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">phpize</span><br><span class="line">./configure --with-php-config=/usr/<span class="built_in">local</span>/php/bin/php-config</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>查看输出信息，会告诉你redis.so放置在哪个文件夹下，并复制到PHP的扩展目录下，扩展目录一般为 /usr/local/php/lib/php/extensions/no-debug-non-zts-20131226/，在正常情况下，该文件已经被拷贝到正确的位置</p>
-</li>
-<li><p>在php.ini中添加一句extension=redis.so</p>
-</li>
-<li><p>重启PHP，在phpinfo界面会有redis信息显示则说明安装成功</p>
-<h2 id="安装memcache"><a href="#安装memcache" class="headerlink" title="安装memcache"></a>安装memcache</h2></li>
-<li><p>memcache需要使用libevent这个库用于socket的处理，需要安装libevent，下载地址： <a href="http://libevent.org/" target="_blank" rel="noopener">http://libevent.org/</a></p>
-</li>
-<li><p>编译安装libevent</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure --prefix=/usr</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>memcache下载地址： <a href="http://memcached.org/" target="_blank" rel="noopener">http://memcached.org/</a></p>
-</li>
-<li><p>编译安装memcache</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure --with-libevent=/usr</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>启动memcache</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid</span><br></pre></td></tr></table></figure>
+<p>通过这段源码的注释我们也可以知道，对这个map的数据结构进行操作的时候需要严格遵循同步的原则，因为一个Executor会对应一个MemoryStore，而一个Executor有多个core的时候会并行执行Task，就会有多个线程共享使用一块Storage Memory，即共享使用这一个LinkedHashMap，修改LinkedHashMap时需要做到同步。<br>因为不能保证存储空间可以一次容纳 Iterator 中的所有数据，当前的计算任务在 Unroll 时要向 MemoryManager 申请足够的 Unroll 空间来临时占位，空间不足则 Unroll 失败，空间足够时可以继续进行。至于为何要选择LinkedHashMap来存储也是有原因的，因为LinkedHashMap能够很好地支持LRU算法(最近最少使用，常用于页面置换算法)，我们可以看到定义LinkedHashMap的第三个参数<code>accessOrder=true</code>，即基于访问顺序，被访问到的元素会被加到LinkedHashMap的最后。基于这个特性，当新Block加入的时候发现内存空间不足的时候，会按照最近最少使用的顺序淘汰LinkedHashMap中的Block。</p>
+<h3 id="序列化存储"><a href="#序列化存储" class="headerlink" title="序列化存储"></a>序列化存储</h3><p>序列化存储使用了一个名为SerializedMemoryEntry的case class：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">case</span> <span class="class"><span class="keyword">class</span> <span class="title">SerializedMemoryEntry</span>[<span class="type">T</span>](<span class="params"></span></span></span><br><span class="line"><span class="class"><span class="params">    buffer: <span class="type">ChunkedByteBuffer</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    memoryMode: <span class="type">MemoryMode</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]</span>) <span class="keyword">extends</span> <span class="title">MemoryEntry</span>[<span class="type">T</span>] </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>: <span class="type">Long</span> = buffer.size</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-</li>
+<p>这里的主要存储结构为<code>ChunkedByteBuffer</code>，实际上这个类是Spark自己实现的用于存储<code>ByteBuffer</code>的数据结构，其本质为<code>Array[ByteBuffer]</code>，Array的每一个元素被称为一个chunk。对于已经序列化的Partition在转化为Block进行存储时，因为在存储时就已经知道序列化的ByteBuffer的size，其所需要的Unroll空间可以直接累加计算，一次申请。存储所使用的方法为<code>putBytes</code>，需要输入Block的ID、占用的内存空间大小、存储模式为堆内内存还是堆外内存以及存放序列化数据的ByteBuffer，其返回的内容指示了是否缓存成功：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">putBytes</span></span>[<span class="type">T</span>: <span class="type">ClassTag</span>](</span><br><span class="line">      blockId: <span class="type">BlockId</span>,</span><br><span class="line">      size: <span class="type">Long</span>,</span><br><span class="line">      memoryMode: <span class="type">MemoryMode</span>,</span><br><span class="line">      _bytes: () =&gt; <span class="type">ChunkedByteBuffer</span>): <span class="type">Boolean</span></span><br></pre></td></tr></table></figure>
+
+<p>获取序列化缓存的内容可以直接使用<code>getBytes</code>方法，输入Block的ID，获取对应的ChunkByteBuffer。</p>
+<a id="more"></a>
+<h3 id="非序列化存储"><a href="#非序列化存储" class="headerlink" title="非序列化存储"></a>非序列化存储</h3><p>非序列化存储使用了一个名为DeserializedMemoryEntry的case class：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">case</span> <span class="class"><span class="keyword">class</span> <span class="title">DeserializedMemoryEntry</span>[<span class="type">T</span>](<span class="params"></span></span></span><br><span class="line"><span class="class"><span class="params">    value: <span class="type">Array</span>[<span class="type">T</span>],</span></span></span><br><span class="line"><span class="class"><span class="params">    size: <span class="type">Long</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]</span>) <span class="keyword">extends</span> <span class="title">MemoryEntry</span>[<span class="type">T</span>] </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> memoryMode: <span class="type">MemoryMode</span> = <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，非序列化的存储方式为将元素直接按照Array的方式进行存储，获取其中的存储内容时，可以直接返回装有数据的Iterator。非序列化的存储方式在遍历Record并申请内存时较为复杂，因为无法直接估计Block中所有Record的总空间大小，需要在遍历Record过程中一次申请，即每读取一条Record，采样估算其所需的Unroll空间并进行申请，空间不足时可以中断，释放已占用的Unroll空间。如果最终Unroll成功，当前Partition所占用的Unroll空间被转换为正常的缓存RDD的存储空间。采用估算使用的是<code>SizeTrackingVector</code>，其实现了<code>SizeTracker</code>接口，可以通过采样的方式，在O(1)时间估计出输入的Block的大小，若估计出的大小超出了申请的内存的临界值，便会再申请内存来存放新加入的Record。这种依次申请内存的方式，其占用的内存是通过周期性地采样近似估算而得，即并不是每次新增的数据项都会计算一次占用的内存大小，这种方法降低了时间开销但是有可能误差较大，导致某一时刻的实际内存有可能远远超出预期。但这也是一种权衡方式，即在计算以及申请内存的时间开销和申请内存准确度上的平衡，在大多数情况下，采样获得的内存大小估计还是准确的。<br>非序列化的Block有两种存储方式，一种是按照Array的方式存储原值，另一种为将原值进行序列化后存储，所调用的方法为<code>putIteratorAsValues</code>和<code>putIteratorAsBytes</code>：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Attempt to put the given block in memory store as values.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * It's possible that the iterator is too large to materialize and store in memory. To avoid</span></span><br><span class="line"><span class="comment"> * OOM exceptions, this method will gradually unroll the iterator while periodically checking</span></span><br><span class="line"><span class="comment"> * whether there is enough free memory. If the block is successfully materialized, then the</span></span><br><span class="line"><span class="comment"> * temporary unroll memory used during the materialization is "transferred" to storage memory,</span></span><br><span class="line"><span class="comment"> * so we won't acquire more memory than is actually needed to store the block.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * @return in case of success, the estimated size of the stored data. In case of failure, return</span></span><br><span class="line"><span class="comment"> *         an iterator containing the values of the block. The returned iterator will be backed</span></span><br><span class="line"><span class="comment"> *         by the combination of the partially-unrolled block and the remaining elements of the</span></span><br><span class="line"><span class="comment"> *         original input iterator. The caller must either fully consume this iterator or call</span></span><br><span class="line"><span class="comment"> *         `close()` on it in order to free the storage memory consumed by the partially-unrolled</span></span><br><span class="line"><span class="comment"> *         block.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span>[storage] <span class="function"><span class="keyword">def</span> <span class="title">putIteratorAsValues</span></span>[<span class="type">T</span>](</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    values: <span class="type">Iterator</span>[<span class="type">T</span>],</span><br><span class="line">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]): <span class="type">Either</span>[<span class="type">PartiallyUnrolledIterator</span>[<span class="type">T</span>], <span class="type">Long</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>[storage] <span class="function"><span class="keyword">def</span> <span class="title">putIteratorAsBytes</span></span>[<span class="type">T</span>](</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    values: <span class="type">Iterator</span>[<span class="type">T</span>],</span><br><span class="line">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>],</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Either</span>[<span class="type">PartiallySerializedBlock</span>[<span class="type">T</span>], <span class="type">Long</span>]</span><br></pre></td></tr></table></figure>
+
+<h2 id="RDD的持久化级别"><a href="#RDD的持久化级别" class="headerlink" title="RDD的持久化级别"></a>RDD的持久化级别</h2><p>前面既然说道了RDD缓存时会有序列化存储和非序列化存储两种方式，我们就顺便说一下RDD持久化的存储级别，这里涉及到的Spark源码当中的文件为<code>spark/core/src/main/scala/org/apache/spark/storage/StorageLevel.scala</code>，其中描述了Spark持久化存储级别当中5个重要的变量，这5个变量能组合称为RDD的11中存储级别：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _useDisk: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _useMemory: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _useOffHeap: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _deserialized: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _replication: <span class="type">Int</span> = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>这5个变量的前3个表示的是存储的位置，分别为磁盘、堆内内存和堆外内存。例如<code>DISK_ONLY</code>表示只存储在磁盘当中，<code>MEMORY_AND_DISK</code>表示可以存储在堆内内存和磁盘上，<code>OFF_HEAP</code>则只能存储在堆外内存上。<br><code>_deserialized</code>表示是否序列化，例如<code>MEMORY_ONLY_SER</code>表示序列化存储在堆内内存上，不加SER的存储级别则为不进行序列化。<br><code>_replication</code>表示备份的数量，默认不会进行冗余备份，<code>MEMORY_AND_DISK_2</code>则表示可以存储在堆内内存和磁盘上，并且创建一个副本进行备份，一般冗余备份会备份到其他的节点，保证持久化的数据的容错性。</p>
+<h2 id="Block存储的淘汰和落盘"><a href="#Block存储的淘汰和落盘" class="headerlink" title="Block存储的淘汰和落盘"></a>Block存储的淘汰和落盘</h2><p>我们可以从Spark源码的一些注释当中看到，当有新的Block要存储，内存又不够用时，会通过LRU淘汰一部分最近不常使用的Block，释放其内存给新加入的Block进行存储，如果被淘汰的Block的持久化级别当中有DISK，则会将其写入磁盘当中，称为落盘。Block的淘汰也不是仅仅依赖于LRU算法，其具有一定的规则：</p>
+<blockquote>
+<ul>
+<li>被淘汰的旧 Block 要与新 Block 的 MemoryMode 相同，即同属于堆外或堆内内存</li>
+<li>新旧 Block 不能属于同一个 RDD，避免循环淘汰</li>
+<li>旧 Block 所属 RDD 不能处于被读状态，避免引发一致性问题</li>
+<li>遍历 LinkedHashMap 中 Block，按照最近最少使用（LRU）的顺序淘汰，直到满足新 Block 所需的空间。其中 LRU 是 LinkedHashMap 的特性</li>
 </ul>
-<p>-p 指定端口号（默认11211）<br>-m 指定最大使用内存大小（默认64MB）<br>-t 线程数（默认4）<br>-l 连接的IP地址, 默认是本机<br>-d start 启动memcached服务<br>-d restart 重起memcached服务<br>-d stop|shutdown 关闭正在运行的memcached服务<br>-m 最大内存使用，单位MB。默认64MB<br>-M 内存耗尽时返回错误，而不是删除项<br>-c 最大同时连接数，默认是1024<br>-f 块大小增长因子，默认是1.25<br>-n 最小分配空间，key+value+flags默认是48</p>
-<h2 id="安装memcache的PHP扩展库"><a href="#安装memcache的PHP扩展库" class="headerlink" title="安装memcache的PHP扩展库"></a>安装memcache的PHP扩展库</h2><ul>
-<li><p>下载地址： <a href="http://pecl.php.net/package/memcache" target="_blank" rel="noopener">http://pecl.php.net/package/memcache</a></p>
-</li>
-<li><p>用如下指令进行安装</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">phpize</span><br><span class="line">./configure --<span class="built_in">enable</span>-memcache --with-php-config=/usr/<span class="built_in">local</span>/php/bin/php-config --with-zlib-dir</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>在php.ini中增加一行：extension=memcache.so</p>
-</li>
-<li><p>查看phpinfo()的输出，观察memcache的扩展库是否存在</p>
-</li>
-</ul>
-<h2 id="PHP7安装memcache的PHP扩展库的问题"><a href="#PHP7安装memcache的PHP扩展库的问题" class="headerlink" title="PHP7安装memcache的PHP扩展库的问题"></a>PHP7安装memcache的PHP扩展库的问题</h2><ul>
-<li><p>原生的memcache扩展库在PHP7中已经不能编译了，需要使用github上的pecl-memcache分支版本<br><a href="https://github.com/websupport-sk/pecl-memcache" target="_blank" rel="noopener">https://github.com/websupport-sk/pecl-memcache</a></p>
-</li>
-<li><p>此外，还有一个扩展库叫memcached，与memcache不同，功能更强大，可以在<a href="https://github.com/rlerdorf/php-memcached" target="_blank" rel="noopener">https://github.com/rlerdorf/php-memcached</a> 进行下载安装，编译需要安装libmemcached</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo apt install libmemcached-dev</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>再提供一个redis扩展库的github地址<a href="https://github.com/phpredis/phpredis/" target="_blank" rel="noopener">https://github.com/phpredis/phpredis/</a> ，后续redis扩展库对PHP7支持不好可以从该地址下载进行扩展库安装</p>
-</li>
+</blockquote>
+<p>淘汰Block并释放其内存调用的方法为<code>evictBlocksToFreeSpace</code>：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Try to evict blocks to free up a given amount of space to store a particular block.</span></span><br><span class="line"><span class="comment"> * Can fail if either the block is bigger than our memory or it would require replacing</span></span><br><span class="line"><span class="comment"> * another block from the same RDD (which leads to a wasteful cyclic replacement pattern for</span></span><br><span class="line"><span class="comment"> * RDDs that don't fit into memory that we want to avoid).</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * @param blockId the ID of the block we are freeing space for, if any</span></span><br><span class="line"><span class="comment"> * @param space the size of this block</span></span><br><span class="line"><span class="comment"> * @param memoryMode the type of memory to free (on- or off-heap)</span></span><br><span class="line"><span class="comment"> * @return the amount of memory (in bytes) freed by eviction</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span>[spark] <span class="function"><span class="keyword">def</span> <span class="title">evictBlocksToFreeSpace</span></span>(</span><br><span class="line">    blockId: <span class="type">Option</span>[<span class="type">BlockId</span>],</span><br><span class="line">    space: <span class="type">Long</span>,</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Long</span></span><br></pre></td></tr></table></figure>
+
+<p>我们也可以在这段代码的注释当中看到一些淘汰Block可能会出现fail的情况，包括新存储的Block所占用的空间大于总内存，或者需要替换处于同一个RDD的不同的Block。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文主要从Spark源码的角度分析了Storage Memory部分，RDD的缓存机制，同时简略介绍了RDD持久化的存储级别。Spark对堆内内存的管理是一种逻辑上的”规划式”的管理，因为对象实例占用内存的申请和释放都由JVM完成，Spark只能在申请后和释放前记录这些内存。所谓记录就是Spark不会有具体的释放内存的操作，只是记录内存变化而已(释放内存时会将不需要的对象置为null，让JVM的GC来回收)，从源码当中我们也可以看到对各种内存的释放和申请调用的方法只是在StorageManager当中进行一个数字的记录和改变，例如如下这段代码：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transferUnrollToStorage</span></span>(amount: <span class="type">Long</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">  <span class="comment">// Synchronize so that transfer is atomic</span></span><br><span class="line">  memoryManager.synchronized &#123;</span><br><span class="line">    releaseUnrollMemoryForThisTask(<span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>, amount)</span><br><span class="line">    <span class="keyword">val</span> success = memoryManager.acquireStorageMemory(blockId, amount, <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>)</span><br><span class="line">    assert(success, <span class="string">"transferring unroll memory to storage memory failed"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Acquire storage memory if necessary to store this block in memory.</span></span><br><span class="line"><span class="keyword">val</span> enoughStorageMemory = &#123;</span><br><span class="line">  <span class="keyword">if</span> (unrollMemoryUsedByThisBlock &lt;= size) &#123;</span><br><span class="line">    <span class="keyword">val</span> acquiredExtra =</span><br><span class="line">      memoryManager.acquireStorageMemory(</span><br><span class="line">        blockId, size - unrollMemoryUsedByThisBlock, <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>)</span><br><span class="line">    <span class="keyword">if</span> (acquiredExtra) &#123;</span><br><span class="line">      transferUnrollToStorage(unrollMemoryUsedByThisBlock)</span><br><span class="line">    &#125;</span><br><span class="line">    acquiredExtra</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123; <span class="comment">// unrollMemoryUsedByThisBlock &gt; size</span></span><br><span class="line">    <span class="comment">// If this task attempt already owns more unroll memory than is necessary to store the</span></span><br><span class="line">    <span class="comment">// block, then release the extra memory that will not be used.</span></span><br><span class="line">    <span class="keyword">val</span> excessUnrollMemory = unrollMemoryUsedByThisBlock - size</span><br><span class="line">    releaseUnrollMemoryForThisTask(<span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>, excessUnrollMemory)</span><br><span class="line">    transferUnrollToStorage(size)</span><br><span class="line">    <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>unrollMemory在释放的时候，需要比较申请到的unrollMemory是否大于最后存储Block的entry的size，如果小于size，会有一个申请不足的storageMemory的过程，并将unrollMemroy转换(transfer)为storageMemory，而Storage Memory的申请还是释放最终都归结为StorageMemoryPool中一个Long类型的<code>_memoryUsed</code>变量的值的改变而已。例如如下StorageMemoryPool释放内存的代码：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">releaseMemory</span></span>(size: <span class="type">Long</span>): <span class="type">Unit</span> = lock.synchronized &#123;</span><br><span class="line">  <span class="keyword">if</span> (size &gt; _memoryUsed) &#123;</span><br><span class="line">    logWarning(<span class="string">s"Attempted to release <span class="subst">$size</span> bytes of storage "</span> +</span><br><span class="line">      <span class="string">s"memory when we only have <span class="subst">$&#123;_memoryUsed&#125;</span> bytes"</span>)</span><br><span class="line">    _memoryUsed = <span class="number">0</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    _memoryUsed -= size</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于Spark的内存管理，在被Spark标记为释放的对象实例，很有可能在实际上并没有被JVM回收，导致实际可用的内存小于Spark记录的可用内存，所以Spark并不能准确记录实际可用的堆内内存，从而也就无法完全OOM的异常，我们在平时管理Spark内存的时候要做好充分的内存监控以及调优，保证我们的程序能够在有限的内存环境下正常快速的运行。有时候为了调优可能还需要深刻了解JVM GC的机制，才能做到最大程度的内存充分理由和不出现OOM的异常。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a href="https://www.ibm.com/developerworks/cn/analytics/library/ba-cn-apache-spark-memory-management/index.html" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/analytics/library/ba-cn-apache-spark-memory-management/index.html</a></li>
 </ul>
 ]]></content>
       <categories>
-        <category>技术</category>
+        <category>Spark源码阅读</category>
       </categories>
       <tags>
-        <tag>PHP</tag>
+        <tag>spark</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Intellij IDEA 编译spark源码报错解决方法</title>
+    <url>/2017/07/05/spark/spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/Intellij%20IDEA%20%E7%BC%96%E8%AF%91spark%E6%BA%90%E7%A0%81%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</url>
+    <content><![CDATA[<h3 id="SparkFlumeProtocol"><a href="#SparkFlumeProtocol" class="headerlink" title="SparkFlumeProtocol"></a>SparkFlumeProtocol</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Error:(45, 66) not found: type SparkFlumeProtocol</span><br><span class="line">  val transactionTimeout: Int, val backOffInterval: Int) extends SparkFlumeProtocol with Logging &#123;</span><br></pre></td></tr></table></figure>
+
+<p>这个问题是由于flume-sink所需要的部分源文件idea不会自动下载，所以编译时不能通过。</p>
+<h4 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h4><p>在Intellij IDEA里面：</p>
+<ul>
+<li>打开View -&gt; Tool Windows -&gt; Maven Projects</li>
+<li>右击Spark Project External Flume Sink</li>
+<li>点击Generate Sources and Update Folders<br>随后，Intellij IDEA会自动下载Flume Sink相关的包</li>
+</ul>
+<h3 id="SqlBaseParser"><a href="#SqlBaseParser" class="headerlink" title="SqlBaseParser"></a>SqlBaseParser</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Error:(36, 45) object SqlBaseParser is not a member of package org.apache.spark.sql.catalyst.parser</span><br><span class="line">import org.apache.spark.sql.catalyst.parser.SqlBaseParser._</span><br></pre></td></tr></table></figure>
+
+<p>这个问题和之前的问题类似，是idea不会自动下载部分catalyst相关的源文件，导致编译时不能通过。</p>
+<h4 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h4><p>在Intellij IDEA里面：</p>
+<ul>
+<li>打开View -&gt; Tool Windows -&gt; Maven Projects</li>
+<li>右击Spark Project Catalyst</li>
+<li>点击Generate Sources and Update Folders<br>随后，Intellij IDEA会自动下载Catalyst相关的包</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>IDEA编译spark源码出错大多都是不能正确下载相关的源文件，在Maven的管理菜单内选择相对应的库选择下载源码并更新即可解决大多数问题。</p>
+<p>spark build error集合：<br><a href="https://www.mail-archive.com/search?l=user@spark.apache.org&amp;q=subject:%22Build+error%22&amp;o=newest&amp;f=1" target="_blank" rel="noopener">https://www.mail-archive.com/search?l=user@spark.apache.org&amp;q=subject:%22Build+error%22&amp;o=newest&amp;f=1</a></p>
+]]></content>
+      <categories>
+        <category>Spark源码阅读</category>
+      </categories>
+      <tags>
+        <tag>spark</tag>
       </tags>
   </entry>
 </search>

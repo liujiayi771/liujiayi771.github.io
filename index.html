@@ -220,7 +220,7 @@
           
           <li class="menu-item menu-item-tags">
     <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">20</span></a>
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">21</span></a>
   </li>
         
         
@@ -236,7 +236,7 @@
           
           <li class="menu-item menu-item-archives">
     <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">54</span></a>
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">55</span></a>
   </li>
 
       
@@ -271,6 +271,243 @@
           <div id="content" class="content">
             
   <section id="posts" class="posts-expand">
+    
+      
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://joey771.cn/2020/06/04/Presto使用OpenLDAP进行登录认证/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joey's Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2020/06/04/Presto使用OpenLDAP进行登录认证/" itemprop="url">
+                  Presto使用OpenLDAP进行登录认证
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+                
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-04T15:17:44+08:00">2020-06-04</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>presto对接OpenLDAP只支持ldaps，需要OpenLDAP开启SSL，本文将首先介绍OpenLDAP如何开启SSL。</p>
+<h2 id="OpenLDAP开启SSL"><a href="#OpenLDAP开启SSL" class="headerlink" title="OpenLDAP开启SSL"></a>OpenLDAP开启SSL</h2><p>OpenLDAP开启SSL需要生成LDAP证书，有两种证书生成方式：</p>
+<ol>
+<li>自签名证书。该方式较为简单，LDAP客户端需要进行设置不进行证书校验；</li>
+<li>CA签名证书，可以使用内部CA或外部CA签名证书。需要将给LDAP证书进行签名的CA证书放置在<code>/etc/openldap/cacerts</code>中，使得LDAP客户端能够对证书进行校验。</li>
+</ol>
+<p>两种方式任选一种即可。</p>
+<h3 id="自签名证书"><a href="#自签名证书" class="headerlink" title="自签名证书"></a>自签名证书</h3><p>在<code>/etc/openldap/certs/</code>目录中创建LDAP server自签名证书：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -x509 -nodes -out /etc/openldap/certs/ldap.crt -keyout /etc/openldap/certs/ldap.key -days 1460</span><br></pre></td></tr></table></figure>
+
+<p>填写信息中比较重要的是Common Name，需要填写安装OpenLDAP的主机的hostname，其他信息可以不填写：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Country Name (2 letter code) [XX]: CN</span><br><span class="line">State or Province Name (full name) []:</span><br><span class="line">Locality Name (eg, city) [Default City]:</span><br><span class="line">Organization Name (eg, company) [Default Company Ltd]:</span><br><span class="line">Organizational Unit Name (eg, section) []:</span><br><span class="line">Common Name (eg, your name or your server<span class="string">'s hostname) []: localhost</span></span><br><span class="line"><span class="string">Email Address []:</span></span><br></pre></td></tr></table></figure>
+
+<p>创建完成后，在<code>/etc/openldap/certs</code>目录下会产生<code>ldap.key</code>和<code>ldap.crt</code>，修改这两个文件的属主：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">chown ldap:ldap /etc/openldap/certs/ldap.*</span><br></pre></td></tr></table></figure>
+
+<p>之后，我们通过ldif文件修改配置的方式修改OpenLDAP中关于证书信息的配置项，新建<code>certs.ldif</code>文件，内容如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">dn: cn=config</span><br><span class="line">changetype: modify</span><br><span class="line">replace: olcTLSCertificateFile</span><br><span class="line">olcTLSCertificateFile: /etc/openldap/certs/ldap.crt</span><br><span class="line">-</span><br><span class="line">replace: olcTLSCertificateKeyFile</span><br><span class="line">olcTLSCertificateKeyFile: /etc/openldap/certs/ldap.key</span><br></pre></td></tr></table></figure>
+
+<p>在修改配置前，我们先看一下原有配置的内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">slapcat -b <span class="string">"cn=config"</span> | egrep <span class="string">"olcTLSCertificateKeyFile|olcTLSCertificateFile"</span></span><br></pre></td></tr></table></figure>
+
+<p>使用<code>certs.ldif</code>修改配置的命令为：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapmodify -Y EXTERNAL  -H ldapi:/// -f certs.ldif</span><br></pre></td></tr></table></figure>
+
+<p>修改完成后可以使用上述检查配置的命令检查一下修改是否生效了。</p>
+<h3 id="CA签名证书"><a href="#CA签名证书" class="headerlink" title="CA签名证书"></a>CA签名证书</h3><p>在<code>/etc/pki/CA</code>目录中创建<code>serial</code>和<code>index.txt</code>文件用于记录生成证书过程：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /etc/pki/CA</span><br><span class="line"><span class="built_in">echo</span> 0001 &gt; serial</span><br><span class="line">touch index.txt</span><br></pre></td></tr></table></figure>
+
+<h4 id="1-生成CA所使用的密钥"><a href="#1-生成CA所使用的密钥" class="headerlink" title="1. 生成CA所使用的密钥"></a>1. 生成CA所使用的密钥</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -aes256 -out /etc/pki/CA/private/ca.key.pem</span><br></pre></td></tr></table></figure>
+
+<p>输入秘钥的密码。</p>
+<h4 id="2-创建CA的证书文件"><a href="#2-创建CA的证书文件" class="headerlink" title="2. 创建CA的证书文件"></a>2. 创建CA的证书文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -x509 -days 3650 -key /etc/pki/CA/private/ca.key.pem -extensions v3_ca -out /etc/pki/CA/certs/ca.cert.pem</span><br></pre></td></tr></table></figure>
+
+<p>创建证书需要输入一些信息，这其中比较重要的是Common Name，需要填写安装OpenLDAP的主机的hostname，其他信息可以不写。</p>
+<blockquote>
+<p>注意：CN（Common Name）和主机名必须要匹配</p>
+</blockquote>
+<h4 id="3-创建ldap-server使用的秘钥"><a href="#3-创建ldap-server使用的秘钥" class="headerlink" title="3. 创建ldap server使用的秘钥"></a>3. 创建ldap server使用的秘钥</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out /etc/pki/CA/private/ldap.key</span><br></pre></td></tr></table></figure>
+
+<p>输入秘钥的密码。</p>
+<h4 id="4-创建ldap-server的证书文件"><a href="#4-创建ldap-server的证书文件" class="headerlink" title="4. 创建ldap server的证书文件"></a>4. 创建ldap server的证书文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -key /etc/pki/CA/private/ldap.key -out /etc/pki/CA/certs/ldap.csr</span><br></pre></td></tr></table></figure>
+
+<p>输入信息，CN填入OpenLDAP安装主机的hostname，其他可以不写。</p>
+<h4 id="5-使用CA对ldap-server的证书进行签名"><a href="#5-使用CA对ldap-server的证书进行签名" class="headerlink" title="5. 使用CA对ldap server的证书进行签名"></a>5. 使用CA对ldap server的证书进行签名</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl ca -keyfile /etc/pki/CA/private/ca.key.pem -cert /etc/pki/CA/certs/ca.cert.pem -<span class="keyword">in</span> /etc/pki/CA/certs/ldap.csr -out /etc/pki/CA/certs/ldap.crt</span><br></pre></td></tr></table></figure>
+
+<p>这时候已经完成了ldap server证书由我们创建的CA进行签名的过程，此时<code>index.txt</code>文件中的内容应该已经发生了变化，使用<code>cat /etc/pki/CA/index.txt</code>进行查看。我们也可以使用<code>openssl</code>来验证ldap server证书是否被CA正确签名：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl verify -CAfile /etc/pki/CA/certs/ca.cert.pem /etc/pki/CA/certs/ldap.crt</span><br></pre></td></tr></table></figure>
+
+<p>我们需要将证书、秘钥文件拷贝到<code>/etc/openldap/certs</code>目录中，将CA证书放到<code>/etc/openldap/cacerts/</code>目录中：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cp -v /etc/pki/CA/certs/* /etc/openldap/certs/</span><br><span class="line">cp -v /etc/pki/CA/private/ldap.key /etc/openldap/certs/</span><br><span class="line">mkdir /etc/openldap/cacerts/</span><br><span class="line">cp -v /etc/pki/CA/certs/ca.cert.pem /etc/openldap/cacerts/</span><br></pre></td></tr></table></figure>
+
+<p>修改目录属主：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">chown -R ldap:ldap /etc/openldap/certs</span><br><span class="line">chown -R ldap:ldap /etc/openldap/cacerts</span><br></pre></td></tr></table></figure>
+
+<h4 id="6-修改OpenLDAP配置生效CA签名证书"><a href="#6-修改OpenLDAP配置生效CA签名证书" class="headerlink" title="6. 修改OpenLDAP配置生效CA签名证书"></a>6. 修改OpenLDAP配置生效CA签名证书</h4><p>新建<code>certs.ldif</code>文件，其内容如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">dn: cn=config</span><br><span class="line">changetype: modify</span><br><span class="line">replace: olcTLSCertificateFile</span><br><span class="line">olcTLSCertificateFile: /etc/openldap/certs/ldap.crt</span><br><span class="line">-</span><br><span class="line">replace: olcTLSCertificateKeyFile</span><br><span class="line">olcTLSCertificateKeyFile: /etc/openldap/certs/ldap.key</span><br><span class="line">-</span><br><span class="line">add: olcTLSCACertificateFile</span><br><span class="line">olcTLSCACertificateFile: /etc/openldap/cacerts/ca.cert.pem</span><br></pre></td></tr></table></figure>
+
+<p>执行如下命令进行修改：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapmodify -Y EXTERNAL -H ldapi:// -f certs.ldif</span><br></pre></td></tr></table></figure>
+
+<p>使用如下命令确保生效：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">slapcat -b <span class="string">"cn=config"</span> | egrep <span class="string">"olcTLSCertificateFile|olcTLSCertificateKeyFile|olcTLSCACertificateFile"</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="配置OpenLDAP开启SSL监听"><a href="#配置OpenLDAP开启SSL监听" class="headerlink" title="配置OpenLDAP开启SSL监听"></a>配置OpenLDAP开启SSL监听</h3><p>修改配置文件<code>/etc/sysconfig/slapd</code>，添加<code>ldaps</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SLAPD_URLS=<span class="string">"ldapi:/// ldap:/// ldaps:///"</span></span><br></pre></td></tr></table></figure>
+
+<p>修改<code>/etc/openldap/certs</code>中的配置：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#TLS_CACERTDIR /etc/openldap/certs</span><br><span class="line">TLS_REQCERT never</span><br></pre></td></tr></table></figure>
+
+<p>重启OpenLDAP：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart slapd</span><br></pre></td></tr></table></figure>
+
+<p>重启完成后，首先检查ldaps所使用的636端口是否已经启动：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -nlp | grep 636</span><br></pre></td></tr></table></figure>
+
+<p>可以使用如下命令来测试ldaps连接：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapwhoami -x -H ldaps://&lt;ldap_server&gt;:636</span><br></pre></td></tr></table></figure>
+
+<p>如果能够成功显示anonymous，说明成功通过SSL连上了OpenLDAP server，同时OpenLDAP server是支持匿名访问的（Presto对接OpenLDAP需要OpenLDAP支持匿名访问）。</p>
+<p>也可以使用如下简单认证的方式来验证ldaps连接是否正确（该方法不能测试匿名连接，如果上面方法失败，但是这个方法成功，说明ldaps连接没问题，但是匿名访问不被允许，需要进行OpenLDAP ACL配置或者删除disallow匿名访问的配置）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapwhoami -x -w <span class="string">"&lt;passwd&gt;"</span> -D &lt;user_dn&gt; -H ldaps://&lt;ldap_server&gt;:636</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置Presto支持LDAP认证"><a href="#配置Presto支持LDAP认证" class="headerlink" title="配置Presto支持LDAP认证"></a>配置Presto支持LDAP认证</h2><p>Presto支持LDAP认证，客户端必须以HTTPS的方式访问presto server。开启LDAP认证只需要对presto coordinator进行配置使其支持SSL/TLS，presto worker不需要进行修改，只有客户端和presto coordinator之间的连接需要认证。</p>
+<h3 id="生成presto-server秘钥"><a href="#生成presto-server秘钥" class="headerlink" title="生成presto server秘钥"></a>生成presto server秘钥</h3><p>配置presto coordinator支持SSL/TLS，需要生成presto server的秘钥（keystore）文件。</p>
+<h4 id="1-生成presto-server私钥："><a href="#1-生成presto-server私钥：" class="headerlink" title="1. 生成presto server私钥："></a>1. 生成presto server私钥：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keytool -genkey -v -keystore presto-private.keystore -<span class="built_in">alias</span> presto-private -keyalg RSA -dname <span class="string">"CN=&lt;hostname&gt;, OU=, O=, L=, ST=, C=CN"</span> -validity 20000 -keypass &lt;passwd&gt; -storepass &lt;passwd&gt;</span><br></pre></td></tr></table></figure>
+
+<p>这里CN（Common Name）必须填写presto server所在主机的hostname，其他的可以不需要填写。</p>
+<h4 id="2-导出证书文件"><a href="#2-导出证书文件" class="headerlink" title="2. 导出证书文件"></a>2. 导出证书文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keytool -<span class="built_in">export</span> -<span class="built_in">alias</span> presto-private -keystore presto-private.keystore -file presto-public.cer -storepass &lt;passwd&gt;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3-由证书文件生成公钥给客户端使用"><a href="#3-由证书文件生成公钥给客户端使用" class="headerlink" title="3. 由证书文件生成公钥给客户端使用"></a>3. 由证书文件生成公钥给客户端使用</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keytool -import -<span class="built_in">alias</span> presto-public -file presto-public.cer -keystore presto.keystore -storepass &lt;passwd&gt;</span><br></pre></td></tr></table></figure>
+
+<p>此处<code>&lt;passwd&gt;</code>可与私钥不同，后续客户端登录时需要显示输入该密码</p>
+<h3 id="修改Presto-coordinator配置"><a href="#修改Presto-coordinator配置" class="headerlink" title="修改Presto coordinator配置"></a>修改Presto coordinator配置</h3><p>修改<code>etc/config.properties</code>文件，添加如下配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">http-server.authentication.type=PASSWORD</span><br><span class="line">http-server.https.enabled=<span class="literal">true</span></span><br><span class="line">http-server.https.port=8443</span><br><span class="line"></span><br><span class="line">http-server.https.keystore.path=&lt;private_keystore_path&gt;</span><br><span class="line">http-server.https.keystore.key=&lt;keystore_passwd&gt;</span><br></pre></td></tr></table></figure>
+
+<p>修改<code>etc/password-authenticator.properties</code>文件，添加如下配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">password-authenticator.name=ldap</span><br><span class="line">ldap.url=ldaps://&lt;ldap_server&gt;:636</span><br><span class="line">ldap.user-bind-pattern=uid=<span class="variable">$&#123;USER&#125;</span>,dc=example,dc=com</span><br></pre></td></tr></table></figure>
+
+<p><code>ldap.user-bind-pattern</code>需要填写登录用户如何映射到ldap的dn，其中<code>${USER}</code>表示登录的用户名，即presto cli登录时<code>--username</code>参数填写的内容。</p>
+<p>配置完成后需要重启Presto coordinator使配置生效，之后便可以使用客户端登录，进行ldap认证了。</p>
+<h3 id="Presto-cli登录配置"><a href="#Presto-cli登录配置" class="headerlink" title="Presto cli登录配置"></a>Presto cli登录配置</h3><p>使用如下命令连接presto server，相比没有ldap认证时候需要填写keystore、user、password等内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">presto --server https://&lt;presto_server&gt;:&lt;https_port&gt; --keystore-path &lt;public_keystore_path&gt; --keystore-password &lt;public_keystore_passwd&gt; --catalog hive --user &lt;ldap_username&gt; --password</span><br></pre></td></tr></table></figure>
+
+<p>输入密码之后将可以进入presto命令行。若密码输入错误，也可以进入presto命令行，但是执行presto命令会出现认证失败的报错。输入正确的ldap用户名和密码，执行<code>show schemas;</code>，若能正确输出结果说明配置正确。</p>
+
+          
+        
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
     
       
 
@@ -532,7 +769,7 @@
           
             <p>folly是Facebook提出的一个基于C++14的C++组件库，包含有非常多具有实用性和效率性的数据结构。其github地址为： <a href="https://github.com/facebook/folly" target="_blank" rel="noopener">https://github.com/facebook/folly</a> 。在其README当中提供了在ubuntu和MacOS中的安装教程，没有CentOS中的安装教程，并且在CentOS当中安装会遇到很多问题，本文对在CentOS 7系统中安装folly库进行了过程记录。</p>
 <p>最新的folly需要gcc的版本高于5.1，但是CentOS 7中的gcc版本为4.8，直接升级安装gcc非常麻烦，并且可能会对其他项目使用的gcc造成影响，以采用我另一篇博客中提及的方法切换到高版本的gcc： </p>
-<p><a href="http://joey771.cn/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/" target="_blank" rel="noopener">http://joey771.cn/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/</a> </p>
+<p><a href="http://joey771.cn/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/">http://joey771.cn/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/</a> </p>
 <p>从官网提供的ubuntu安装教程中可以看出，其依赖于boost-devel、glog-devel、gflags-devel、double-conversion等库，有些库可以通过yum来进行安装，有些则需要通过源码编译安装。首先是可以使用yum安装的库：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install boost-devel \</span><br><span class="line">double-conversion-devel \</span><br><span class="line">libevent-devel \</span><br><span class="line">openssl-devel \</span><br><span class="line">lz4-devel \</span><br><span class="line">xz-devel \</span><br><span class="line">snappy-devel \</span><br><span class="line">zlib-devel \</span><br><span class="line">jemalloc-devel \</span><br><span class="line">libtool \</span><br><span class="line">scons</span><br></pre></td></tr></table></figure>
 
@@ -1686,151 +1923,6 @@
 
 
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://joey771.cn/2018/10/29/sed中反斜杠1的用法/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jiayi Liu">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Joey's Notes">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/10/29/sed中反斜杠1的用法/" itemprop="url">
-                  sed中\1的用法
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            
-                
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-10-29T17:26:32+08:00">2018-10-29</time>
-            
-
-            
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>最近在看别人写的shell脚本时看到这样一个sed指令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sed -i.bak -e<span class="string">'s/\(LOBJS=.*\)/\1 bwtindex.o rle.o rope.o bwt.o is.o/g'</span> bwa/Makefile</span><br></pre></td></tr></table></figure>
-
-<p>这里面使用了<code>sed &#39;s/要被取代的字符串/新的字符串/g&#39; file</code>的方式来对文本中指定的字符串进行全局替换，这里g代表的是global，之前面试又被问到过sed全局如何替换，当时就是忘记了最后应该要加<code>/g</code>，在这个命令中，新的字符串的内容中有一个<code>\1</code>之前从来没有遇到过，不知道具体的作用是什么，于是就去查找了一些资料进行学习。</p>
-<p>在sed中，要被匹配的字符串可以用正则匹配来进行模式匹配，而用括号括起来的一个正则匹配串可以称为一个模式，而<code>\1-9</code>就是用来指代第一个、第二个、……、第九个模式在匹配到的字符串中的内容。在sed中一共可以记录9个模式，在某些需要保留原有字符串的一部分并添加一部分内容的时候就会很有用。</p>
-<p>举个例子：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> abc123 | sed <span class="string">'s/\([a-z]*\)\([0-9]&#123;3&#125;\)/\2\1/g'</span></span><br></pre></td></tr></table></figure>
-
-<p>这个例子的输出就是<code>123abc</code>，先来看下正则匹配的内容，一共有2个位于括号中的模式，第一个模式匹配的是出现次数任意多的小写字母，第二个模式匹配的是出现三次的数字，模式都用括号括起来，但是括号要使用反斜杠进行转义。在这个正则匹配中，<code>\1</code>代表的就是第一个模式匹配的内容，即abc,<code>\2</code>代表的是第二个模式匹配的内容，即123，然后替换成什么内容呢？就是交换这两个匹配的模式，把<code>\2</code>放到<code>\1</code>前面，就是123在前面，abc在后面，变成了123abc，就是这样简单，这是一个简单的交换匹配到的内容的例子，我们还可以在模式中插入内容，举例子来说：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> abc123 | sed <span class="string">'s/\([a-z]*\)\([0-9]&#123;3&#125;\)/\1xx\2/g'</span></span><br></pre></td></tr></table></figure>
-
-<p>这个例子的输出就是在abc和123之间插入了两个字母xx，最终的结果是abcxx123，知道C当中的printf函数的同学可以把这里的<code>\1\2</code>理解成两个占位符，具体的内容由前面匹配到的模式的内容来进行填充，按照正则匹配中的顺序进行记录，最多记录9个。</p>
-<p>这里在说一点题外话，<code>sed -i</code>我们知道是直接在原文件中进行修改，但是<code>-i</code>后面其实是可以加参数的，在最上面那个例子里面就是加了<code>.bak</code>作为<code>-i</code>的参数，这里的意思是，直接在原文件进行修改，但是将原文件保存为<code>filename.bak</code>，即在最后加上<code>.bak</code>进行备份。</p>
-
-          
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
   </section>
 
   
@@ -1880,7 +1972,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">54</span>
+                    <span class="site-state-item-count">55</span>
                     <span class="site-state-item-name">日志</span>
                   </a>
                 </div>
@@ -1952,7 +2044,9 @@
                     
                       
                     
-                    <span class="site-state-item-count">20</span>
+                      
+                    
+                    <span class="site-state-item-count">21</span>
                     <span class="site-state-item-name">标签</span>
                   </a>
                 </div>
