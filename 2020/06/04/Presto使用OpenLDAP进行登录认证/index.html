@@ -107,7 +107,7 @@
 <meta property="og:site_name" content="Joey&#39;s Notes">
 <meta property="og:description" content="presto对接OpenLDAP只支持ldaps，需要OpenLDAP开启SSL，本文将首先介绍OpenLDAP如何开启SSL。 OpenLDAP开启SSLOpenLDAP开启SSL需要生成LDAP证书，有两种证书生成方式：  自签名证书。该方式较为简单，LDAP客户端需要进行设置不进行证书校验； CA签名证书，可以使用内部CA或外部CA签名证书。需要将给LDAP证书进行签名的CA证书放置在/et">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-04T07:33:42.766Z">
+<meta property="og:updated_time" content="2020-06-04T07:53:11.266Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Presto使用OpenLDAP进行登录认证">
 <meta name="twitter:description" content="presto对接OpenLDAP只支持ldaps，需要OpenLDAP开启SSL，本文将首先介绍OpenLDAP如何开启SSL。 OpenLDAP开启SSLOpenLDAP开启SSL需要生成LDAP证书，有两种证书生成方式：  自签名证书。该方式较为简单，LDAP客户端需要进行设置不进行证书校验； CA签名证书，可以使用内部CA或外部CA签名证书。需要将给LDAP证书进行签名的CA证书放置在/et">
@@ -404,7 +404,6 @@
 </blockquote>
 <h4 id="3-创建ldap-server使用的秘钥"><a href="#3-创建ldap-server使用的秘钥" class="headerlink" title="3. 创建ldap server使用的秘钥"></a>3. 创建ldap server使用的秘钥</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out /etc/pki/CA/private/ldap.key</span><br></pre></td></tr></table></figure>
 
-<p>输入秘钥的密码。</p>
 <h4 id="4-创建ldap-server的证书文件"><a href="#4-创建ldap-server的证书文件" class="headerlink" title="4. 创建ldap server的证书文件"></a>4. 创建ldap server的证书文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -key /etc/pki/CA/private/ldap.key -out /etc/pki/CA/certs/ldap.csr</span><br></pre></td></tr></table></figure>
 
 <p>输入信息，CN填入OpenLDAP安装主机的hostname，其他可以不写。</p>

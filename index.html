@@ -406,7 +406,6 @@
 </blockquote>
 <h4 id="3-创建ldap-server使用的秘钥"><a href="#3-创建ldap-server使用的秘钥" class="headerlink" title="3. 创建ldap server使用的秘钥"></a>3. 创建ldap server使用的秘钥</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out /etc/pki/CA/private/ldap.key</span><br></pre></td></tr></table></figure>
 
-<p>输入秘钥的密码。</p>
 <h4 id="4-创建ldap-server的证书文件"><a href="#4-创建ldap-server的证书文件" class="headerlink" title="4. 创建ldap server的证书文件"></a>4. 创建ldap server的证书文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -key /etc/pki/CA/private/ldap.key -out /etc/pki/CA/certs/ldap.csr</span><br></pre></td></tr></table></figure>
 
 <p>输入信息，CN填入OpenLDAP安装主机的hostname，其他可以不写。</p>
