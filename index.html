@@ -370,7 +370,7 @@
 <h2 id="OpenLDAP开启SSL"><a href="#OpenLDAP开启SSL" class="headerlink" title="OpenLDAP开启SSL"></a>OpenLDAP开启SSL</h2><p>OpenLDAP开启SSL需要生成LDAP证书，有两种证书生成方式：</p>
 <ol>
 <li>自签名证书。该方式较为简单，LDAP客户端需要进行设置不进行证书校验；</li>
-<li>CA签名证书，可以使用内部CA或外部CA签名证书。需要将给LDAP证书进行签名的CA证书放置在<code>/etc/openldap/cacerts</code>中，使得LDAP客户端能够对证书进行校验。</li>
+<li>CA签名证书，可以使用内部CA或外部CA签名证书。</li>
 </ol>
 <p>两种方式任选一种即可。</p>
 <h3 id="自签名证书"><a href="#自签名证书" class="headerlink" title="自签名证书"></a>自签名证书</h3><p>在<code>/etc/openldap/certs/</code>目录中创建LDAP server自签名证书：</p>
