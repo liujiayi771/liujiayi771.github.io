@@ -434,7 +434,7 @@
 <h3 id="配置OpenLDAP开启SSL监听"><a href="#配置OpenLDAP开启SSL监听" class="headerlink" title="配置OpenLDAP开启SSL监听"></a>配置OpenLDAP开启SSL监听</h3><p>修改配置文件<code>/etc/sysconfig/slapd</code>，添加<code>ldaps</code>：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SLAPD_URLS=<span class="string">"ldapi:/// ldap:/// ldaps:///"</span></span><br></pre></td></tr></table></figure>
 
-<p>修改<code>/etc/openldap/certs</code>中的配置：</p>
+<p>修改<code>/etc/openldap/ldap.conf</code>中的配置：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#TLS_CACERTDIR /etc/openldap/certs</span><br><span class="line">TLS_REQCERT never</span><br></pre></td></tr></table></figure>
 
 <p>重启OpenLDAP：</p>

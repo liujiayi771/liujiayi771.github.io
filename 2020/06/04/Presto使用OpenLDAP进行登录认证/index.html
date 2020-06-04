@@ -107,7 +107,7 @@
 <meta property="og:site_name" content="Joey&#39;s Notes">
 <meta property="og:description" content="presto对接OpenLDAP只支持ldaps，需要OpenLDAP开启SSL，本文将首先介绍OpenLDAP如何开启SSL。 OpenLDAP开启SSLOpenLDAP开启SSL需要生成LDAP证书，有两种证书生成方式：  自签名证书。该方式较为简单，LDAP客户端需要进行设置不进行证书校验； CA签名证书，可以使用内部CA或外部CA签名证书。  两种方式任选一种即可。 自签名证书在/etc/">
 <meta property="og:locale" content="zh-CN">
-<meta property="og:updated_time" content="2020-06-04T08:18:59.171Z">
+<meta property="og:updated_time" content="2020-06-04T08:20:48.739Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Presto使用OpenLDAP进行登录认证">
 <meta name="twitter:description" content="presto对接OpenLDAP只支持ldaps，需要OpenLDAP开启SSL，本文将首先介绍OpenLDAP如何开启SSL。 OpenLDAP开启SSLOpenLDAP开启SSL需要生成LDAP证书，有两种证书生成方式：  自签名证书。该方式较为简单，LDAP客户端需要进行设置不进行证书校验； CA签名证书，可以使用内部CA或外部CA签名证书。  两种方式任选一种即可。 自签名证书在/etc/">
@@ -432,7 +432,7 @@
 <h3 id="配置OpenLDAP开启SSL监听"><a href="#配置OpenLDAP开启SSL监听" class="headerlink" title="配置OpenLDAP开启SSL监听"></a>配置OpenLDAP开启SSL监听</h3><p>修改配置文件<code>/etc/sysconfig/slapd</code>，添加<code>ldaps</code>：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SLAPD_URLS=<span class="string">"ldapi:/// ldap:/// ldaps:///"</span></span><br></pre></td></tr></table></figure>
 
-<p>修改<code>/etc/openldap/certs</code>中的配置：</p>
+<p>修改<code>/etc/openldap/ldap.conf</code>中的配置：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#TLS_CACERTDIR /etc/openldap/certs</span><br><span class="line">TLS_REQCERT never</span><br></pre></td></tr></table></figure>
 
 <p>重启OpenLDAP：</p>
