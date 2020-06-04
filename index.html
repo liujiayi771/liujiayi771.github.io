@@ -445,8 +445,8 @@
 <p>可以使用如下命令来测试ldaps连接：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapwhoami -x -H ldaps://&lt;ldap_server&gt;:636</span><br></pre></td></tr></table></figure>
 
-<p>如果能够成功显示anonymous，说明成功通过SSL连上了OpenLDAP server，同时OpenLDAP server是支持匿名访问的（Presto对接OpenLDAP需要OpenLDAP支持匿名访问）。</p>
-<p>也可以使用如下简单认证的方式来验证ldaps连接是否正确（该方法不能测试匿名连接，如果上面方法失败，但是这个方法成功，说明ldaps连接没问题，但是匿名访问不被允许，需要进行OpenLDAP ACL配置或者删除disallow匿名访问的配置）：</p>
+<p>如果能够成功显示anonymous，说明成功通过SSL连上了OpenLDAP server，同时OpenLDAP server是支持匿名访问的（老版本Presto连接ldap需要ldap开启匿名访问）。</p>
+<p>也可以使用如下简单认证的方式来验证ldaps连接是否正确（该方法不能测试匿名连接，如果上面方法失败，但是这个方法成功，说明ldaps连接没问题，但是匿名访问不被允许，若Presto版本对接ldap必须使用匿名访问，则需要配置OpenLDAP ACL或删除disallow匿名访问的配置）：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapwhoami -x -w <span class="string">"&lt;passwd&gt;"</span> -D &lt;user_dn&gt; -H ldaps://&lt;ldap_server&gt;:636</span><br></pre></td></tr></table></figure>
 
 <h2 id="配置Presto支持LDAP认证"><a href="#配置Presto支持LDAP认证" class="headerlink" title="配置Presto支持LDAP认证"></a>配置Presto支持LDAP认证</h2><p>Presto支持LDAP认证，客户端必须以HTTPS的方式访问presto server。开启LDAP认证只需要对presto coordinator进行配置使其支持SSL/TLS，presto worker不需要进行修改，只有客户端和presto coordinator之间的连接需要认证。</p>
