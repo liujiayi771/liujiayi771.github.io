@@ -15,6 +15,138 @@
 ]]></content>
   </entry>
   <entry>
+    <title>Mac上制作Linux的U盘启动盘</title>
+    <url>/2018/10/31/Mac%E4%B8%8A%E5%88%B6%E4%BD%9CLinux%E7%9A%84U%E7%9B%98%E5%90%AF%E5%8A%A8%E7%9B%98/</url>
+    <content><![CDATA[<p>在windows上制作Linux的U盘启动盘非常容易，有很多工具，比如软碟通UltralISO、deepin深度启动盘制作工具等，只要正确使用这些工具就能很容易地制作一个U盘启动盘。</p>
+<p>换了Mac电脑后，有时候要给服务器装Linux操作系统，还是找一台windows电脑来制作U盘启动盘，十分不方便。其实用Mac也能很容易地制作U盘启动盘，并且不需要借助什么工具，用dd命令就能完成U盘启动盘的制作。</p>
+<h4 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h4><ol>
+<li><p>插入U盘，使用diskutil指令来查看U盘的挂载点</p>
+ <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ diskutil list</span><br></pre></td></tr></table></figure>
+
+<p> 系统输出类似如下的内容</p>
+ <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># joey @ joey-Mac in ~ [9:45:27]</span></span><br><span class="line">$ diskutil list</span><br><span class="line">/dev/disk0 (internal):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:      GUID_partition_scheme                         24.0 GB    disk0</span><br><span class="line">   1:                        EFI EFI                     314.6 MB   disk0s1</span><br><span class="line">   2:                 Apple_APFS                         23.6 GB    disk0s2</span><br><span class="line"></span><br><span class="line">/dev/disk1 (internal, physical):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:      GUID_partition_scheme                        *1.0 TB     disk1</span><br><span class="line">   1:                        EFI EFI                     209.7 MB   disk1s1</span><br><span class="line">   2:                 Apple_APFS Container disk2         900.7 GB   disk1s2</span><br><span class="line">   3:       Microsoft Basic Data BOOTCAMP                99.3 GB    disk1s3</span><br><span class="line"></span><br><span class="line">/dev/disk2 (synthesized):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:      APFS Container Scheme -                      +900.7 GB   disk2</span><br><span class="line">                                 Physical Store disk1s2</span><br><span class="line">   1:                APFS Volume CoreStorage Fusion      576.8 GB   disk2s1</span><br><span class="line">   2:                APFS Volume Preboot                 44.0 MB    disk2s2</span><br><span class="line">   3:                APFS Volume Recovery                512.4 MB   disk2s3</span><br><span class="line">   4:                APFS Volume VM                      6.4 GB     disk2s4</span><br><span class="line"></span><br><span class="line">/dev/disk3 (external, physical):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:     FDisk_partition_scheme                        *15.7 GB    disk3</span><br><span class="line">   1:               Windows_NTFS joey                    15.7 GB    disk3s1</span><br></pre></td></tr></table></figure>
+
+<p> 可以看到，我的U盘大小是16GB，对应上面输出的挂载点应该是位于<code>/dev/disk3</code></p>
+</li>
+<li><p>在写入系统镜像前，首先需要umount这个U盘，使用如下指令</p>
+ <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ diskutil unmountDisk /dev/disk3</span><br></pre></td></tr></table></figure>
+
+<p> 会输出如下内容表示正确unmount</p>
+ <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># joey @ joey-Mac in ~ [9:45:34]</span></span><br><span class="line">$ diskutil unmountDisk /dev/disk3</span><br><span class="line">Unmount of all volumes on disk3 was successful</span><br></pre></td></tr></table></figure>
+
+<p> 此时，Mac的Finder中已经看不到之前挂载上的U盘了，但是使用<code>diskutil list</code>命令还是能够看到U盘的信息</p>
+</li>
+<li><p>使用dd指令写入Linux系统镜像到U盘 </p>
+ <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo dd <span class="keyword">if</span>=/Users/joey/Downloads/CentOS-7-x86_64-DVD-1804.iso of=/dev/disk3 bs=1M</span><br></pre></td></tr></table></figure>
+
+<p> 这里有一点需要注意，有些教程可能写的<code>bs=1m</code>，这里如果你的电脑装了GNU Coreutils，就是那个让<code>ls</code>能够彩色化输出的软件，这里用1m就会报错，报错内容为<code>dd: invalid number: ‘1m’</code>，这里把m大写就能很容易解决这个问题，但是究竟是什么原因造成1m不行的我也不是很清楚，只知道一个解决的办法。</p>
+<p> 之后会输出如下，表示写入完成，大概要等几分钟</p>
+ <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># joey @ joey-Mac in ~ [9:49:37] C:1</span></span><br><span class="line">$ sudo dd <span class="keyword">if</span>=/Users/joey/Downloads/CentOS-7-x86_64-DVD-1804.iso of=/dev/disk3 bs=1M</span><br><span class="line">Password:</span><br><span class="line">4263+0 records <span class="keyword">in</span></span><br><span class="line">4263+0 records out</span><br><span class="line">4470079488 bytes (4.5 GB, 4.2 GiB) copied, 446.25 s, 10.0 MB/s</span><br></pre></td></tr></table></figure>
+
+<p> 经过如上几个步骤，用Mac制作的U盘启动盘就制作完成了。</p>
+</li>
+</ol>
+<h4 id="一些问题"><a href="#一些问题" class="headerlink" title="一些问题"></a>一些问题</h4><p>U盘制作启动盘之后U盘的可能无法被Mac系统读取了，会报一个错误，可见空间也会变的很小，这时候可以重新格式化U盘来进行恢复</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>CentOS 7安装Facebook folly库</title>
+    <url>/2019/04/26/CentOS-7%E5%AE%89%E8%A3%85Facebook-folly%E5%BA%93/</url>
+    <content><![CDATA[<p>folly是Facebook提出的一个基于C++14的C++组件库，包含有非常多具有实用性和效率性的数据结构。其github地址为： <a href="https://github.com/facebook/folly" target="_blank" rel="noopener">https://github.com/facebook/folly</a> 。在其README当中提供了在ubuntu和MacOS中的安装教程，没有CentOS中的安装教程，并且在CentOS当中安装会遇到很多问题，本文对在CentOS 7系统中安装folly库进行了过程记录。</p>
+<p>最新的folly需要gcc的版本高于5.1，但是CentOS 7中的gcc版本为4.8，直接升级安装gcc非常麻烦，并且可能会对其他项目使用的gcc造成影响，以采用我另一篇博客中提及的方法切换到高版本的gcc： </p>
+<p><a href="http://joey771.cn/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/">http://joey771.cn/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/</a> </p>
+<p>从官网提供的ubuntu安装教程中可以看出，其依赖于boost-devel、glog-devel、gflags-devel、double-conversion等库，有些库可以通过yum来进行安装，有些则需要通过源码编译安装。首先是可以使用yum安装的库：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install boost-devel \</span><br><span class="line">double-conversion-devel \</span><br><span class="line">libevent-devel \</span><br><span class="line">openssl-devel \</span><br><span class="line">lz4-devel \</span><br><span class="line">xz-devel \</span><br><span class="line">snappy-devel \</span><br><span class="line">zlib-devel \</span><br><span class="line">jemalloc-devel \</span><br><span class="line">libtool \</span><br><span class="line">scons</span><br></pre></td></tr></table></figure>
+
+<p>编译安装gflags、glog</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/schuhschuh/gflags.git</span><br><span class="line">mkdir gflags/build</span><br><span class="line"><span class="built_in">cd</span> gflags/build</span><br><span class="line">cmake -DGFLAGS_NAMESPACE=google -DBUILD_SHARED_LIBS=on ..</span><br><span class="line">make -j 8</span><br><span class="line">sudo make install</span><br><span class="line"></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/google/glog.git</span><br><span class="line"><span class="built_in">cd</span> glog</span><br><span class="line">autoreconf -ivf</span><br><span class="line">./configure --with-gflags=/usr/<span class="built_in">local</span>/lib</span><br><span class="line">make -j 8</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
+
+<p>编译安装folly</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/facebook/folly.git</span><br><span class="line"><span class="built_in">cd</span> folly</span><br><span class="line">mkdir _build &amp;&amp; <span class="built_in">cd</span> _build</span><br><span class="line">cmake ..</span><br><span class="line">make -j 8</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>]]></content>
+      <tags>
+        <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>dracula主题vim配置</title>
+    <url>/2021/04/08/dracula%E4%B8%BB%E9%A2%98vim%E9%85%8D%E7%BD%AE/</url>
+    <content><![CDATA[<p>最近喜欢用Dracula主题，主题官网：<a href="https://draculatheme.com/" target="_blank" rel="noopener">https://draculatheme.com/</a></p>
+<p>在mac上设置了Dracula全家桶，设置vim主题的时候，效果一直不是很好，找了很多资料，最后找到了一个比较满意的配置，记录一下</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">packadd! dracula</span><br><span class="line">syntax <span class="built_in">enable</span></span><br><span class="line">colorscheme dracula</span><br><span class="line"><span class="built_in">set</span> hlsearch</span><br><span class="line"><span class="built_in">set</span> nu</span><br><span class="line"><span class="built_in">set</span> termguicolors</span><br><span class="line">highlight Normal ctermbg=None</span><br><span class="line"><span class="built_in">let</span> &amp;t_ZH=<span class="string">"\e[3m"</span></span><br><span class="line"><span class="built_in">let</span> &amp;t_ZR=<span class="string">"\e[23m"</span></span><br></pre></td></tr></table></figure>
+
+<p>主要是最下面四行配置，<code>highlight Normal ctermbg=None</code>能让vim的背景和iterm2的背景相同，最后两行能让一些奇怪的高亮恢复正常，还能显示斜体</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>Mesos kill framework的方法</title>
+    <url>/2017/11/16/Mesos-kill-framework%E7%9A%84%E6%96%B9%E6%B3%95/</url>
+    <content><![CDATA[<p>最近将Spark集群部署到了Mesos之上，运行Spark程序时，能够方便的在Mesos的sandbox中查看程序运行时产生的stderr和stdout，并且这两个文件可以动态加载，不像在Spark管理界面上需要手动点击load more才能加载出来，十分方便。但是也发现了一个问题，当调试Spark代码时手动kill掉spark-submit的进程，或者Ctrl-c时，spark的程序已经停止了，但是在Mesos的管理界面上有时候还会看到有Job在运行，会占用资源，影响之后提交的程序的资源获取。但是Mesos网页管理界面上又没有像Spark管理界面上的kill按钮，就一时不知道如何kill掉这些实际已经不在运行的Job。在Stack Overflow上查到了几种方法，其中我觉得比较好用的一个贴在这里方便之后查看。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl -XPOST http://mesos-master-ip-address:5050/master/teardown -d <span class="string">'frameworkId=&lt;frameId-you-want-to-kill&gt;'</span></span><br></pre></td></tr></table></figure>
+
+<p>这里使用到了Mesos的HTTP Endpoint teardown，有很多人可能会查到是shutdown，但是从Mesos某个版本之后，已经从shutdown改为了teardown，具体的有关HTTP Endpoint的官方文档说明在参考文档当中。</p>
+<p>指令发送了一个POST请求给Mesos的一个HTTP Endpoint，要求关闭指定frameworkId的framework。可以将这个指令写在<code>~/.bashrc</code>中，方便之后使用，如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="title">killmesostask</span></span>()&#123; curl -XPOST http://gpu-server5:5050/master/teardown -d <span class="string">'frameworkId='</span><span class="variable">$@</span><span class="string">''</span>; &#125; ;</span><br></pre></td></tr></table></figure>
+
+<p>之后就可以使用<code>killmesostask &lt;frameworkId&gt;</code>的方式来kill指定Id的framework，需要注意的是这个指令一定要在mesos的master所在的服务器上运行，如果使用了zookeeper，master有时候会发生变化，需要在每个运行mesos-master进程的机器上都加上这个语句，需要kill的时候在对应那个时刻为master的机器上运行指令。</p>
+<a id="more"></a>
+<p>还有一种比较复杂的方法，但可以不需要在mesos master所在的机器上运行，可以在任何机器上使用Mesos的http api来kill指定的framework，参考官方说明的如下json包：</p>
+<figure class="highlight"><table><tr><td class="code"><pre><span class="line">TEARDOWN Request (JSON):</span><br><span class="line">POST /api/v1/scheduler  HTTP/1.1</span><br><span class="line"></span><br><span class="line">Host: masterhost:5050</span><br><span class="line">Content-Type: application/json</span><br><span class="line">Mesos-Stream-Id: 130ae4e3-6b13-4ef4-baa9-9f2e85c3e9af</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"framework_id"</span>    : &#123;<span class="attr">"value"</span> : <span class="string">"12220-3440-12532-2345"</span>&#125;,</span><br><span class="line">  <span class="attr">"type"</span>            : <span class="string">"TEARDOWN"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">TEARDOWN Response:</span><br><span class="line">HTTP/1.1 202 Accepted</span><br></pre></td></tr></table></figure>
+
+<p>可以通过postman模拟这样一个json包发送到指定的地址，就同样能够实现kill指定frameworkId的framework的功能。</p>
+<p>参考文档：</p>
+<ul>
+<li><a href="http://mesos.apache.org/documentation/latest/endpoints/" target="_blank" rel="noopener">http://mesos.apache.org/documentation/latest/endpoints/</a></li>
+<li><a href="http://mesos.apache.org/documentation/latest/scheduler-http-api/#teardown" target="_blank" rel="noopener">http://mesos.apache.org/documentation/latest/scheduler-http-api/#teardown</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>分布式</category>
+      </categories>
+      <tags>
+        <tag>Mesos</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CentOS7上安装Kerberos KDC</title>
+    <url>/2020/04/24/CentOS7%E4%B8%8A%E5%AE%89%E8%A3%85Kerberos-KDC/</url>
+    <content><![CDATA[<h3 id="yum安装软件"><a href="#yum安装软件" class="headerlink" title="yum安装软件"></a>yum安装软件</h3><p>首先通过yum安装kerberos所需要的软件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum install -y krb5-server krb5-workstation pam_krb5</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改服务端配置"><a href="#修改服务端配置" class="headerlink" title="修改服务端配置"></a>修改服务端配置</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> /var/kerberos/krb5kdc</span><br></pre></td></tr></table></figure>
+
+<p>我们需要修改该目录下的两个配置文件：</p>
+<ul>
+<li>kdc.conf</li>
+<li>kadm5.acl</li>
+</ul>
+<p>假设我们的realm为KDC.COM，修改<code>kadm5.acl</code>为如下内容：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">*/admin@KDC.COM     *</span><br></pre></td></tr></table></figure>
+
+<p>修改<code>kdc.conf</code>为如下内容：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[kdcdefaults]</span><br><span class="line"> kdc_ports = 88</span><br><span class="line"> kdc_tcp_ports = 88</span><br><span class="line"></span><br><span class="line">[realms]</span><br><span class="line"> KDC.COM = &#123;</span><br><span class="line">  <span class="comment">#master_key_type = aes256-cts</span></span><br><span class="line">  max_renewable_life = 7d</span><br><span class="line">  acl_file = /var/kerberos/krb5kdc/kadm5.acl</span><br><span class="line">  dict_file = /usr/share/dict/words</span><br><span class="line">  admin_keytab = /var/kerberos/krb5kdc/kadm5.keytab</span><br><span class="line">  supported_enctypes = aes256-cts:normal aes128-cts:normal des3-hmac-sha1:normal arcfour-hmac:normal camellia256-cts:normal camellia128-cts:normal des-hmac-sha1:normal des-cbc-md5:normal des-cbc-crc:normal</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改客户端配置"><a href="#修改客户端配置" class="headerlink" title="修改客户端配置"></a>修改客户端配置</h3><p>我们用作KDC服务的服务器也将会是一个Kerberos客户端，我们需要修改客户端配置文件<code>/etc/krb5.conf</code>，文件内容如下：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Configuration snippets may be placed in this directory as well</span></span><br><span class="line">includedir /etc/krb5.conf.d/</span><br><span class="line"></span><br><span class="line">[logging]</span><br><span class="line"> default = FILE:/var/<span class="built_in">log</span>/krb5libs.log</span><br><span class="line"> kdc = FILE:/var/<span class="built_in">log</span>/krb5kdc.log</span><br><span class="line"> admin_server = FILE:/var/<span class="built_in">log</span>/kadmind.log</span><br><span class="line"></span><br><span class="line">[libdefaults]</span><br><span class="line"> dns_lookup_realm = <span class="literal">false</span></span><br><span class="line"> ticket_lifetime = 24h</span><br><span class="line"> renew_lifetime = 7d</span><br><span class="line"> forwardable = <span class="literal">true</span></span><br><span class="line"> rdns = <span class="literal">false</span></span><br><span class="line"> pkinit_anchors = /etc/pki/tls/certs/ca-bundle.crt</span><br><span class="line"> default_realm = KDC.COM</span><br><span class="line"> default_ccache_name = KEYRING:persistent:%&#123;uid&#125;</span><br><span class="line"> default_tgs_enctypes = aes128-cts arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-hmac-sha1 aes256-cts</span><br><span class="line"> default_tkt_enctypes = aes128-cts arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-hmac-sha1 aes256-cts</span><br><span class="line"> permitted_enctypes = aes256-cts-hmac-sha1-96 des3-cbc-sha1 arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-cbc-md4</span><br><span class="line"> allow_weak_crypto = yes</span><br><span class="line"></span><br><span class="line">[realms]</span><br><span class="line"> KDC.COM = &#123;</span><br><span class="line">  kdc = kdc.hostname</span><br><span class="line">  admin_server = kdc.hostname</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line">[domain_realm]</span><br><span class="line"> .kdc.com = KDC.COM</span><br><span class="line"> kdc.com = KDC.COM</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建KDC数据库"><a href="#创建KDC数据库" class="headerlink" title="创建KDC数据库"></a>创建KDC数据库</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kdb5_util create -s -r KDC.COM</span><br></pre></td></tr></table></figure>
+
+<h3 id="开启Kerberos"><a href="#开启Kerberos" class="headerlink" title="开启Kerberos"></a>开启Kerberos</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl start krb5kdc kadmin</span><br><span class="line">systemctl <span class="built_in">enable</span> krb5kdc kadmin</span><br></pre></td></tr></table></figure>
+
+<p>接下来需要创建kadmin的管理员账号：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kadmin.local</span><br><span class="line">kadmin.local: addprinc root/admin</span><br><span class="line">kadmin.local: quit</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改SSH客户端配置"><a href="#修改SSH客户端配置" class="headerlink" title="修改SSH客户端配置"></a>修改SSH客户端配置</h3><p>修改<code>/etc/ssh/ssh_config</code>，添加如下配置：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">GSSAPIAuthentication yes</span><br><span class="line">GSSAPIDelegateCredentials yes</span><br></pre></td></tr></table></figure>
+
+<p>执行：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">authconfig  --enablekrb5 --update</span><br><span class="line">systemctl reload sshd</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <tags>
+        <tag>kerberos</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Presto使用OpenLDAP进行登录认证</title>
     <url>/2020/06/04/Presto%E4%BD%BF%E7%94%A8OpenLDAP%E8%BF%9B%E8%A1%8C%E7%99%BB%E5%BD%95%E8%AE%A4%E8%AF%81/</url>
     <content><![CDATA[<p>presto对接OpenLDAP只支持ldaps，需要OpenLDAP开启SSL，本文将首先介绍OpenLDAP如何开启SSL。</p>
@@ -164,70 +296,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Mac上制作Linux的U盘启动盘</title>
-    <url>/2018/10/31/Mac%E4%B8%8A%E5%88%B6%E4%BD%9CLinux%E7%9A%84U%E7%9B%98%E5%90%AF%E5%8A%A8%E7%9B%98/</url>
-    <content><![CDATA[<p>在windows上制作Linux的U盘启动盘非常容易，有很多工具，比如软碟通UltralISO、deepin深度启动盘制作工具等，只要正确使用这些工具就能很容易地制作一个U盘启动盘。</p>
-<p>换了Mac电脑后，有时候要给服务器装Linux操作系统，还是找一台windows电脑来制作U盘启动盘，十分不方便。其实用Mac也能很容易地制作U盘启动盘，并且不需要借助什么工具，用dd命令就能完成U盘启动盘的制作。</p>
-<h4 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h4><ol>
-<li><p>插入U盘，使用diskutil指令来查看U盘的挂载点</p>
- <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ diskutil list</span><br></pre></td></tr></table></figure>
-
-<p> 系统输出类似如下的内容</p>
- <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># joey @ joey-Mac in ~ [9:45:27]</span></span><br><span class="line">$ diskutil list</span><br><span class="line">/dev/disk0 (internal):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:      GUID_partition_scheme                         24.0 GB    disk0</span><br><span class="line">   1:                        EFI EFI                     314.6 MB   disk0s1</span><br><span class="line">   2:                 Apple_APFS                         23.6 GB    disk0s2</span><br><span class="line"></span><br><span class="line">/dev/disk1 (internal, physical):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:      GUID_partition_scheme                        *1.0 TB     disk1</span><br><span class="line">   1:                        EFI EFI                     209.7 MB   disk1s1</span><br><span class="line">   2:                 Apple_APFS Container disk2         900.7 GB   disk1s2</span><br><span class="line">   3:       Microsoft Basic Data BOOTCAMP                99.3 GB    disk1s3</span><br><span class="line"></span><br><span class="line">/dev/disk2 (synthesized):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:      APFS Container Scheme -                      +900.7 GB   disk2</span><br><span class="line">                                 Physical Store disk1s2</span><br><span class="line">   1:                APFS Volume CoreStorage Fusion      576.8 GB   disk2s1</span><br><span class="line">   2:                APFS Volume Preboot                 44.0 MB    disk2s2</span><br><span class="line">   3:                APFS Volume Recovery                512.4 MB   disk2s3</span><br><span class="line">   4:                APFS Volume VM                      6.4 GB     disk2s4</span><br><span class="line"></span><br><span class="line">/dev/disk3 (external, physical):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:     FDisk_partition_scheme                        *15.7 GB    disk3</span><br><span class="line">   1:               Windows_NTFS joey                    15.7 GB    disk3s1</span><br></pre></td></tr></table></figure>
-
-<p> 可以看到，我的U盘大小是16GB，对应上面输出的挂载点应该是位于<code>/dev/disk3</code></p>
-</li>
-<li><p>在写入系统镜像前，首先需要umount这个U盘，使用如下指令</p>
- <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ diskutil unmountDisk /dev/disk3</span><br></pre></td></tr></table></figure>
-
-<p> 会输出如下内容表示正确unmount</p>
- <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># joey @ joey-Mac in ~ [9:45:34]</span></span><br><span class="line">$ diskutil unmountDisk /dev/disk3</span><br><span class="line">Unmount of all volumes on disk3 was successful</span><br></pre></td></tr></table></figure>
-
-<p> 此时，Mac的Finder中已经看不到之前挂载上的U盘了，但是使用<code>diskutil list</code>命令还是能够看到U盘的信息</p>
-</li>
-<li><p>使用dd指令写入Linux系统镜像到U盘 </p>
- <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ sudo dd <span class="keyword">if</span>=/Users/joey/Downloads/CentOS-7-x86_64-DVD-1804.iso of=/dev/disk3 bs=1M</span><br></pre></td></tr></table></figure>
-
-<p> 这里有一点需要注意，有些教程可能写的<code>bs=1m</code>，这里如果你的电脑装了GNU Coreutils，就是那个让<code>ls</code>能够彩色化输出的软件，这里用1m就会报错，报错内容为<code>dd: invalid number: ‘1m’</code>，这里把m大写就能很容易解决这个问题，但是究竟是什么原因造成1m不行的我也不是很清楚，只知道一个解决的办法。</p>
-<p> 之后会输出如下，表示写入完成，大概要等几分钟</p>
- <figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># joey @ joey-Mac in ~ [9:49:37] C:1</span></span><br><span class="line">$ sudo dd <span class="keyword">if</span>=/Users/joey/Downloads/CentOS-7-x86_64-DVD-1804.iso of=/dev/disk3 bs=1M</span><br><span class="line">Password:</span><br><span class="line">4263+0 records <span class="keyword">in</span></span><br><span class="line">4263+0 records out</span><br><span class="line">4470079488 bytes (4.5 GB, 4.2 GiB) copied, 446.25 s, 10.0 MB/s</span><br></pre></td></tr></table></figure>
-
-<p> 经过如上几个步骤，用Mac制作的U盘启动盘就制作完成了。</p>
-</li>
-</ol>
-<h4 id="一些问题"><a href="#一些问题" class="headerlink" title="一些问题"></a>一些问题</h4><p>U盘制作启动盘之后U盘的可能无法被Mac系统读取了，会报一个错误，可见空间也会变的很小，这时候可以重新格式化U盘来进行恢复</p>
-]]></content>
-  </entry>
-  <entry>
-    <title>Mesos kill framework的方法</title>
-    <url>/2017/11/16/Mesos-kill-framework%E7%9A%84%E6%96%B9%E6%B3%95/</url>
-    <content><![CDATA[<p>最近将Spark集群部署到了Mesos之上，运行Spark程序时，能够方便的在Mesos的sandbox中查看程序运行时产生的stderr和stdout，并且这两个文件可以动态加载，不像在Spark管理界面上需要手动点击load more才能加载出来，十分方便。但是也发现了一个问题，当调试Spark代码时手动kill掉spark-submit的进程，或者Ctrl-c时，spark的程序已经停止了，但是在Mesos的管理界面上有时候还会看到有Job在运行，会占用资源，影响之后提交的程序的资源获取。但是Mesos网页管理界面上又没有像Spark管理界面上的kill按钮，就一时不知道如何kill掉这些实际已经不在运行的Job。在Stack Overflow上查到了几种方法，其中我觉得比较好用的一个贴在这里方便之后查看。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">curl -XPOST http://mesos-master-ip-address:5050/master/teardown -d <span class="string">'frameworkId=&lt;frameId-you-want-to-kill&gt;'</span></span><br></pre></td></tr></table></figure>
-
-<p>这里使用到了Mesos的HTTP Endpoint teardown，有很多人可能会查到是shutdown，但是从Mesos某个版本之后，已经从shutdown改为了teardown，具体的有关HTTP Endpoint的官方文档说明在参考文档当中。</p>
-<p>指令发送了一个POST请求给Mesos的一个HTTP Endpoint，要求关闭指定frameworkId的framework。可以将这个指令写在<code>~/.bashrc</code>中，方便之后使用，如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="title">killmesostask</span></span>()&#123; curl -XPOST http://gpu-server5:5050/master/teardown -d <span class="string">'frameworkId='</span><span class="variable">$@</span><span class="string">''</span>; &#125; ;</span><br></pre></td></tr></table></figure>
-
-<p>之后就可以使用<code>killmesostask &lt;frameworkId&gt;</code>的方式来kill指定Id的framework，需要注意的是这个指令一定要在mesos的master所在的服务器上运行，如果使用了zookeeper，master有时候会发生变化，需要在每个运行mesos-master进程的机器上都加上这个语句，需要kill的时候在对应那个时刻为master的机器上运行指令。</p>
-<a id="more"></a>
-<p>还有一种比较复杂的方法，但可以不需要在mesos master所在的机器上运行，可以在任何机器上使用Mesos的http api来kill指定的framework，参考官方说明的如下json包：</p>
-<figure class="highlight"><table><tr><td class="code"><pre><span class="line">TEARDOWN Request (JSON):</span><br><span class="line">POST /api/v1/scheduler  HTTP/1.1</span><br><span class="line"></span><br><span class="line">Host: masterhost:5050</span><br><span class="line">Content-Type: application/json</span><br><span class="line">Mesos-Stream-Id: 130ae4e3-6b13-4ef4-baa9-9f2e85c3e9af</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">  <span class="attr">"framework_id"</span>    : &#123;<span class="attr">"value"</span> : <span class="string">"12220-3440-12532-2345"</span>&#125;,</span><br><span class="line">  <span class="attr">"type"</span>            : <span class="string">"TEARDOWN"</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">TEARDOWN Response:</span><br><span class="line">HTTP/1.1 202 Accepted</span><br></pre></td></tr></table></figure>
-
-<p>可以通过postman模拟这样一个json包发送到指定的地址，就同样能够实现kill指定frameworkId的framework的功能。</p>
-<p>参考文档：</p>
-<ul>
-<li><a href="http://mesos.apache.org/documentation/latest/endpoints/" target="_blank" rel="noopener">http://mesos.apache.org/documentation/latest/endpoints/</a></li>
-<li><a href="http://mesos.apache.org/documentation/latest/scheduler-http-api/#teardown" target="_blank" rel="noopener">http://mesos.apache.org/documentation/latest/scheduler-http-api/#teardown</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>分布式</category>
-      </categories>
-      <tags>
-        <tag>Mesos</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>ansible教程之file模块的使用</title>
     <url>/2018/11/13/ansible%E6%95%99%E7%A8%8B%E4%B9%8Bfile%E6%A8%A1%E5%9D%97%E7%9A%84%E4%BD%BF%E7%94%A8/</url>
     <content><![CDATA[<p>ansible是一个自动化运维非常重要的工具，对于做大数据开发的人来说，ansible是一个管理集群的利器，我们可以用它来在集群中批量执行一些指令，而不需要对服务器一台一台进行操作。ansible的功能非常多，但是对于我来说一般只用来在集群中批量执行一些命令，例如批量安装软件、批量删除文件、批量新建文件夹等，具体详细的功能可以参考这个中文文档 <a href="http://www.ansible.com.cn/docs/" target="_blank" rel="noopener">ansible中文权威指南</a>。</p>
@@ -256,43 +324,6 @@
       <tags>
         <tag>Linux</tag>
       </tags>
-  </entry>
-  <entry>
-    <title>CentOS 7安装Facebook folly库</title>
-    <url>/2019/04/26/CentOS-7%E5%AE%89%E8%A3%85Facebook-folly%E5%BA%93/</url>
-    <content><![CDATA[<p>folly是Facebook提出的一个基于C++14的C++组件库，包含有非常多具有实用性和效率性的数据结构。其github地址为： <a href="https://github.com/facebook/folly" target="_blank" rel="noopener">https://github.com/facebook/folly</a> 。在其README当中提供了在ubuntu和MacOS中的安装教程，没有CentOS中的安装教程，并且在CentOS当中安装会遇到很多问题，本文对在CentOS 7系统中安装folly库进行了过程记录。</p>
-<p>最新的folly需要gcc的版本高于5.1，但是CentOS 7中的gcc版本为4.8，直接升级安装gcc非常麻烦，并且可能会对其他项目使用的gcc造成影响，以采用我另一篇博客中提及的方法切换到高版本的gcc： </p>
-<p><a href="http://joey771.cn/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/">http://joey771.cn/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/</a> </p>
-<p>从官网提供的ubuntu安装教程中可以看出，其依赖于boost-devel、glog-devel、gflags-devel、double-conversion等库，有些库可以通过yum来进行安装，有些则需要通过源码编译安装。首先是可以使用yum安装的库：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install boost-devel \</span><br><span class="line">double-conversion-devel \</span><br><span class="line">libevent-devel \</span><br><span class="line">openssl-devel \</span><br><span class="line">lz4-devel \</span><br><span class="line">xz-devel \</span><br><span class="line">snappy-devel \</span><br><span class="line">zlib-devel \</span><br><span class="line">jemalloc-devel \</span><br><span class="line">libtool \</span><br><span class="line">scons</span><br></pre></td></tr></table></figure>
-
-<p>编译安装gflags、glog</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/schuhschuh/gflags.git</span><br><span class="line">mkdir gflags/build</span><br><span class="line"><span class="built_in">cd</span> gflags/build</span><br><span class="line">cmake -DGFLAGS_NAMESPACE=google -DBUILD_SHARED_LIBS=on ..</span><br><span class="line">make -j 8</span><br><span class="line">sudo make install</span><br><span class="line"></span><br><span class="line">git <span class="built_in">clone</span> https://github.com/google/glog.git</span><br><span class="line"><span class="built_in">cd</span> glog</span><br><span class="line">autoreconf -ivf</span><br><span class="line">./configure --with-gflags=/usr/<span class="built_in">local</span>/lib</span><br><span class="line">make -j 8</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
-
-<p>编译安装folly</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/facebook/folly.git</span><br><span class="line"><span class="built_in">cd</span> folly</span><br><span class="line">mkdir _build &amp;&amp; <span class="built_in">cd</span> _build</span><br><span class="line">cmake ..</span><br><span class="line">make -j 8</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>]]></content>
-      <tags>
-        <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>linux命令行安装MATLAB</title>
-    <url>/2019/01/18/linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%AE%89%E8%A3%85MATLAB/</url>
-    <content><![CDATA[<p>登录MATLAB的MathWorks，选择右上角的我的账户，点击许可证右侧的许可证管理，进入后选择安装和激活，之后选择“激活并获取许可证文件”，选择激活计算机，填入相关信息。其中主机ID即为电脑用于上外网的网卡的MAC地址，可以使用<code>ipconfig</code>进行查看，计算机登录名就是当前登录用户的用户名，不知道的话可以使用<code>whoami</code>指令进行查看。填写完成后会生成一个序列号，和一个lisence.lic文件，将文件上传至安装MATLAB的服务器上并记录激活序列号。</p>
-<p>下载包含所有产品的完整MATLAB安装包，官网下载的只是一个100MB多的一个网络安装器，安装过程中才会下载需要的产品，这对于命令行安装是不适用的，命令行安装必须使用完整的离线安装包。之后需要填写silent安装模式下的安装配置文件，具体模板如下：</p>
-<a id="more"></a>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">##################################################################</span><br><span class="line">##</span><br><span class="line">## Use this file to specify parameters required by the installer at runtime.</span><br><span class="line">##</span><br><span class="line">## Instructions for using this file.</span><br><span class="line">##</span><br><span class="line">## 1. Create a copy of this template file and fill in the required</span><br><span class="line">##    information.</span><br><span class="line">##</span><br><span class="line">## 2. Uncomment only those lines that start with a single &apos;#&apos;</span><br><span class="line">##    and set the desired values. All allowed values for the</span><br><span class="line">##    parameters are defined in the comments section for each</span><br><span class="line">##    parameter.</span><br><span class="line">##</span><br><span class="line">## 3. Launch the installer from the command line, using the -inputFile option</span><br><span class="line">##    to specify the name of your installer initialization file.</span><br><span class="line">##</span><br><span class="line">##    (Windows) setup.exe -inputFile &lt;file_name&gt;</span><br><span class="line">##    (Mac/Unix) install -inputFile &lt;file_name&gt;</span><br><span class="line">##</span><br><span class="line">## NOTE:</span><br><span class="line">##    If you want to run the activation application in silent</span><br><span class="line">##    mode immediately after the installer completes, you must create</span><br><span class="line">##    an activation initialization file and specify its name as the</span><br><span class="line">##    value of the activationPropertiesFile= option. You can also</span><br><span class="line">##    pass the name of the activation initialization file to the</span><br><span class="line">##    installer using the -activationPropertiesFile command line</span><br><span class="line">##    option.</span><br><span class="line">##</span><br><span class="line">##################################################################</span><br><span class="line">##</span><br><span class="line">##</span><br><span class="line">## SPECIFY INSTALLATION FOLDER</span><br><span class="line">##</span><br><span class="line">## Example:</span><br><span class="line">##        (Windows) destinationFolder=C:\Program Files\MATLAB\RXXXX</span><br><span class="line">##        (Unix) destinationFolder=/usr/local/RXXXX</span><br><span class="line">##        (Mac) destinationFolder=/Applications</span><br><span class="line">##</span><br><span class="line">## Set the desired value for destinationFolder and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># destinationFolder=</span><br><span class="line"></span><br><span class="line">##</span><br><span class="line">## SPECIFY FILE INSTALLATION KEY</span><br><span class="line">##</span><br><span class="line">## Example: fileInstallationKey=xxxxx-xxxxx-xxxxx-xxxxx.....</span><br><span class="line">##</span><br><span class="line">## Set the desired value for fileInstallationKey and</span><br><span class="line">## uncomment the line.</span><br><span class="line">##</span><br><span class="line"># fileInstallationKey=</span><br><span class="line"></span><br><span class="line">##</span><br><span class="line">## ACCEPT LICENSE AGREEMENT</span><br><span class="line">##</span><br><span class="line">## You must agree to the license agreement to install MathWorks products.</span><br><span class="line">## The license agreement can be found in the license_agreement.txt file at the</span><br><span class="line">## root level of the installation DVD.</span><br><span class="line">##</span><br><span class="line">## Example: agreeToLicense=yes</span><br><span class="line">##</span><br><span class="line">## Set agreeToLicense value to yes or no and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># agreeToLicense=</span><br><span class="line"></span><br><span class="line">##</span><br><span class="line">## SPECIFY OUTPUT LOG</span><br><span class="line">##</span><br><span class="line">## Specify full path of file into which you want the results of the</span><br><span class="line">## installation to be recorded.</span><br><span class="line">##</span><br><span class="line">## Example:</span><br><span class="line">##            (Windows) outputFile=C:\TEMP\mathworks_&lt;user_name&gt;.log</span><br><span class="line">##            (Unix/Mac) outputFile=/tmp/mathworks_&lt;user_name&gt;.log</span><br><span class="line">##</span><br><span class="line">## Set the desired value for outputFile and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># outputFile=</span><br><span class="line"></span><br><span class="line">## SPECIFY INSTALLER MODE</span><br><span class="line">##</span><br><span class="line">## interactive: Run the installer GUI, waiting for user input on all</span><br><span class="line">##              dialog boxes.</span><br><span class="line">##</span><br><span class="line">## silent:      Run the installer without displaying the GUI.</span><br><span class="line">##</span><br><span class="line">## automated:   Run the installer GUI, displaying all dialog boxes, but only</span><br><span class="line">##              waiting for user input on dialogs that are missing required</span><br><span class="line">##              input.</span><br><span class="line">##</span><br><span class="line">## Set mode value to either interactive, silent, or automated and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># mode=</span><br><span class="line"></span><br><span class="line">## SPECIFY LENGTH OF TIME DIALOG BOXES ARE DISPLAYED</span><br><span class="line">##</span><br><span class="line">## Specify how long the installer dialog boxes are displayed, in milliseconds.</span><br><span class="line">##</span><br><span class="line">## NOTE: Use this value only if you set the installer mode to automated.</span><br><span class="line">##</span><br><span class="line">## By default, the dialog boxes display on the screen for one second.</span><br><span class="line">##</span><br><span class="line">## Example: (To specify a value of 1 second.) automatedModeTimeout=1000</span><br><span class="line">##</span><br><span class="line">## Set the desired value for automatedModeTimeout and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># automatedModeTimeout=</span><br><span class="line"></span><br><span class="line">## SPECIFY ACTIVATION PROPERTIES FILE (For non-network license types only)</span><br><span class="line">##</span><br><span class="line">## Enter the path to an existing file that contains properties to configure</span><br><span class="line">## the activation process.</span><br><span class="line"></span><br><span class="line"># activationPropertiesFile=</span><br><span class="line"></span><br><span class="line">########## Begin: Options for Network License Types #########</span><br><span class="line">##</span><br><span class="line">## SPECIFY PATH TO LICENSE FILE (Required for network license types only)</span><br><span class="line">##</span><br><span class="line">## This value is required when installing either the License Manager or when</span><br><span class="line">## installing as a Network End-User</span><br><span class="line">## Example:</span><br><span class="line">##            (Windows) licensePath=C:\TEMP\license.dat</span><br><span class="line">##            (Unix) licensePath=/tmp/license.dat</span><br><span class="line">## Set the desired value for licensePath and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># licensePath=</span><br><span class="line"></span><br><span class="line">## CHOOSE TO INSTALL LICENSE MANAGER (For network license types only)</span><br><span class="line">##</span><br><span class="line">## Installs license manager files to disk.</span><br><span class="line">##</span><br><span class="line">## NOTE: You only need to install the license manager files</span><br><span class="line">## on your license server.</span><br><span class="line">##</span><br><span class="line">## Set lmgrFiles value to true or false and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># lmgrFiles=</span><br><span class="line"></span><br><span class="line">## INSTALL LICENSE MANAGER AS A SERVICE (For network license types only)</span><br><span class="line">##</span><br><span class="line">## Configure the license manager as a service on Windows.</span><br><span class="line">##</span><br><span class="line">## NOTE: Not applicable for Unix or Mac.</span><br><span class="line">##</span><br><span class="line">## NOTE: The lmgr_files option (set in previous step) must also be set to true.</span><br><span class="line">##</span><br><span class="line">## Set lmgrService value to true or false and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># lmgrService=</span><br><span class="line"></span><br><span class="line">########## End: Options for Network License Types #########</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">################# Begin - Windows Only Options ################</span><br><span class="line">##</span><br><span class="line">## CHOOSE TO SET FILE ASSOCIATIONS</span><br><span class="line">##</span><br><span class="line">## Set to true if you want the installer to associate file types used by MathWorks</span><br><span class="line">## products to this version of MATLAB, or false if you do not want the installer to</span><br><span class="line">## associate MathWorks file types with this version of MATLAB.</span><br><span class="line">##</span><br><span class="line">## Default value is true.</span><br><span class="line">##</span><br><span class="line">## Set setFileAssoc value to true or false and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># setFileAssoc=</span><br><span class="line"></span><br><span class="line">##</span><br><span class="line">## CHOOSE TO CREATE WINDOWS DESKTOP SHORTCUT</span><br><span class="line">##</span><br><span class="line">## Set to true if you would like the installer to create a desktop shortcut icon</span><br><span class="line">## when MATLAB is installed or false if you don&apos;t want the shortcut created.</span><br><span class="line">##</span><br><span class="line">## Set desktopShortcut value to true or false and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># desktopShortcut=</span><br><span class="line"></span><br><span class="line">## CHOOSE TO ADD SHORTCUT TO WINDOWS START MENU</span><br><span class="line">##</span><br><span class="line">## Set to true if you would like the installer to create a Start Menu shortcut</span><br><span class="line">## icon when MATLAB is installed or false if you don&apos;t want the shortcut created.</span><br><span class="line">##</span><br><span class="line">## Set startMenuShortcut value to true or false and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># startMenuShortcut=</span><br><span class="line"></span><br><span class="line">## CREATE a MATLAB Startup Accelerator task</span><br><span class="line">##</span><br><span class="line">## The MATLAB Startup Accelerator installer creates a</span><br><span class="line">## system task to preload MATLAB into the system&apos;s cache</span><br><span class="line">## for faster startup.</span><br><span class="line">##</span><br><span class="line">## NOTE: By default, a MATLAB Startup Accelerator task will</span><br><span class="line">## automatically be created.</span><br><span class="line">##</span><br><span class="line">## If you want a MATLAB Startup Accelerator task to be created,</span><br><span class="line">## do not edit this section.</span><br><span class="line">##</span><br><span class="line">## Set createAccelTask value to false if you do not want to</span><br><span class="line">## create an Accelerator task and uncomment the line.</span><br><span class="line"></span><br><span class="line"># createAccelTask=</span><br><span class="line"></span><br><span class="line">## Enable Login Named User  licensing</span><br><span class="line">##</span><br><span class="line">## Set to Yes to enable use of a Login Named User license for all users of this MATLAB installation</span><br><span class="line">## Users must log in to their MathWorks Account when MATLAB starts.</span><br><span class="line">##</span><br><span class="line">## Example: enableLNU=yes</span><br><span class="line">##</span><br><span class="line">## NOTE: This flag is valid in silent installations only.</span><br><span class="line"></span><br><span class="line"># enableLNU=yes</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">################ End - Windows Only Options ################</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## SPECIFY PRODUCTS YOU WANT TO INSTALL</span><br><span class="line">##</span><br><span class="line">## By default, the installer installs all the products and</span><br><span class="line">## documentation for which you are licensed. Products you are not licensed for</span><br><span class="line">## are not installed, even if they are listed here.</span><br><span class="line">##</span><br><span class="line">## Note:</span><br><span class="line">## 1. To automatically install all your licensed products, do not edit</span><br><span class="line">##    any lines in this section.</span><br><span class="line">##</span><br><span class="line">## 2. To install a specific product or a subset of products for</span><br><span class="line">##    which you are licensed, uncomment the line for the product(s) you want</span><br><span class="line">##    to install.</span><br><span class="line"></span><br><span class="line">#product.5G_Toolbox</span><br><span class="line">#product.Aerospace_Blockset</span><br><span class="line">#product.Aerospace_Toolbox</span><br><span class="line">#product.Antenna_Toolbox</span><br><span class="line">#product.Audio_System_Toolbox</span><br><span class="line">#product.Automated_Driving_System_Toolbox</span><br><span class="line">#product.Bioinformatics_Toolbox</span><br><span class="line">#product.Communications_Toolbox</span><br><span class="line">#product.Computer_Vision_System_Toolbox</span><br><span class="line">#product.Control_System_Toolbox</span><br><span class="line">#product.Curve_Fitting_Toolbox</span><br><span class="line">#product.DO_Qualification_Kit</span><br><span class="line">#product.DSP_System_Toolbox</span><br><span class="line">#product.Data_Acquisition_Toolbox</span><br><span class="line">#product.Database_Toolbox</span><br><span class="line">#product.Datafeed_Toolbox</span><br><span class="line">#product.Deep_Learning_Toolbox</span><br><span class="line">#product.Econometrics_Toolbox</span><br><span class="line">#product.Embedded_Coder</span><br><span class="line">#product.Filter_Design_HDL_Coder</span><br><span class="line">#product.Financial_Instruments_Toolbox</span><br><span class="line">#product.Financial_Toolbox</span><br><span class="line">#product.Fixed_Point_Designer</span><br><span class="line">#product.Fuzzy_Logic_Toolbox</span><br><span class="line">#product.GPU_Coder</span><br><span class="line">#product.Global_Optimization_Toolbox</span><br><span class="line">#product.HDL_Coder</span><br><span class="line">#product.HDL_Verifier</span><br><span class="line">#product.IEC_Certification_Kit</span><br><span class="line">#product.Image_Acquisition_Toolbox</span><br><span class="line">#product.Image_Processing_Toolbox</span><br><span class="line">#product.Instrument_Control_Toolbox</span><br><span class="line">#product.LTE_HDL_Toolbox</span><br><span class="line">#product.LTE_Toolbox</span><br><span class="line">#product.MATLAB</span><br><span class="line">#product.MATLAB_Coder</span><br><span class="line">#product.MATLAB_Compiler</span><br><span class="line">#product.MATLAB_Compiler_SDK</span><br><span class="line">#product.MATLAB_Distributed_Computing_Server</span><br><span class="line">#product.MATLAB_Production_Server</span><br><span class="line">#product.MATLAB_Report_Generator</span><br><span class="line">#product.Mapping_Toolbox</span><br><span class="line">#product.Model_Predictive_Control_Toolbox</span><br><span class="line">#product.Model_Based_Calibration_Toolbox</span><br><span class="line">#product.OPC_Toolbox</span><br><span class="line">#product.Optimization_Toolbox</span><br><span class="line">#product.Parallel_Computing_Toolbox</span><br><span class="line">#product.Partial_Differential_Equation_Toolbox</span><br><span class="line">#product.Phased_Array_System_Toolbox</span><br><span class="line">#product.Polyspace_Bug_Finder</span><br><span class="line">#product.Polyspace_Code_Prover</span><br><span class="line">#product.Powertrain_Blockset</span><br><span class="line">#product.Predictive_Maintenance_Toolbox</span><br><span class="line">#product.RF_Blockset</span><br><span class="line">#product.RF_Toolbox</span><br><span class="line">#product.Risk_Management_Toolbox</span><br><span class="line">#product.Robotics_System_Toolbox</span><br><span class="line">#product.Robust_Control_Toolbox</span><br><span class="line">#product.Sensor_Fusion_and_Tracking_Toolbox</span><br><span class="line">#product.Signal_Processing_Toolbox</span><br><span class="line">#product.SimBiology</span><br><span class="line">#product.SimEvents</span><br><span class="line">#product.Simscape</span><br><span class="line">#product.Simscape_Driveline</span><br><span class="line">#product.Simscape_Electrical</span><br><span class="line">#product.Simscape_Fluids</span><br><span class="line">#product.Simscape_Multibody</span><br><span class="line">#product.Simulink</span><br><span class="line">#product.Simulink_3D_Animation</span><br><span class="line">#product.Simulink_Check</span><br><span class="line">#product.Simulink_Code_Inspector</span><br><span class="line">#product.Simulink_Coder</span><br><span class="line">#product.Simulink_Control_Design</span><br><span class="line">#product.Simulink_Coverage</span><br><span class="line">#product.Simulink_Design_Optimization</span><br><span class="line">#product.Simulink_Design_Verifier</span><br><span class="line">#product.Simulink_Desktop_Real_Time</span><br><span class="line">#product.Simulink_PLC_Coder</span><br><span class="line">#product.Simulink_Real_Time</span><br><span class="line">#product.Simulink_Report_Generator</span><br><span class="line">#product.Simulink_Requirements</span><br><span class="line">#product.Simulink_Test</span><br><span class="line">#product.Spreadsheet_Link</span><br><span class="line">#product.Stateflow</span><br><span class="line">#product.Statistics_and_Machine_Learning_Toolbox</span><br><span class="line">#product.Symbolic_Math_Toolbox</span><br><span class="line">#product.System_Identification_Toolbox</span><br><span class="line">#product.Text_Analytics_Toolbox</span><br><span class="line">#product.Trading_Toolbox</span><br><span class="line">#product.Vehicle_Dynamics_Blockset</span><br><span class="line">#product.Vehicle_Network_Toolbox</span><br><span class="line">#product.Vision_HDL_Toolbox</span><br><span class="line">#product.WLAN_Toolbox</span><br><span class="line">#product.Wavelet_Toolbox</span><br></pre></td></tr></table></figure>
-
-<p>我们需要填写的内容主要有：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">destinationFolder=/usr/local/RXXXX</span><br><span class="line">fileInstallationKey=xxxxx-xxxxx-xxxxx-xxxxx.....</span><br><span class="line">agreeToLicense=yes</span><br><span class="line">mode=silent</span><br><span class="line">licensePath=/tmp/license.lic</span><br></pre></td></tr></table></figure>
-
-<p>该配置文件需要指定安装路径（不指定的话安装路径默认为/usr/local/MATLAB），同意协议，安装模式为silent，激活序列号，证书文件路径，最后可以指定需要安装的产品，按照模板中的内容将对应产品前的注释取消即可，若不知道需要哪些产品，不添加任何产品则会安装所有的产品。之后解压离线安装包，这里需要注意的是，离线安装包解压后里面很多可执行文件的权限会没有执行权限，直接安装的话会很快结束，无法正常安装，由于不方便将所有可执行文件都找出来添加执行权限，这里需要暴力使用<code>chmod -R 777 MATLAB_dir</code>将安装包解压文件夹下的所有文件的权限都变为777，这样才能正确安装，之后使用如下指令进行安装（installer_input.txt为之前写的配置文件的路径）：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./install.sh -inputFile installer_input.txt</span><br></pre></td></tr></table></figure>
-
-<p>安装完成后，还需要将license.lic文件移动到安装目录下的license目录当中完成激活。<br>之后可能会遇到libXt.so.6找不到的问题，该库文件是用于支持x11的，按道理说以命令行方式运行是不需要x11的，但是还是会报错，解决方法便是安装缺失的这个库</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo apt install libxt6</span><br></pre></td></tr></table></figure>
-
-]]></content>
   </entry>
   <entry>
     <title>mac终端配置</title>
@@ -324,6 +355,25 @@
       </tags>
   </entry>
   <entry>
+    <title>linux命令行安装MATLAB</title>
+    <url>/2019/01/18/linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%AE%89%E8%A3%85MATLAB/</url>
+    <content><![CDATA[<p>登录MATLAB的MathWorks，选择右上角的我的账户，点击许可证右侧的许可证管理，进入后选择安装和激活，之后选择“激活并获取许可证文件”，选择激活计算机，填入相关信息。其中主机ID即为电脑用于上外网的网卡的MAC地址，可以使用<code>ipconfig</code>进行查看，计算机登录名就是当前登录用户的用户名，不知道的话可以使用<code>whoami</code>指令进行查看。填写完成后会生成一个序列号，和一个lisence.lic文件，将文件上传至安装MATLAB的服务器上并记录激活序列号。</p>
+<p>下载包含所有产品的完整MATLAB安装包，官网下载的只是一个100MB多的一个网络安装器，安装过程中才会下载需要的产品，这对于命令行安装是不适用的，命令行安装必须使用完整的离线安装包。之后需要填写silent安装模式下的安装配置文件，具体模板如下：</p>
+<a id="more"></a>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">##################################################################</span><br><span class="line">##</span><br><span class="line">## Use this file to specify parameters required by the installer at runtime.</span><br><span class="line">##</span><br><span class="line">## Instructions for using this file.</span><br><span class="line">##</span><br><span class="line">## 1. Create a copy of this template file and fill in the required</span><br><span class="line">##    information.</span><br><span class="line">##</span><br><span class="line">## 2. Uncomment only those lines that start with a single &apos;#&apos;</span><br><span class="line">##    and set the desired values. All allowed values for the</span><br><span class="line">##    parameters are defined in the comments section for each</span><br><span class="line">##    parameter.</span><br><span class="line">##</span><br><span class="line">## 3. Launch the installer from the command line, using the -inputFile option</span><br><span class="line">##    to specify the name of your installer initialization file.</span><br><span class="line">##</span><br><span class="line">##    (Windows) setup.exe -inputFile &lt;file_name&gt;</span><br><span class="line">##    (Mac/Unix) install -inputFile &lt;file_name&gt;</span><br><span class="line">##</span><br><span class="line">## NOTE:</span><br><span class="line">##    If you want to run the activation application in silent</span><br><span class="line">##    mode immediately after the installer completes, you must create</span><br><span class="line">##    an activation initialization file and specify its name as the</span><br><span class="line">##    value of the activationPropertiesFile= option. You can also</span><br><span class="line">##    pass the name of the activation initialization file to the</span><br><span class="line">##    installer using the -activationPropertiesFile command line</span><br><span class="line">##    option.</span><br><span class="line">##</span><br><span class="line">##################################################################</span><br><span class="line">##</span><br><span class="line">##</span><br><span class="line">## SPECIFY INSTALLATION FOLDER</span><br><span class="line">##</span><br><span class="line">## Example:</span><br><span class="line">##        (Windows) destinationFolder=C:\Program Files\MATLAB\RXXXX</span><br><span class="line">##        (Unix) destinationFolder=/usr/local/RXXXX</span><br><span class="line">##        (Mac) destinationFolder=/Applications</span><br><span class="line">##</span><br><span class="line">## Set the desired value for destinationFolder and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># destinationFolder=</span><br><span class="line"></span><br><span class="line">##</span><br><span class="line">## SPECIFY FILE INSTALLATION KEY</span><br><span class="line">##</span><br><span class="line">## Example: fileInstallationKey=xxxxx-xxxxx-xxxxx-xxxxx.....</span><br><span class="line">##</span><br><span class="line">## Set the desired value for fileInstallationKey and</span><br><span class="line">## uncomment the line.</span><br><span class="line">##</span><br><span class="line"># fileInstallationKey=</span><br><span class="line"></span><br><span class="line">##</span><br><span class="line">## ACCEPT LICENSE AGREEMENT</span><br><span class="line">##</span><br><span class="line">## You must agree to the license agreement to install MathWorks products.</span><br><span class="line">## The license agreement can be found in the license_agreement.txt file at the</span><br><span class="line">## root level of the installation DVD.</span><br><span class="line">##</span><br><span class="line">## Example: agreeToLicense=yes</span><br><span class="line">##</span><br><span class="line">## Set agreeToLicense value to yes or no and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># agreeToLicense=</span><br><span class="line"></span><br><span class="line">##</span><br><span class="line">## SPECIFY OUTPUT LOG</span><br><span class="line">##</span><br><span class="line">## Specify full path of file into which you want the results of the</span><br><span class="line">## installation to be recorded.</span><br><span class="line">##</span><br><span class="line">## Example:</span><br><span class="line">##            (Windows) outputFile=C:\TEMP\mathworks_&lt;user_name&gt;.log</span><br><span class="line">##            (Unix/Mac) outputFile=/tmp/mathworks_&lt;user_name&gt;.log</span><br><span class="line">##</span><br><span class="line">## Set the desired value for outputFile and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># outputFile=</span><br><span class="line"></span><br><span class="line">## SPECIFY INSTALLER MODE</span><br><span class="line">##</span><br><span class="line">## interactive: Run the installer GUI, waiting for user input on all</span><br><span class="line">##              dialog boxes.</span><br><span class="line">##</span><br><span class="line">## silent:      Run the installer without displaying the GUI.</span><br><span class="line">##</span><br><span class="line">## automated:   Run the installer GUI, displaying all dialog boxes, but only</span><br><span class="line">##              waiting for user input on dialogs that are missing required</span><br><span class="line">##              input.</span><br><span class="line">##</span><br><span class="line">## Set mode value to either interactive, silent, or automated and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># mode=</span><br><span class="line"></span><br><span class="line">## SPECIFY LENGTH OF TIME DIALOG BOXES ARE DISPLAYED</span><br><span class="line">##</span><br><span class="line">## Specify how long the installer dialog boxes are displayed, in milliseconds.</span><br><span class="line">##</span><br><span class="line">## NOTE: Use this value only if you set the installer mode to automated.</span><br><span class="line">##</span><br><span class="line">## By default, the dialog boxes display on the screen for one second.</span><br><span class="line">##</span><br><span class="line">## Example: (To specify a value of 1 second.) automatedModeTimeout=1000</span><br><span class="line">##</span><br><span class="line">## Set the desired value for automatedModeTimeout and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># automatedModeTimeout=</span><br><span class="line"></span><br><span class="line">## SPECIFY ACTIVATION PROPERTIES FILE (For non-network license types only)</span><br><span class="line">##</span><br><span class="line">## Enter the path to an existing file that contains properties to configure</span><br><span class="line">## the activation process.</span><br><span class="line"></span><br><span class="line"># activationPropertiesFile=</span><br><span class="line"></span><br><span class="line">########## Begin: Options for Network License Types #########</span><br><span class="line">##</span><br><span class="line">## SPECIFY PATH TO LICENSE FILE (Required for network license types only)</span><br><span class="line">##</span><br><span class="line">## This value is required when installing either the License Manager or when</span><br><span class="line">## installing as a Network End-User</span><br><span class="line">## Example:</span><br><span class="line">##            (Windows) licensePath=C:\TEMP\license.dat</span><br><span class="line">##            (Unix) licensePath=/tmp/license.dat</span><br><span class="line">## Set the desired value for licensePath and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># licensePath=</span><br><span class="line"></span><br><span class="line">## CHOOSE TO INSTALL LICENSE MANAGER (For network license types only)</span><br><span class="line">##</span><br><span class="line">## Installs license manager files to disk.</span><br><span class="line">##</span><br><span class="line">## NOTE: You only need to install the license manager files</span><br><span class="line">## on your license server.</span><br><span class="line">##</span><br><span class="line">## Set lmgrFiles value to true or false and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># lmgrFiles=</span><br><span class="line"></span><br><span class="line">## INSTALL LICENSE MANAGER AS A SERVICE (For network license types only)</span><br><span class="line">##</span><br><span class="line">## Configure the license manager as a service on Windows.</span><br><span class="line">##</span><br><span class="line">## NOTE: Not applicable for Unix or Mac.</span><br><span class="line">##</span><br><span class="line">## NOTE: The lmgr_files option (set in previous step) must also be set to true.</span><br><span class="line">##</span><br><span class="line">## Set lmgrService value to true or false and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># lmgrService=</span><br><span class="line"></span><br><span class="line">########## End: Options for Network License Types #########</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">################# Begin - Windows Only Options ################</span><br><span class="line">##</span><br><span class="line">## CHOOSE TO SET FILE ASSOCIATIONS</span><br><span class="line">##</span><br><span class="line">## Set to true if you want the installer to associate file types used by MathWorks</span><br><span class="line">## products to this version of MATLAB, or false if you do not want the installer to</span><br><span class="line">## associate MathWorks file types with this version of MATLAB.</span><br><span class="line">##</span><br><span class="line">## Default value is true.</span><br><span class="line">##</span><br><span class="line">## Set setFileAssoc value to true or false and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># setFileAssoc=</span><br><span class="line"></span><br><span class="line">##</span><br><span class="line">## CHOOSE TO CREATE WINDOWS DESKTOP SHORTCUT</span><br><span class="line">##</span><br><span class="line">## Set to true if you would like the installer to create a desktop shortcut icon</span><br><span class="line">## when MATLAB is installed or false if you don&apos;t want the shortcut created.</span><br><span class="line">##</span><br><span class="line">## Set desktopShortcut value to true or false and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># desktopShortcut=</span><br><span class="line"></span><br><span class="line">## CHOOSE TO ADD SHORTCUT TO WINDOWS START MENU</span><br><span class="line">##</span><br><span class="line">## Set to true if you would like the installer to create a Start Menu shortcut</span><br><span class="line">## icon when MATLAB is installed or false if you don&apos;t want the shortcut created.</span><br><span class="line">##</span><br><span class="line">## Set startMenuShortcut value to true or false and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># startMenuShortcut=</span><br><span class="line"></span><br><span class="line">## CREATE a MATLAB Startup Accelerator task</span><br><span class="line">##</span><br><span class="line">## The MATLAB Startup Accelerator installer creates a</span><br><span class="line">## system task to preload MATLAB into the system&apos;s cache</span><br><span class="line">## for faster startup.</span><br><span class="line">##</span><br><span class="line">## NOTE: By default, a MATLAB Startup Accelerator task will</span><br><span class="line">## automatically be created.</span><br><span class="line">##</span><br><span class="line">## If you want a MATLAB Startup Accelerator task to be created,</span><br><span class="line">## do not edit this section.</span><br><span class="line">##</span><br><span class="line">## Set createAccelTask value to false if you do not want to</span><br><span class="line">## create an Accelerator task and uncomment the line.</span><br><span class="line"></span><br><span class="line"># createAccelTask=</span><br><span class="line"></span><br><span class="line">## Enable Login Named User  licensing</span><br><span class="line">##</span><br><span class="line">## Set to Yes to enable use of a Login Named User license for all users of this MATLAB installation</span><br><span class="line">## Users must log in to their MathWorks Account when MATLAB starts.</span><br><span class="line">##</span><br><span class="line">## Example: enableLNU=yes</span><br><span class="line">##</span><br><span class="line">## NOTE: This flag is valid in silent installations only.</span><br><span class="line"></span><br><span class="line"># enableLNU=yes</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">################ End - Windows Only Options ################</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## SPECIFY PRODUCTS YOU WANT TO INSTALL</span><br><span class="line">##</span><br><span class="line">## By default, the installer installs all the products and</span><br><span class="line">## documentation for which you are licensed. Products you are not licensed for</span><br><span class="line">## are not installed, even if they are listed here.</span><br><span class="line">##</span><br><span class="line">## Note:</span><br><span class="line">## 1. To automatically install all your licensed products, do not edit</span><br><span class="line">##    any lines in this section.</span><br><span class="line">##</span><br><span class="line">## 2. To install a specific product or a subset of products for</span><br><span class="line">##    which you are licensed, uncomment the line for the product(s) you want</span><br><span class="line">##    to install.</span><br><span class="line"></span><br><span class="line">#product.5G_Toolbox</span><br><span class="line">#product.Aerospace_Blockset</span><br><span class="line">#product.Aerospace_Toolbox</span><br><span class="line">#product.Antenna_Toolbox</span><br><span class="line">#product.Audio_System_Toolbox</span><br><span class="line">#product.Automated_Driving_System_Toolbox</span><br><span class="line">#product.Bioinformatics_Toolbox</span><br><span class="line">#product.Communications_Toolbox</span><br><span class="line">#product.Computer_Vision_System_Toolbox</span><br><span class="line">#product.Control_System_Toolbox</span><br><span class="line">#product.Curve_Fitting_Toolbox</span><br><span class="line">#product.DO_Qualification_Kit</span><br><span class="line">#product.DSP_System_Toolbox</span><br><span class="line">#product.Data_Acquisition_Toolbox</span><br><span class="line">#product.Database_Toolbox</span><br><span class="line">#product.Datafeed_Toolbox</span><br><span class="line">#product.Deep_Learning_Toolbox</span><br><span class="line">#product.Econometrics_Toolbox</span><br><span class="line">#product.Embedded_Coder</span><br><span class="line">#product.Filter_Design_HDL_Coder</span><br><span class="line">#product.Financial_Instruments_Toolbox</span><br><span class="line">#product.Financial_Toolbox</span><br><span class="line">#product.Fixed_Point_Designer</span><br><span class="line">#product.Fuzzy_Logic_Toolbox</span><br><span class="line">#product.GPU_Coder</span><br><span class="line">#product.Global_Optimization_Toolbox</span><br><span class="line">#product.HDL_Coder</span><br><span class="line">#product.HDL_Verifier</span><br><span class="line">#product.IEC_Certification_Kit</span><br><span class="line">#product.Image_Acquisition_Toolbox</span><br><span class="line">#product.Image_Processing_Toolbox</span><br><span class="line">#product.Instrument_Control_Toolbox</span><br><span class="line">#product.LTE_HDL_Toolbox</span><br><span class="line">#product.LTE_Toolbox</span><br><span class="line">#product.MATLAB</span><br><span class="line">#product.MATLAB_Coder</span><br><span class="line">#product.MATLAB_Compiler</span><br><span class="line">#product.MATLAB_Compiler_SDK</span><br><span class="line">#product.MATLAB_Distributed_Computing_Server</span><br><span class="line">#product.MATLAB_Production_Server</span><br><span class="line">#product.MATLAB_Report_Generator</span><br><span class="line">#product.Mapping_Toolbox</span><br><span class="line">#product.Model_Predictive_Control_Toolbox</span><br><span class="line">#product.Model_Based_Calibration_Toolbox</span><br><span class="line">#product.OPC_Toolbox</span><br><span class="line">#product.Optimization_Toolbox</span><br><span class="line">#product.Parallel_Computing_Toolbox</span><br><span class="line">#product.Partial_Differential_Equation_Toolbox</span><br><span class="line">#product.Phased_Array_System_Toolbox</span><br><span class="line">#product.Polyspace_Bug_Finder</span><br><span class="line">#product.Polyspace_Code_Prover</span><br><span class="line">#product.Powertrain_Blockset</span><br><span class="line">#product.Predictive_Maintenance_Toolbox</span><br><span class="line">#product.RF_Blockset</span><br><span class="line">#product.RF_Toolbox</span><br><span class="line">#product.Risk_Management_Toolbox</span><br><span class="line">#product.Robotics_System_Toolbox</span><br><span class="line">#product.Robust_Control_Toolbox</span><br><span class="line">#product.Sensor_Fusion_and_Tracking_Toolbox</span><br><span class="line">#product.Signal_Processing_Toolbox</span><br><span class="line">#product.SimBiology</span><br><span class="line">#product.SimEvents</span><br><span class="line">#product.Simscape</span><br><span class="line">#product.Simscape_Driveline</span><br><span class="line">#product.Simscape_Electrical</span><br><span class="line">#product.Simscape_Fluids</span><br><span class="line">#product.Simscape_Multibody</span><br><span class="line">#product.Simulink</span><br><span class="line">#product.Simulink_3D_Animation</span><br><span class="line">#product.Simulink_Check</span><br><span class="line">#product.Simulink_Code_Inspector</span><br><span class="line">#product.Simulink_Coder</span><br><span class="line">#product.Simulink_Control_Design</span><br><span class="line">#product.Simulink_Coverage</span><br><span class="line">#product.Simulink_Design_Optimization</span><br><span class="line">#product.Simulink_Design_Verifier</span><br><span class="line">#product.Simulink_Desktop_Real_Time</span><br><span class="line">#product.Simulink_PLC_Coder</span><br><span class="line">#product.Simulink_Real_Time</span><br><span class="line">#product.Simulink_Report_Generator</span><br><span class="line">#product.Simulink_Requirements</span><br><span class="line">#product.Simulink_Test</span><br><span class="line">#product.Spreadsheet_Link</span><br><span class="line">#product.Stateflow</span><br><span class="line">#product.Statistics_and_Machine_Learning_Toolbox</span><br><span class="line">#product.Symbolic_Math_Toolbox</span><br><span class="line">#product.System_Identification_Toolbox</span><br><span class="line">#product.Text_Analytics_Toolbox</span><br><span class="line">#product.Trading_Toolbox</span><br><span class="line">#product.Vehicle_Dynamics_Blockset</span><br><span class="line">#product.Vehicle_Network_Toolbox</span><br><span class="line">#product.Vision_HDL_Toolbox</span><br><span class="line">#product.WLAN_Toolbox</span><br><span class="line">#product.Wavelet_Toolbox</span><br></pre></td></tr></table></figure>
+
+<p>我们需要填写的内容主要有：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">destinationFolder=/usr/local/RXXXX</span><br><span class="line">fileInstallationKey=xxxxx-xxxxx-xxxxx-xxxxx.....</span><br><span class="line">agreeToLicense=yes</span><br><span class="line">mode=silent</span><br><span class="line">licensePath=/tmp/license.lic</span><br></pre></td></tr></table></figure>
+
+<p>该配置文件需要指定安装路径（不指定的话安装路径默认为/usr/local/MATLAB），同意协议，安装模式为silent，激活序列号，证书文件路径，最后可以指定需要安装的产品，按照模板中的内容将对应产品前的注释取消即可，若不知道需要哪些产品，不添加任何产品则会安装所有的产品。之后解压离线安装包，这里需要注意的是，离线安装包解压后里面很多可执行文件的权限会没有执行权限，直接安装的话会很快结束，无法正常安装，由于不方便将所有可执行文件都找出来添加执行权限，这里需要暴力使用<code>chmod -R 777 MATLAB_dir</code>将安装包解压文件夹下的所有文件的权限都变为777，这样才能正确安装，之后使用如下指令进行安装（installer_input.txt为之前写的配置文件的路径）：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">./install.sh -inputFile installer_input.txt</span><br></pre></td></tr></table></figure>
+
+<p>安装完成后，还需要将license.lic文件移动到安装目录下的license目录当中完成激活。<br>之后可能会遇到libXt.so.6找不到的问题，该库文件是用于支持x11的，按道理说以命令行方式运行是不需要x11的，但是还是会报错，解决方法便是安装缺失的这个库</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">sudo apt install libxt6</span><br></pre></td></tr></table></figure>
+
+]]></content>
+  </entry>
+  <entry>
     <title>sed中\1的用法</title>
     <url>/2018/10/29/sed%E4%B8%AD%E5%8F%8D%E6%96%9C%E6%9D%A01%E7%9A%84%E7%94%A8%E6%B3%95/</url>
     <content><![CDATA[<p>最近在看别人写的shell脚本时看到这样一个sed指令：</p>
@@ -342,6 +392,19 @@
 ]]></content>
       <tags>
         <tag>Linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>从coding git clone 私有项目到ec2</title>
+    <url>/2016/03/24/%E4%BB%8Ecoding%20git%20clone%20%E7%A7%81%E6%9C%89%E9%A1%B9%E7%9B%AE%E5%88%B0ec2/</url>
+    <content><![CDATA[<p>之前从 coding git clone 私有项目到EC2服务器一直出现400的网页错误，不知道如何解决，今天查阅资料后发现需要以一下格式来 git clone 才能将私有项目成功 clone 下来。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> -b sci-demo https://&lt;coding_username&gt;:&lt;coding_password&gt;@git.coding.net/&lt;coding_username&gt;/&lt;repository_name&gt;.git</span><br></pre></td></tr></table></figure>
+
+<p><coding_username> 为coding的账户名<br><coding_password> 为coding的密码<br><coding_repository> 为 clone 的项目的仓库名<br>实际上只需要将用户名和密码部分加上，其他部分的内容直接拷贝 git 地址即可</coding_repository></coding_password></coding_username></p>
+]]></content>
+      <tags>
+        <tag>EC2</tag>
+        <tag>git</tag>
       </tags>
   </entry>
   <entry>
@@ -417,19 +480,6 @@
       </categories>
   </entry>
   <entry>
-    <title>从coding git clone 私有项目到ec2</title>
-    <url>/2016/03/24/%E4%BB%8Ecoding%20git%20clone%20%E7%A7%81%E6%9C%89%E9%A1%B9%E7%9B%AE%E5%88%B0ec2/</url>
-    <content><![CDATA[<p>之前从 coding git clone 私有项目到EC2服务器一直出现400的网页错误，不知道如何解决，今天查阅资料后发现需要以一下格式来 git clone 才能将私有项目成功 clone 下来。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">git <span class="built_in">clone</span> -b sci-demo https://&lt;coding_username&gt;:&lt;coding_password&gt;@git.coding.net/&lt;coding_username&gt;/&lt;repository_name&gt;.git</span><br></pre></td></tr></table></figure>
-
-<p><coding_username> 为coding的账户名<br><coding_password> 为coding的密码<br><coding_repository> 为 clone 的项目的仓库名<br>实际上只需要将用户名和密码部分加上，其他部分的内容直接拷贝 git 地址即可</coding_repository></coding_password></coding_username></p>
-]]></content>
-      <tags>
-        <tag>EC2</tag>
-        <tag>git</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>修改Microsoft Offince加载项加载行为</title>
     <url>/2019/04/09/%E4%BF%AE%E6%94%B9Microsoft-Offince%E5%8A%A0%E8%BD%BD%E9%A1%B9%E5%8A%A0%E8%BD%BD%E8%A1%8C%E4%B8%BA/</url>
     <content><![CDATA[<p>最近在写论文时，需要将word文档导出为pdf文档。将word导出为pdf之前一直使用的是另存为的方法，也可以使用打印选择Adobe PDF来生成pdf文件，但是这两种方法都有一定的局限性。打印的方法生成pdf不能选择添加书签，但是能控制输出文件的清晰度，调到比较高时，能生成非常清晰的pdf文件。word2016中已经可以使用另存为来导出pdf，并且在选项当中也可以设置是否导出书签，但是输出的pdf文件的清晰度调整选项不够多，输出的pdf中图片会被压缩，变得模糊。<br>实际上，安装了Adobe Acrobat的word当中有一个Acrobat的加载项菜单，里面的首选项菜单可以很详细地配置导出的pdf文件的一些参数，可以选择高质量打印，并且将其中的图片的压缩和采样全都关掉，并且可以设置输出的清晰度以及书签等等。但是这个加载项在生成pdf结束后，会导致word崩溃，出来一个提示问我是否要禁用该加载项，一时手滑点到了是，结果这个加载项就被禁用了。禁用之后也好办，可以在word的选项-加载项-转到里面勾选Adobe PDFMaker加载项进行加载。但是这个加载项原本是随word启动自动加载的，现在变成了每次都要去选项里面设置加载，非常麻烦，并且选项里面并没有菜单可以选择让这个加载项自动加载。这里便需要修改注册表来实现随word启动自动加载，注册表的位置为:</p>
@@ -502,46 +552,6 @@
       </tags>
   </entry>
   <entry>
-    <title>CentOS7上安装Kerberos KDC</title>
-    <url>/2020/04/24/CentOS7%E4%B8%8A%E5%AE%89%E8%A3%85Kerberos-KDC/</url>
-    <content><![CDATA[<h3 id="yum安装软件"><a href="#yum安装软件" class="headerlink" title="yum安装软件"></a>yum安装软件</h3><p>首先通过yum安装kerberos所需要的软件</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum install -y krb5-server krb5-workstation pam_krb5</span><br></pre></td></tr></table></figure>
-
-<h3 id="修改服务端配置"><a href="#修改服务端配置" class="headerlink" title="修改服务端配置"></a>修改服务端配置</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> /var/kerberos/krb5kdc</span><br></pre></td></tr></table></figure>
-
-<p>我们需要修改该目录下的两个配置文件：</p>
-<ul>
-<li>kdc.conf</li>
-<li>kadm5.acl</li>
-</ul>
-<p>假设我们的realm为KDC.COM，修改<code>kadm5.acl</code>为如下内容：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">*/admin@KDC.COM     *</span><br></pre></td></tr></table></figure>
-
-<p>修改<code>kdc.conf</code>为如下内容：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[kdcdefaults]</span><br><span class="line"> kdc_ports = 88</span><br><span class="line"> kdc_tcp_ports = 88</span><br><span class="line"></span><br><span class="line">[realms]</span><br><span class="line"> KDC.COM = &#123;</span><br><span class="line">  <span class="comment">#master_key_type = aes256-cts</span></span><br><span class="line">  max_renewable_life = 7d</span><br><span class="line">  acl_file = /var/kerberos/krb5kdc/kadm5.acl</span><br><span class="line">  dict_file = /usr/share/dict/words</span><br><span class="line">  admin_keytab = /var/kerberos/krb5kdc/kadm5.keytab</span><br><span class="line">  supported_enctypes = aes256-cts:normal aes128-cts:normal des3-hmac-sha1:normal arcfour-hmac:normal camellia256-cts:normal camellia128-cts:normal des-hmac-sha1:normal des-cbc-md5:normal des-cbc-crc:normal</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="修改客户端配置"><a href="#修改客户端配置" class="headerlink" title="修改客户端配置"></a>修改客户端配置</h3><p>我们用作KDC服务的服务器也将会是一个Kerberos客户端，我们需要修改客户端配置文件<code>/etc/krb5.conf</code>，文件内容如下：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Configuration snippets may be placed in this directory as well</span></span><br><span class="line">includedir /etc/krb5.conf.d/</span><br><span class="line"></span><br><span class="line">[logging]</span><br><span class="line"> default = FILE:/var/<span class="built_in">log</span>/krb5libs.log</span><br><span class="line"> kdc = FILE:/var/<span class="built_in">log</span>/krb5kdc.log</span><br><span class="line"> admin_server = FILE:/var/<span class="built_in">log</span>/kadmind.log</span><br><span class="line"></span><br><span class="line">[libdefaults]</span><br><span class="line"> dns_lookup_realm = <span class="literal">false</span></span><br><span class="line"> ticket_lifetime = 24h</span><br><span class="line"> renew_lifetime = 7d</span><br><span class="line"> forwardable = <span class="literal">true</span></span><br><span class="line"> rdns = <span class="literal">false</span></span><br><span class="line"> pkinit_anchors = /etc/pki/tls/certs/ca-bundle.crt</span><br><span class="line"> default_realm = KDC.COM</span><br><span class="line"> default_ccache_name = KEYRING:persistent:%&#123;uid&#125;</span><br><span class="line"> default_tgs_enctypes = aes128-cts arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-hmac-sha1 aes256-cts</span><br><span class="line"> default_tkt_enctypes = aes128-cts arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-hmac-sha1 aes256-cts</span><br><span class="line"> permitted_enctypes = aes256-cts-hmac-sha1-96 des3-cbc-sha1 arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-cbc-md4</span><br><span class="line"> allow_weak_crypto = yes</span><br><span class="line"></span><br><span class="line">[realms]</span><br><span class="line"> KDC.COM = &#123;</span><br><span class="line">  kdc = kdc.hostname</span><br><span class="line">  admin_server = kdc.hostname</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line">[domain_realm]</span><br><span class="line"> .kdc.com = KDC.COM</span><br><span class="line"> kdc.com = KDC.COM</span><br></pre></td></tr></table></figure>
-
-<h3 id="创建KDC数据库"><a href="#创建KDC数据库" class="headerlink" title="创建KDC数据库"></a>创建KDC数据库</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kdb5_util create -s -r KDC.COM</span><br></pre></td></tr></table></figure>
-
-<h3 id="开启Kerberos"><a href="#开启Kerberos" class="headerlink" title="开启Kerberos"></a>开启Kerberos</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">systemctl start krb5kdc kadmin</span><br><span class="line">systemctl <span class="built_in">enable</span> krb5kdc kadmin</span><br></pre></td></tr></table></figure>
-
-<p>接下来需要创建kadmin的管理员账号：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">kadmin.local</span><br><span class="line">kadmin.local: addprinc root/admin</span><br><span class="line">kadmin.local: quit</span><br></pre></td></tr></table></figure>
-
-<h3 id="修改SSH客户端配置"><a href="#修改SSH客户端配置" class="headerlink" title="修改SSH客户端配置"></a>修改SSH客户端配置</h3><p>修改<code>/etc/ssh/ssh_config</code>，添加如下配置：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">GSSAPIAuthentication yes</span><br><span class="line">GSSAPIDelegateCredentials yes</span><br></pre></td></tr></table></figure>
-
-<p>执行：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">authconfig  --enablekrb5 --update</span><br><span class="line">systemctl reload sshd</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <tags>
-        <tag>kerberos</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>MPI常用函数及数据类型</title>
     <url>/2016/10/21/MPI/MPI%E5%B8%B8%E7%94%A8%E5%87%BD%E6%95%B0%E5%8F%8A%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/</url>
     <content><![CDATA[<p>其他MPI中会用到的函数数据类型：</p>
@@ -605,36 +615,6 @@
       </tags>
   </entry>
   <entry>
-    <title>MPI的helloworld教程</title>
-    <url>/2016/10/21/MPI/MPI%E7%9A%84helloworld%E6%95%99%E7%A8%8B/</url>
-    <content><![CDATA[<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mpi.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Initialize the MPI environment</span></span><br><span class="line">    MPI_Init(<span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the number of processes</span></span><br><span class="line">    <span class="keyword">int</span> world_size;</span><br><span class="line">    MPI_Comm_size(MPI_COMM_WORLD, &amp;world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the rank of the process</span></span><br><span class="line">    <span class="keyword">int</span> world_rank;</span><br><span class="line">    MPI_Comm_rank(MPI_COMM_WORLD, &amp;world_rank);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the name of the processor</span></span><br><span class="line">    <span class="keyword">char</span> processor_name[MPI_MAX_PROCESSOR_NAME];</span><br><span class="line">    <span class="keyword">int</span> name_len;</span><br><span class="line">    MPI_Get_processor_name(processor_name, &amp;name_len);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Print off a hello world message</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Hello world from processor %s, rank %d"</span></span><br><span class="line">           <span class="string">" out of %d processors\n"</span>,</span><br><span class="line">           processor_name, world_rank, world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Finalize the MPI environment.</span></span><br><span class="line">    MPI_Finalize();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<a id="more"></a>
-<p>MPI程序首先需要includeMPI的头文件<code>#include &lt;mpi.h&gt;</code>，之后，MPI环境需要使用如下语句进行初始化</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Init(</span><br><span class="line">	<span class="keyword">int</span>* argc,</span><br><span class="line">	<span class="keyword">char</span>*** argv)</span><br></pre></td></tr></table></figure>
-
-<p><code>MPI_Init</code>之后，所有的MPI需要的全局和内部变量都会被创建完成，例如会产生一个通信域communicator负责所有产生的进程之间的通信，并且每一个MPI进程都会有一个唯一的rank值产生。<br><code>MPI_Init</code>之后，一般会调用两个函数</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Comm_size(</span><br><span class="line">	MPI_Comm communicator,</span><br><span class="line">	<span class="keyword">int</span>* <span class="built_in">size</span>)</span><br></pre></td></tr></table></figure>
-
-<p><code>MPI_Comm_size</code>会返回communicator的大小，<code>MPI_COMM_WORLD</code>（由MPI产生）封装了所有MPI job中的进程，因此这个函数的调用会返回MPI job中所需要的进程的数量。</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Comm_rank(</span><br><span class="line">	MPI_Comm communicator,</span><br><span class="line">	<span class="keyword">int</span>* rank)</span><br></pre></td></tr></table></figure>
-
-<p><code>MPI_Comm_rank</code>返回在一个communicator中某一个节点的rank值。在communicator中的每一个进程都会被赋予一个从0开始递增的rank值。所有进程的rank值主要作用为在发送和接受信息时起到标识的作用。<br>在这个例子中用到了一个使用很少的函数</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Get_processor_name(</span><br><span class="line">	<span class="keyword">char</span>* name,</span><br><span class="line">	<span class="keyword">int</span>* name_length)</span><br></pre></td></tr></table></figure>
-
-<p><code>MPI_Get_processor_name</code>获得正在执行的进程的真实名字，这个程序最后会执行</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Finalize()</span><br></pre></td></tr></table></figure>
-
-<p><code>MPI_Finalize</code>的作用是情理MPI环境，这个函数调用之后，MPI的其他操作将不能再继续调用</p>
-]]></content>
-      <categories>
-        <category>分布式</category>
-      </categories>
-      <tags>
-        <tag>MPI</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>CentOS 7.0 安装Nginx</title>
     <url>/2016/01/07/centos/CentOS%207.0%20%E5%AE%89%E8%A3%85Nginx/</url>
     <content><![CDATA[<h2 id="1-所需库的安装"><a href="#1-所需库的安装" class="headerlink" title="1. 所需库的安装"></a>1. 所需库的安装</h2><ul>
@@ -678,47 +658,6 @@
       </categories>
       <tags>
         <tag>nginx</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CentOS 7.0 编译安装VIPS dzsave</title>
-    <url>/2016/01/13/centos/CentOS%207.0%20%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85VIPS%20dzsave/</url>
-    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>VIPS 是一个能够处理大型图片的很棒的图片处理系统。特别是它能通过dzsave很简单地生成deepzoon图片（.dzi）。从VIPS版本7.40开始，它需要使用libgsf库来激活对dzsave的支持。</p>
-<h2 id="安装libgsf库"><a href="#安装libgsf库" class="headerlink" title="安装libgsf库"></a>安装libgsf库</h2><p>libgsf库的作用在于能够使用dzsave指令，没有安装libgsf的话会报dzsave不存在的错误。安装libgsf之后需要重新编译安装vips才能使用dzsave。</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum install libgsf</span><br></pre></td></tr></table></figure>
-
-<p>ubuntu中安装libgsf库的方法为：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get install libgsf-1-dev</span><br></pre></td></tr></table></figure>
-
-<h2 id="安装libjpeg和libpng库"><a href="#安装libjpeg和libpng库" class="headerlink" title="安装libjpeg和libpng库"></a>安装libjpeg和libpng库</h2><p>vips要支持png和jpeg还需要安装libpng和libjpeg，在CentOS中安装的方法为：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install libjpeg libjpeg-devel libpng libpng-devel</span><br></pre></td></tr></table></figure>
-
-<p>在ubuntu中安装方法为：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get install linpng12-0</span><br><span class="line">sudo apt-get install libjpeg-dev</span><br></pre></td></tr></table></figure>
-
-<h2 id="安装VIPS"><a href="#安装VIPS" class="headerlink" title="安装VIPS"></a>安装VIPS</h2><p>简单的编译安装，采用<code>vips dzsave --version</code>来检查dzsave是否安装成功</p>
-<h2 id="使用VIPS"><a href="#使用VIPS" class="headerlink" title="使用VIPS"></a>使用VIPS</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/vips dzsave &lt;source_file&gt; &lt;destination_file&gt; --suffix .png</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-  </entry>
-  <entry>
-    <title>hadoop安装完成后50030页面能打开50070页面无法打开解决方法</title>
-    <url>/2015/12/25/hadoop/hadoop%E5%AE%89%E8%A3%85%E5%AE%8C%E6%88%90%E5%90%8E50030%E9%A1%B5%E9%9D%A2%E8%83%BD%E6%89%93%E5%BC%8050070%E9%A1%B5%E9%9D%A2%E6%97%A0%E6%B3%95%E6%89%93%E5%BC%80%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</url>
-    <content><![CDATA[<p>hadoop-1.2.1安装完毕之后，执行</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/hadoop/bin/hadoop namenode -format</span><br><span class="line">/usr/<span class="built_in">local</span>/hadoop/bin/start-all.sh</span><br></pre></td></tr></table></figure>
-
-<p>在浏览器中输入 <a href="http://localhost:50030" target="_blank" rel="noopener">http://localhost:50030</a> 可以访问<br>在浏览器中输入 <a href="http://localhost:50070" target="_blank" rel="noopener">http://localhost:50070</a> 无法访问</p>
-<a id="more"></a>
-<p>原因是在执行<code>/usr/local/hadoop/bin/hadoop namenode -format</code>后要求输入”Y/N”时输入了小写的y，必须输入大写的Y，namenode才能正常启动，50070页面才能正常显示</p>
-]]></content>
-      <categories>
-        <category>分布式</category>
-      </categories>
-      <tags>
-        <tag>hadoop</tag>
       </tags>
   </entry>
   <entry>
@@ -843,26 +782,44 @@
       </tags>
   </entry>
   <entry>
-    <title>hadoop中YARN模块功能</title>
-    <url>/2015/12/24/hadoop/hadoop%E4%B8%ADYARN%E6%A8%A1%E5%9D%97%E5%8A%9F%E8%83%BD/</url>
-    <content><![CDATA[<h3 id="ResourceManager"><a href="#ResourceManager" class="headerlink" title="ResourceManager"></a><strong>ResourceManager</strong></h3><ul>
-<li>处理客户端请求</li>
-<li>启动/监控ApplicationMaster</li>
-<li>监控NodeManager</li>
-<li>资源分配与调度</li>
-</ul>
-<h3 id="NodeManager"><a href="#NodeManager" class="headerlink" title="NodeManager"></a><strong>NodeManager</strong></h3><ul>
-<li>单个节点上的资源管理</li>
-<li>处理来自ResourceManager的命令</li>
-<li>处理来自ApplicationMaster的命令<a id="more"></a>
-<h3 id="ApplicationMaster"><a href="#ApplicationMaster" class="headerlink" title="ApplicationMaster"></a><strong>ApplicationMaster</strong></h3></li>
-<li>数据切分</li>
-<li>为应用程序申请资源，并分配给内部任务</li>
-<li>任务监控与容错</li>
-</ul>
-<h3 id="Container"><a href="#Container" class="headerlink" title="Container"></a><strong>Container</strong></h3><ul>
-<li>对任务运行环境的抽象，封装了CPU、内存等多维资源以及环境变量、启动命令等任务运行相关的信息</li>
-</ul>
+    <title>MPI的helloworld教程</title>
+    <url>/2016/10/21/MPI/MPI%E7%9A%84helloworld%E6%95%99%E7%A8%8B/</url>
+    <content><![CDATA[<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;mpi.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;stdio.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">(<span class="keyword">int</span> argc, <span class="keyword">char</span>** argv)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// Initialize the MPI environment</span></span><br><span class="line">    MPI_Init(<span class="literal">NULL</span>, <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the number of processes</span></span><br><span class="line">    <span class="keyword">int</span> world_size;</span><br><span class="line">    MPI_Comm_size(MPI_COMM_WORLD, &amp;world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the rank of the process</span></span><br><span class="line">    <span class="keyword">int</span> world_rank;</span><br><span class="line">    MPI_Comm_rank(MPI_COMM_WORLD, &amp;world_rank);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Get the name of the processor</span></span><br><span class="line">    <span class="keyword">char</span> processor_name[MPI_MAX_PROCESSOR_NAME];</span><br><span class="line">    <span class="keyword">int</span> name_len;</span><br><span class="line">    MPI_Get_processor_name(processor_name, &amp;name_len);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Print off a hello world message</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"Hello world from processor %s, rank %d"</span></span><br><span class="line">           <span class="string">" out of %d processors\n"</span>,</span><br><span class="line">           processor_name, world_rank, world_size);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Finalize the MPI environment.</span></span><br><span class="line">    MPI_Finalize();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+<p>MPI程序首先需要includeMPI的头文件<code>#include &lt;mpi.h&gt;</code>，之后，MPI环境需要使用如下语句进行初始化</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Init(</span><br><span class="line">	<span class="keyword">int</span>* argc,</span><br><span class="line">	<span class="keyword">char</span>*** argv)</span><br></pre></td></tr></table></figure>
+
+<p><code>MPI_Init</code>之后，所有的MPI需要的全局和内部变量都会被创建完成，例如会产生一个通信域communicator负责所有产生的进程之间的通信，并且每一个MPI进程都会有一个唯一的rank值产生。<br><code>MPI_Init</code>之后，一般会调用两个函数</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Comm_size(</span><br><span class="line">	MPI_Comm communicator,</span><br><span class="line">	<span class="keyword">int</span>* <span class="built_in">size</span>)</span><br></pre></td></tr></table></figure>
+
+<p><code>MPI_Comm_size</code>会返回communicator的大小，<code>MPI_COMM_WORLD</code>（由MPI产生）封装了所有MPI job中的进程，因此这个函数的调用会返回MPI job中所需要的进程的数量。</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Comm_rank(</span><br><span class="line">	MPI_Comm communicator,</span><br><span class="line">	<span class="keyword">int</span>* rank)</span><br></pre></td></tr></table></figure>
+
+<p><code>MPI_Comm_rank</code>返回在一个communicator中某一个节点的rank值。在communicator中的每一个进程都会被赋予一个从0开始递增的rank值。所有进程的rank值主要作用为在发送和接受信息时起到标识的作用。<br>在这个例子中用到了一个使用很少的函数</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Get_processor_name(</span><br><span class="line">	<span class="keyword">char</span>* name,</span><br><span class="line">	<span class="keyword">int</span>* name_length)</span><br></pre></td></tr></table></figure>
+
+<p><code>MPI_Get_processor_name</code>获得正在执行的进程的真实名字，这个程序最后会执行</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">MPI_Finalize()</span><br></pre></td></tr></table></figure>
+
+<p><code>MPI_Finalize</code>的作用是情理MPI环境，这个函数调用之后，MPI的其他操作将不能再继续调用</p>
+]]></content>
+      <categories>
+        <category>分布式</category>
+      </categories>
+      <tags>
+        <tag>MPI</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>hadoop安装完成后50030页面能打开50070页面无法打开解决方法</title>
+    <url>/2015/12/25/hadoop/hadoop%E5%AE%89%E8%A3%85%E5%AE%8C%E6%88%90%E5%90%8E50030%E9%A1%B5%E9%9D%A2%E8%83%BD%E6%89%93%E5%BC%8050070%E9%A1%B5%E9%9D%A2%E6%97%A0%E6%B3%95%E6%89%93%E5%BC%80%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</url>
+    <content><![CDATA[<p>hadoop-1.2.1安装完毕之后，执行</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/hadoop/bin/hadoop namenode -format</span><br><span class="line">/usr/<span class="built_in">local</span>/hadoop/bin/start-all.sh</span><br></pre></td></tr></table></figure>
+
+<p>在浏览器中输入 <a href="http://localhost:50030" target="_blank" rel="noopener">http://localhost:50030</a> 可以访问<br>在浏览器中输入 <a href="http://localhost:50070" target="_blank" rel="noopener">http://localhost:50070</a> 无法访问</p>
+<a id="more"></a>
+<p>原因是在执行<code>/usr/local/hadoop/bin/hadoop namenode -format</code>后要求输入”Y/N”时输入了小写的y，必须输入大写的Y，namenode才能正常启动，50070页面才能正常显示</p>
 ]]></content>
       <categories>
         <category>分布式</category>
@@ -870,6 +827,30 @@
       <tags>
         <tag>hadoop</tag>
       </tags>
+  </entry>
+  <entry>
+    <title>CentOS 7.0 编译安装VIPS dzsave</title>
+    <url>/2016/01/13/centos/CentOS%207.0%20%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85VIPS%20dzsave/</url>
+    <content><![CDATA[<h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>VIPS 是一个能够处理大型图片的很棒的图片处理系统。特别是它能通过dzsave很简单地生成deepzoon图片（.dzi）。从VIPS版本7.40开始，它需要使用libgsf库来激活对dzsave的支持。</p>
+<h2 id="安装libgsf库"><a href="#安装libgsf库" class="headerlink" title="安装libgsf库"></a>安装libgsf库</h2><p>libgsf库的作用在于能够使用dzsave指令，没有安装libgsf的话会报dzsave不存在的错误。安装libgsf之后需要重新编译安装vips才能使用dzsave。</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">yum install libgsf</span><br></pre></td></tr></table></figure>
+
+<p>ubuntu中安装libgsf库的方法为：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get install libgsf-1-dev</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装libjpeg和libpng库"><a href="#安装libjpeg和libpng库" class="headerlink" title="安装libjpeg和libpng库"></a>安装libjpeg和libpng库</h2><p>vips要支持png和jpeg还需要安装libpng和libjpeg，在CentOS中安装的方法为：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo yum install libjpeg libjpeg-devel libpng libpng-devel</span><br></pre></td></tr></table></figure>
+
+<p>在ubuntu中安装方法为：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get install linpng12-0</span><br><span class="line">sudo apt-get install libjpeg-dev</span><br></pre></td></tr></table></figure>
+
+<h2 id="安装VIPS"><a href="#安装VIPS" class="headerlink" title="安装VIPS"></a>安装VIPS</h2><p>简单的编译安装，采用<code>vips dzsave --version</code>来检查dzsave是否安装成功</p>
+<h2 id="使用VIPS"><a href="#使用VIPS" class="headerlink" title="使用VIPS"></a>使用VIPS</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">/usr/<span class="built_in">local</span>/vips dzsave &lt;source_file&gt; &lt;destination_file&gt; --suffix .png</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
   </entry>
   <entry>
     <title>Hadoop搭建single Node Cluster</title>
@@ -1008,12 +989,26 @@
       </tags>
   </entry>
   <entry>
-    <title>导入hadoop源码至Eclipse</title>
-    <url>/2015/12/24/hadoop/%E5%AF%BC%E5%85%A5hadoop%E6%BA%90%E7%A0%81%E8%87%B3Eclipse/</url>
-    <content><![CDATA[<p>从hadoop官网下载hadoop源码，解压后进入目录，阅读BUILDING.txt文件，文件中讲到了如何将hadoop源码工程文件导入到Eclipse中。首先需要给Eclipse安装hadoop-maven-plugins插件，进入hadoop-maven-plugins目录执行指令</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> hadoop-maven-pligins</span><br><span class="line">mvn install</span><br><span class="line">mvn eclipse:eclipse -DskipTests</span><br></pre></td></tr></table></figure>
-
-<p>最后，在Eclipse中点击[File] &gt; [Import] &gt; [Existing Projects into Workspace]</p>
+    <title>hadoop中YARN模块功能</title>
+    <url>/2015/12/24/hadoop/hadoop%E4%B8%ADYARN%E6%A8%A1%E5%9D%97%E5%8A%9F%E8%83%BD/</url>
+    <content><![CDATA[<h3 id="ResourceManager"><a href="#ResourceManager" class="headerlink" title="ResourceManager"></a><strong>ResourceManager</strong></h3><ul>
+<li>处理客户端请求</li>
+<li>启动/监控ApplicationMaster</li>
+<li>监控NodeManager</li>
+<li>资源分配与调度</li>
+</ul>
+<h3 id="NodeManager"><a href="#NodeManager" class="headerlink" title="NodeManager"></a><strong>NodeManager</strong></h3><ul>
+<li>单个节点上的资源管理</li>
+<li>处理来自ResourceManager的命令</li>
+<li>处理来自ApplicationMaster的命令<a id="more"></a>
+<h3 id="ApplicationMaster"><a href="#ApplicationMaster" class="headerlink" title="ApplicationMaster"></a><strong>ApplicationMaster</strong></h3></li>
+<li>数据切分</li>
+<li>为应用程序申请资源，并分配给内部任务</li>
+<li>任务监控与容错</li>
+</ul>
+<h3 id="Container"><a href="#Container" class="headerlink" title="Container"></a><strong>Container</strong></h3><ul>
+<li>对任务运行环境的抽象，封装了CPU、内存等多维资源以及环境变量、启动命令等任务运行相关的信息</li>
+</ul>
 ]]></content>
       <categories>
         <category>分布式</category>
@@ -1042,6 +1037,21 @@
 ]]></content>
       <tags>
         <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>导入hadoop源码至Eclipse</title>
+    <url>/2015/12/24/hadoop/%E5%AF%BC%E5%85%A5hadoop%E6%BA%90%E7%A0%81%E8%87%B3Eclipse/</url>
+    <content><![CDATA[<p>从hadoop官网下载hadoop源码，解压后进入目录，阅读BUILDING.txt文件，文件中讲到了如何将hadoop源码工程文件导入到Eclipse中。首先需要给Eclipse安装hadoop-maven-plugins插件，进入hadoop-maven-plugins目录执行指令</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="built_in">cd</span> hadoop-maven-pligins</span><br><span class="line">mvn install</span><br><span class="line">mvn eclipse:eclipse -DskipTests</span><br></pre></td></tr></table></figure>
+
+<p>最后，在Eclipse中点击[File] &gt; [Import] &gt; [Existing Projects into Workspace]</p>
+]]></content>
+      <categories>
+        <category>分布式</category>
+      </categories>
+      <tags>
+        <tag>hadoop</tag>
       </tags>
   </entry>
   <entry>
@@ -1114,37 +1124,37 @@
       </tags>
   </entry>
   <entry>
-    <title>java中StringTokenizer学习</title>
-    <url>/2016/04/13/java/java%E4%B8%ADStringTokenizer%E5%AD%A6%E4%B9%A0/</url>
-    <content><![CDATA[<p>在平时编程中经常会遇到对字符串进行拆分的情况，例如有些字符串代表了许多组数据，这些数据以‘,’进行分隔，需要将这些数据单独提取出来，以前总是自己去写拆分函数，十分不方便。最近发现java中有一个类叫<code>StringTokenizer</code>可以很轻松地解决这个问题。</p>
-<p>先来看看官方API文档对<code>StringTokenizer</code>的解释：</p>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">The string tokenizer class allows an application to break a string into tokens.</span><br></pre></td></tr></table></figure>
+    <title>AWS SDK for Java 使用心得</title>
+    <url>/2016/03/17/java/AWS%20SDK%20for%20Java%20%E4%BD%BF%E7%94%A8%E5%BF%83%E5%BE%97/</url>
+    <content><![CDATA[<p>AWS SDK 是一套用于开发者与 Amazon Web Services进行交互的系统，其功能繁多，对于普通开发者来说，本人主要使用了其针对Java开发的向S3云存储上传文件和文件夹的功能。AWS开发工具包的下载地址：<br><a href="https://aws.amazon.com/cn/tools/" target="_blank" rel="noopener">https://aws.amazon.com/cn/tools/</a><br>其中的Java开发工具包的API文档地址：<br><a href="http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/index.html" target="_blank" rel="noopener">http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/index.html</a><br>进行开发之前建议自习阅读其官方的开发引导：<br><a href="http://docs.aws.amazon.com/AWSSdkDocsJava/latest/DeveloperGuide/welcome.html" target="_blank" rel="noopener">http://docs.aws.amazon.com/AWSSdkDocsJava/latest/DeveloperGuide/welcome.html</a></p>
+<h3 id="心得"><a href="#心得" class="headerlink" title="心得"></a>心得</h3><ul>
+<li>开发AWS应用仅靠API接口的阅读是不够的，最好能够仔细阅读官方SDK中的Sample文件夹中的程序，熟悉整个SDK开发的代码流程，也可以到论坛和GitHub中找与AWS相关的代码进行阅读</li>
+<li>AWS SDK for Java 中有两种上传文件的方法，一种是构造一个PutObjectRequest，调用其中的构造函数：</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">PutObjectRequest(String bucketName, String key, File file)</span><br><span class="line">Constructs a new PutObjectRequest object to upload a file to the specified bucket and key.</span><br></pre></td></tr></table></figure>
+
+<p>构造一个上传文件的PutObjectRequest对象，然后使用AmazonS3Client类中的putObject方法来实现上传文件的操作：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public PutObjectResult putObject(PutObjectRequest putObjectRequest)</span><br><span class="line">                          throws AmazonClientException,</span><br><span class="line">                                 AmazonServiceException</span><br></pre></td></tr></table></figure>
 
 <a id="more"></a>
-<p>也就是说这个类能够使我们将一个字符串拆分成小部分。官方给出了一个使用该类的例子：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">StringTokenizer st = <span class="keyword">new</span> StringTokenizer(<span class="string">"this is a test"</span>);</span><br><span class="line">     <span class="keyword">while</span> (st.hasMoreTokens()) &#123;</span><br><span class="line">         System.out.println(st.nextToken());</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
+<p>还有一种方法是使用TransferManager类中的upload方法：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">TransferManager(AmazonS3 s3)</span><br><span class="line">Constructs a new TransferManager, specifying the client to use when making requests to Amazon S3.</span><br></pre></td></tr></table></figure>
 
-<p>该段函数输出的内容为：</p>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">this</span><br><span class="line">is</span><br><span class="line">a</span><br><span class="line">test</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public Upload upload(String bucketName,</span><br><span class="line">            String key,</span><br><span class="line">            File file)</span><br><span class="line">              throws AmazonServiceException,</span><br><span class="line">                     AmazonClientException</span><br></pre></td></tr></table></figure>
 
-<p>StringTokenizer将英文句子以空格为分隔拆分成了单个单词。以上的这种方法在之前可以用字符串数组的<code>split</code>方法进行实现，如下所示：</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String[] result = <span class="string">"this is a test"</span>.split(<span class="string">"\\s"</span>);</span><br><span class="line">     <span class="keyword">for</span> (<span class="keyword">int</span> x=<span class="number">0</span>; x&lt;result.length; x++)</span><br><span class="line">         System.out.println(result[x]);</span><br></pre></td></tr></table></figure>
+<p>upload方法同样也可以传入一个PutObjectRequest对象，作用与之前描述的相同。<br>这两种方法都可以成功上传文件，但是前一种方法传输文件的速度比较慢但是不会出现timeout的问题，是一种简单并且稳定的传输方式，缺点就是传输速度很慢，并且只能传单个文件，不能传文件夹。传文件夹可以使用递归的方式通过深度搜索来传输文件夹中的每一个文件，但是在文件夹中文件数量很多的情况下，这样传输的方式会十分缓慢。后一种方法可以使用uploadDirectory方法来传输一个文件夹：</p>
+<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public MultipleFileUpload uploadDirectory(String bucketName,</span><br><span class="line">                                 String virtualDirectoryKeyPrefix,</span><br><span class="line">                                 File directory,</span><br><span class="line">                                 boolean includeSubdirectories)</span><br></pre></td></tr></table></figure>
 
-<p>这两种方法输出的结果是一致的，但是<code>StringTokenizer</code>的方法和功能远不止这一种，还有许多新的更方便的功能。<br><code>StringTokenizer</code>一共有3种构造函数：</p>
-<ol>
-<li><code>StringTokenizer(String str)</code><br>Constructs a string tokenizer for the specified string.</li>
-<li><code>StringTokenizer(String str, String delim)</code><br>Constructs a string tokenizer for the specified string.</li>
-<li><code>StringTokenizer(String str, String delim, boolean returnDelims)</code><br>Constructs a string tokenizer for the specified string.<br>这三种构造函数的功能显而易见，第一种使用了默认的分隔符对字符串进行分割，默认的分隔符有<code>\t\n\r\f</code>，分别为空格（space character）、Tab制表符（tab character）、换行符（newline character）、回车符（carriage-return character）、换页符（form-feed character）。第二种和第三种指定了分隔符，并且第三种返回的Token中可以选择是否包含分隔符，若选择包含分隔符，分割符将会被当做一个长度为1的字符串单独作为一个Token。</li>
-</ol>
-<p><code>StringTokenizer</code>有6种方法：</p>
-<ol>
-<li><code>public boolean hasMoreTokens()</code><br>测试是否有更多的Token</li>
-<li><code>public String nextToken()</code><br>返回下一个字符串Token</li>
-<li><code>public String nextToken(String delim)</code><br>按照指定的分隔符返回下一个Token</li>
-<li><code>public boolean hasMoreElements</code><br>功能与第一种方法完全相同，只是为了实现Enumeration的接口</li>
-<li><code>public Object nextElement()</code><br>功能与第二种方法完全相同，只是为了实现Enumeration的接口</li>
-<li><code>public int countTokens()</code><br>返回拆分的Token数量</li>
-</ol>
+<p>并且这种方式的传输在SDK内部是通过多线程的方式实现的，将文件传输分为多个线程来进行，传输速度慢，在传输一段时间之后会出现timeout的情况。<br>关于timeout的清空，网上众说纷纭，有人说通过设置AmazonS3Client的配置文件可以解决，有人说可以通过修改jre的networkaddress.cache.ttl时间为60秒可以解决。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">java.security.Security.setProperty(<span class="string">"networkaddress.cache.ttl"</span>, <span class="string">"60"</span>);</span><br></pre></td></tr></table></figure>
+
+<p>但是经过本人的尝试，这个timeout的出现还是与你所在的地区以及你的网速决定的，当我将代码在EC2服务器上运行时，是不会出现timeout的情况的，并且运行速度很快。</p>
+<ul>
+<li>在建立transfer连接之后一定要记得使用shudownNow函数来关闭连接，否则程序会一直等待连接的断开。</li>
+<li>使用SDK与Amazon Web Service 进行连接需要提供 access key 和 secret access key，这些内容需要放到默认的~/.aws/credentials文件中去。</li>
+<li>各种可配置的实例的配置文件一般在创建实例的时候传入。</li>
+<li>使用upload和uploadDirectory方法传输文件时，要使用Upload.waitForCompletion函数来阻塞程序运行，等待传输完毕。</li>
+</ul>
 ]]></content>
       <categories>
         <category>技术</category>
@@ -1229,37 +1239,54 @@
       </tags>
   </entry>
   <entry>
-    <title>AWS SDK for Java 使用心得</title>
-    <url>/2016/03/17/java/AWS%20SDK%20for%20Java%20%E4%BD%BF%E7%94%A8%E5%BF%83%E5%BE%97/</url>
-    <content><![CDATA[<p>AWS SDK 是一套用于开发者与 Amazon Web Services进行交互的系统，其功能繁多，对于普通开发者来说，本人主要使用了其针对Java开发的向S3云存储上传文件和文件夹的功能。AWS开发工具包的下载地址：<br><a href="https://aws.amazon.com/cn/tools/" target="_blank" rel="noopener">https://aws.amazon.com/cn/tools/</a><br>其中的Java开发工具包的API文档地址：<br><a href="http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/index.html" target="_blank" rel="noopener">http://docs.aws.amazon.com/AWSJavaSDK/latest/javadoc/index.html</a><br>进行开发之前建议自习阅读其官方的开发引导：<br><a href="http://docs.aws.amazon.com/AWSSdkDocsJava/latest/DeveloperGuide/welcome.html" target="_blank" rel="noopener">http://docs.aws.amazon.com/AWSSdkDocsJava/latest/DeveloperGuide/welcome.html</a></p>
-<h3 id="心得"><a href="#心得" class="headerlink" title="心得"></a>心得</h3><ul>
-<li>开发AWS应用仅靠API接口的阅读是不够的，最好能够仔细阅读官方SDK中的Sample文件夹中的程序，熟悉整个SDK开发的代码流程，也可以到论坛和GitHub中找与AWS相关的代码进行阅读</li>
-<li>AWS SDK for Java 中有两种上传文件的方法，一种是构造一个PutObjectRequest，调用其中的构造函数：</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">PutObjectRequest(String bucketName, String key, File file)</span><br><span class="line">Constructs a new PutObjectRequest object to upload a file to the specified bucket and key.</span><br></pre></td></tr></table></figure>
-
-<p>构造一个上传文件的PutObjectRequest对象，然后使用AmazonS3Client类中的putObject方法来实现上传文件的操作：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public PutObjectResult putObject(PutObjectRequest putObjectRequest)</span><br><span class="line">                          throws AmazonClientException,</span><br><span class="line">                                 AmazonServiceException</span><br></pre></td></tr></table></figure>
+    <title>java中StringTokenizer学习</title>
+    <url>/2016/04/13/java/java%E4%B8%ADStringTokenizer%E5%AD%A6%E4%B9%A0/</url>
+    <content><![CDATA[<p>在平时编程中经常会遇到对字符串进行拆分的情况，例如有些字符串代表了许多组数据，这些数据以‘,’进行分隔，需要将这些数据单独提取出来，以前总是自己去写拆分函数，十分不方便。最近发现java中有一个类叫<code>StringTokenizer</code>可以很轻松地解决这个问题。</p>
+<p>先来看看官方API文档对<code>StringTokenizer</code>的解释：</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">The string tokenizer class allows an application to break a string into tokens.</span><br></pre></td></tr></table></figure>
 
 <a id="more"></a>
-<p>还有一种方法是使用TransferManager类中的upload方法：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">TransferManager(AmazonS3 s3)</span><br><span class="line">Constructs a new TransferManager, specifying the client to use when making requests to Amazon S3.</span><br></pre></td></tr></table></figure>
+<p>也就是说这个类能够使我们将一个字符串拆分成小部分。官方给出了一个使用该类的例子：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">StringTokenizer st = <span class="keyword">new</span> StringTokenizer(<span class="string">"this is a test"</span>);</span><br><span class="line">     <span class="keyword">while</span> (st.hasMoreTokens()) &#123;</span><br><span class="line">         System.out.println(st.nextToken());</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
 
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public Upload upload(String bucketName,</span><br><span class="line">            String key,</span><br><span class="line">            File file)</span><br><span class="line">              throws AmazonServiceException,</span><br><span class="line">                     AmazonClientException</span><br></pre></td></tr></table></figure>
+<p>该段函数输出的内容为：</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">this</span><br><span class="line">is</span><br><span class="line">a</span><br><span class="line">test</span><br></pre></td></tr></table></figure>
 
-<p>upload方法同样也可以传入一个PutObjectRequest对象，作用与之前描述的相同。<br>这两种方法都可以成功上传文件，但是前一种方法传输文件的速度比较慢但是不会出现timeout的问题，是一种简单并且稳定的传输方式，缺点就是传输速度很慢，并且只能传单个文件，不能传文件夹。传文件夹可以使用递归的方式通过深度搜索来传输文件夹中的每一个文件，但是在文件夹中文件数量很多的情况下，这样传输的方式会十分缓慢。后一种方法可以使用uploadDirectory方法来传输一个文件夹：</p>
-<figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">public MultipleFileUpload uploadDirectory(String bucketName,</span><br><span class="line">                                 String virtualDirectoryKeyPrefix,</span><br><span class="line">                                 File directory,</span><br><span class="line">                                 boolean includeSubdirectories)</span><br></pre></td></tr></table></figure>
+<p>StringTokenizer将英文句子以空格为分隔拆分成了单个单词。以上的这种方法在之前可以用字符串数组的<code>split</code>方法进行实现，如下所示：</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">String[] result = <span class="string">"this is a test"</span>.split(<span class="string">"\\s"</span>);</span><br><span class="line">     <span class="keyword">for</span> (<span class="keyword">int</span> x=<span class="number">0</span>; x&lt;result.length; x++)</span><br><span class="line">         System.out.println(result[x]);</span><br></pre></td></tr></table></figure>
 
-<p>并且这种方式的传输在SDK内部是通过多线程的方式实现的，将文件传输分为多个线程来进行，传输速度慢，在传输一段时间之后会出现timeout的情况。<br>关于timeout的清空，网上众说纷纭，有人说通过设置AmazonS3Client的配置文件可以解决，有人说可以通过修改jre的networkaddress.cache.ttl时间为60秒可以解决。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">java.security.Security.setProperty(<span class="string">"networkaddress.cache.ttl"</span>, <span class="string">"60"</span>);</span><br></pre></td></tr></table></figure>
+<p>这两种方法输出的结果是一致的，但是<code>StringTokenizer</code>的方法和功能远不止这一种，还有许多新的更方便的功能。<br><code>StringTokenizer</code>一共有3种构造函数：</p>
+<ol>
+<li><code>StringTokenizer(String str)</code><br>Constructs a string tokenizer for the specified string.</li>
+<li><code>StringTokenizer(String str, String delim)</code><br>Constructs a string tokenizer for the specified string.</li>
+<li><code>StringTokenizer(String str, String delim, boolean returnDelims)</code><br>Constructs a string tokenizer for the specified string.<br>这三种构造函数的功能显而易见，第一种使用了默认的分隔符对字符串进行分割，默认的分隔符有<code>\t\n\r\f</code>，分别为空格（space character）、Tab制表符（tab character）、换行符（newline character）、回车符（carriage-return character）、换页符（form-feed character）。第二种和第三种指定了分隔符，并且第三种返回的Token中可以选择是否包含分隔符，若选择包含分隔符，分割符将会被当做一个长度为1的字符串单独作为一个Token。</li>
+</ol>
+<p><code>StringTokenizer</code>有6种方法：</p>
+<ol>
+<li><code>public boolean hasMoreTokens()</code><br>测试是否有更多的Token</li>
+<li><code>public String nextToken()</code><br>返回下一个字符串Token</li>
+<li><code>public String nextToken(String delim)</code><br>按照指定的分隔符返回下一个Token</li>
+<li><code>public boolean hasMoreElements</code><br>功能与第一种方法完全相同，只是为了实现Enumeration的接口</li>
+<li><code>public Object nextElement()</code><br>功能与第二种方法完全相同，只是为了实现Enumeration的接口</li>
+<li><code>public int countTokens()</code><br>返回拆分的Token数量</li>
+</ol>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>Java</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>将毫秒数转化为用年日小时分秒毫秒表示</title>
+    <url>/2016/04/12/java/%E5%B0%86%E6%AF%AB%E7%A7%92%E6%95%B0%E8%BD%AC%E5%8C%96%E4%B8%BA%E5%B9%B4%E6%97%A5%E5%B0%8F%E6%97%B6%E5%88%86%E7%A7%92%E6%AF%AB%E7%A7%92/</url>
+    <content><![CDATA[<p>在编写程序时经常会需要读取系统的时间，但是大多数语言获取的时间都是距1970年1月1日的毫秒数，十分不方便，在hadoop给出的计算<code>π</code>值的mapreduce例子中有一个millis2string函数能将毫秒数转化为年日小时分秒毫秒显示的String，书写十分简洁，值得学习借鉴。</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** Covert milliseconds to a String. */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">millis2String</span><span class="params">(<span class="keyword">long</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n &lt; <span class="number">0</span>)</span><br><span class="line">      <span class="keyword">return</span> <span class="string">"-"</span> + millis2String(-n);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (n &lt; <span class="number">1000</span>)</span><br><span class="line">      <span class="keyword">return</span> n + <span class="string">"ms"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> StringBuilder b = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> millis = (<span class="keyword">int</span>)(n % <span class="number">1000L</span>);</span><br><span class="line">    <span class="keyword">if</span> (millis != <span class="number">0</span>)</span><br><span class="line">      b.append(String.format(<span class="string">".%03d"</span>, millis));</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">1000</span>) &lt; <span class="number">60</span>)</span><br><span class="line">      <span class="keyword">return</span> b.insert(<span class="number">0</span>, n).append(<span class="string">"s"</span>).toString();</span><br><span class="line"></span><br><span class="line">    b.insert(<span class="number">0</span>, String.format(<span class="string">":%02d"</span>, (<span class="keyword">int</span>)(n % <span class="number">60L</span>)));</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">60</span>) &lt; <span class="number">60</span>)</span><br><span class="line">      <span class="keyword">return</span> b.insert(<span class="number">0</span>, n).toString();</span><br><span class="line"></span><br><span class="line">    b.insert(<span class="number">0</span>, String.format(<span class="string">":%02d"</span>, (<span class="keyword">int</span>)(n % <span class="number">60L</span>)));</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">60</span>) &lt; <span class="number">24</span>)</span><br><span class="line">      <span class="keyword">return</span> b.insert(<span class="number">0</span>, n).toString();</span><br><span class="line"></span><br><span class="line">    b.insert(<span class="number">0</span>, n % <span class="number">24L</span>);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> days = (<span class="keyword">int</span>)((n /= <span class="number">24</span>) % <span class="number">365L</span>);</span><br><span class="line">    b.insert(<span class="number">0</span>, days == <span class="number">1</span>? <span class="string">" day "</span>: <span class="string">" days "</span>).insert(<span class="number">0</span>, days);</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">365L</span>) &gt; <span class="number">0</span>)</span><br><span class="line">      b.insert(<span class="number">0</span>, n == <span class="number">1</span>? <span class="string">" year "</span>: <span class="string">" years "</span>).insert(<span class="number">0</span>, n);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> b.toString();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
 
-<p>但是经过本人的尝试，这个timeout的出现还是与你所在的地区以及你的网速决定的，当我将代码在EC2服务器上运行时，是不会出现timeout的情况的，并且运行速度很快。</p>
-<ul>
-<li>在建立transfer连接之后一定要记得使用shudownNow函数来关闭连接，否则程序会一直等待连接的断开。</li>
-<li>使用SDK与Amazon Web Service 进行连接需要提供 access key 和 secret access key，这些内容需要放到默认的~/.aws/credentials文件中去。</li>
-<li>各种可配置的实例的配置文件一般在创建实例的时候传入。</li>
-<li>使用upload和uploadDirectory方法传输文件时，要使用Upload.waitForCompletion函数来阻塞程序运行，等待传输完毕。</li>
-</ul>
+<p>写一个函数输出现在与1970年1月1日的时间间隔，输出结果：</p>
+<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">46 years 113 days 7:07:31.820</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <categories>
         <category>技术</category>
@@ -1313,23 +1340,6 @@
 ]]></content>
       <tags>
         <tag>Linux</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>将毫秒数转化为用年日小时分秒毫秒表示</title>
-    <url>/2016/04/12/java/%E5%B0%86%E6%AF%AB%E7%A7%92%E6%95%B0%E8%BD%AC%E5%8C%96%E4%B8%BA%E5%B9%B4%E6%97%A5%E5%B0%8F%E6%97%B6%E5%88%86%E7%A7%92%E6%AF%AB%E7%A7%92/</url>
-    <content><![CDATA[<p>在编写程序时经常会需要读取系统的时间，但是大多数语言获取的时间都是距1970年1月1日的毫秒数，十分不方便，在hadoop给出的计算<code>π</code>值的mapreduce例子中有一个millis2string函数能将毫秒数转化为年日小时分秒毫秒显示的String，书写十分简洁，值得学习借鉴。</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">/** Covert milliseconds to a String. */</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> String <span class="title">millis2String</span><span class="params">(<span class="keyword">long</span> n)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (n &lt; <span class="number">0</span>)</span><br><span class="line">      <span class="keyword">return</span> <span class="string">"-"</span> + millis2String(-n);</span><br><span class="line">    <span class="keyword">else</span> <span class="keyword">if</span> (n &lt; <span class="number">1000</span>)</span><br><span class="line">      <span class="keyword">return</span> n + <span class="string">"ms"</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">final</span> StringBuilder b = <span class="keyword">new</span> StringBuilder();</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> millis = (<span class="keyword">int</span>)(n % <span class="number">1000L</span>);</span><br><span class="line">    <span class="keyword">if</span> (millis != <span class="number">0</span>)</span><br><span class="line">      b.append(String.format(<span class="string">".%03d"</span>, millis));</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">1000</span>) &lt; <span class="number">60</span>)</span><br><span class="line">      <span class="keyword">return</span> b.insert(<span class="number">0</span>, n).append(<span class="string">"s"</span>).toString();</span><br><span class="line"></span><br><span class="line">    b.insert(<span class="number">0</span>, String.format(<span class="string">":%02d"</span>, (<span class="keyword">int</span>)(n % <span class="number">60L</span>)));</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">60</span>) &lt; <span class="number">60</span>)</span><br><span class="line">      <span class="keyword">return</span> b.insert(<span class="number">0</span>, n).toString();</span><br><span class="line"></span><br><span class="line">    b.insert(<span class="number">0</span>, String.format(<span class="string">":%02d"</span>, (<span class="keyword">int</span>)(n % <span class="number">60L</span>)));</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">60</span>) &lt; <span class="number">24</span>)</span><br><span class="line">      <span class="keyword">return</span> b.insert(<span class="number">0</span>, n).toString();</span><br><span class="line"></span><br><span class="line">    b.insert(<span class="number">0</span>, n % <span class="number">24L</span>);</span><br><span class="line">    <span class="keyword">final</span> <span class="keyword">int</span> days = (<span class="keyword">int</span>)((n /= <span class="number">24</span>) % <span class="number">365L</span>);</span><br><span class="line">    b.insert(<span class="number">0</span>, days == <span class="number">1</span>? <span class="string">" day "</span>: <span class="string">" days "</span>).insert(<span class="number">0</span>, days);</span><br><span class="line">    <span class="keyword">if</span> ((n /= <span class="number">365L</span>) &gt; <span class="number">0</span>)</span><br><span class="line">      b.insert(<span class="number">0</span>, n == <span class="number">1</span>? <span class="string">" year "</span>: <span class="string">" years "</span>).insert(<span class="number">0</span>, n);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> b.toString();</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
-
-<p>写一个函数输出现在与1970年1月1日的时间间隔，输出结果：</p>
-<figure class="highlight console"><table><tr><td class="code"><pre><span class="line">46 years 113 days 7:07:31.820</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>Java</tag>
       </tags>
   </entry>
   <entry>
@@ -1540,6 +1550,22 @@
       </tags>
   </entry>
   <entry>
+    <title>mysql赋给用户权限</title>
+    <url>/2016/06/17/mysql/mysql%E8%B5%8B%E7%BB%99%E7%94%A8%E6%88%B7%E6%9D%83%E9%99%90/</url>
+    <content><![CDATA[<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">grant</span> <span class="keyword">all</span> <span class="keyword">privileges</span> <span class="keyword">on</span> &lt;dbname&gt;.* <span class="keyword">to</span> <span class="string">'&lt;username&gt;'</span>@<span class="string">'localhost'</span> <span class="keyword">identified</span> <span class="keyword">by</span> <span class="string">'&lt;password&gt;'</span>;</span><br><span class="line"><span class="keyword">flush</span> <span class="keyword">privileges</span>;</span><br></pre></td></tr></table></figure>
+
+<a id="more"></a>
+
+<p><dbname>为想要共享的数据库名称，如果想共享所有的数据库，则为*号<br><username>为共享的用户名，如果该用户不存在，mysql会自动创建该用户，可以进入mysql数据库的user表查看，标识用户的信息除了用户名User，还包含有Host<br>localhost处可以替换为具体的ip地址，则代表只有该ip用该用户名才能访问，如果希望所有ip的用户都能通过该用户名访问，则将localhost替换为%号，identified by之后跟的是登录的密码</username></dbname></p>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>mysql</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>ubuntu安装mysql5.7</title>
     <url>/2016/06/17/mysql/ubuntu%E5%AE%89%E8%A3%85mysql5.7/</url>
     <content><![CDATA[<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><p>1.下载mysql5.7源码进行编译安装： <a href="http://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.13.tar.gz" target="_blank" rel="noopener">http://dev.mysql.com/get/Downloads/MySQL-5.7/mysql-5.7.13.tar.gz</a><br>2.安装必备的包和工具</p>
@@ -1588,19 +1614,32 @@
       </tags>
   </entry>
   <entry>
-    <title>mysql赋给用户权限</title>
-    <url>/2016/06/17/mysql/mysql%E8%B5%8B%E7%BB%99%E7%94%A8%E6%88%B7%E6%9D%83%E9%99%90/</url>
-    <content><![CDATA[<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">grant</span> <span class="keyword">all</span> <span class="keyword">privileges</span> <span class="keyword">on</span> &lt;dbname&gt;.* <span class="keyword">to</span> <span class="string">'&lt;username&gt;'</span>@<span class="string">'localhost'</span> <span class="keyword">identified</span> <span class="keyword">by</span> <span class="string">'&lt;password&gt;'</span>;</span><br><span class="line"><span class="keyword">flush</span> <span class="keyword">privileges</span>;</span><br></pre></td></tr></table></figure>
+    <title>ubuntu安装PHP5.6</title>
+    <url>/2016/04/11/php/ubuntu%E5%AE%89%E8%A3%85PHP5-6/</url>
+    <content><![CDATA[<p>总体上来说，ubuntu安装PHP5.6与CentOS是差不多的，但是有一些库的名称在ubuntu和CentOS上是不一样的，安装过程中还是有一些细微的差别.</p>
+<ul>
+<li>在安装PHP时，使用的configure指令如下所示：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure \</span><br><span class="line">--prefix=/usr/<span class="built_in">local</span>/php \</span><br><span class="line">--with-curl \</span><br><span class="line">--with-gd \</span><br><span class="line">--<span class="built_in">enable</span>-sockets \</span><br><span class="line">--with-freetype-dir=/usr/<span class="built_in">local</span>/freetype \</span><br><span class="line">--<span class="built_in">enable</span>-mbstring \</span><br><span class="line">--<span class="built_in">enable</span>-bcmath \</span><br><span class="line">--with-gettext \</span><br><span class="line">--with-jpeg-dir=/usr/<span class="built_in">local</span>/libjpeg \</span><br><span class="line">--with-config-file-path=/usr/<span class="built_in">local</span>/php/etc \</span><br><span class="line">--with-mysql=/usr/<span class="built_in">local</span>/mysql \</span><br><span class="line">--with-mysqli=/usr/<span class="built_in">local</span>/mysql/bin/mysql_config \</span><br><span class="line">--with-mysql-sock=/var/lib/mysql/mysql.sock \</span><br><span class="line">--with-pdo-mysql=/usr/<span class="built_in">local</span>/mysql \</span><br><span class="line">--<span class="built_in">enable</span>-fpm \</span><br><span class="line">--<span class="built_in">disable</span>-fileinfo</span><br></pre></td></tr></table></figure>
 
 <a id="more"></a>
+<p>其中with-curl需要安装curl、libcurl3、libcurl3-dev和php5-curl<br>需要指定jpeg-dir，采用apt-get安装的libjpeg不能被PHP的gd扩展识别，需要再次手动安装libjpeg，采用编译安装的方式，在 <a href="http://www.ijg.org/files/" target="_blank" rel="noopener">http://www.ijg.org/files/</a> 下载最新的libjpeg源码，进行编译安装：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure --prefix=/usr/<span class="built_in">local</span>/libjpeg</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
 
-<p><dbname>为想要共享的数据库名称，如果想共享所有的数据库，则为*号<br><username>为共享的用户名，如果该用户不存在，mysql会自动创建该用户，可以进入mysql数据库的user表查看，标识用户的信息除了用户名User，还包含有Host<br>localhost处可以替换为具体的ip地址，则代表只有该ip用该用户名才能访问，如果希望所有ip的用户都能通过该用户名访问，则将localhost替换为%号，identified by之后跟的是登录的密码</username></dbname></p>
+<p>但是libpng是能被gd扩展库识别的，安装好之后可以在phpinfo函数的输出界面观察到支持的结果<br>freetype也需要手动编译安装，下载地址为 <a href="http://download.savannah.gnu.org/releases/freetype/" target="_blank" rel="noopener">http://download.savannah.gnu.org/releases/freetype/</a> 下载最新的版本，采用如下指令进行安装：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure --prefix=/usr/<span class="built_in">local</span>/freetype</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>在安装PHP扩展库的时候，使用phpize指令可能会出现<code>Cannot find autoconf.</code>的错误。在ubuntu中，我们可以使用如下指令来解决这个问题：</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get install m4</span><br><span class="line">sudo apt-get install autoconf</span><br></pre></td></tr></table></figure>
+
 ]]></content>
       <categories>
         <category>技术</category>
       </categories>
       <tags>
-        <tag>mysql</tag>
+        <tag>PHP</tag>
       </tags>
   </entry>
   <entry>
@@ -1641,52 +1680,6 @@
       </categories>
       <tags>
         <tag>PHP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>ubuntu安装PHP5.6</title>
-    <url>/2016/04/11/php/ubuntu%E5%AE%89%E8%A3%85PHP5-6/</url>
-    <content><![CDATA[<p>总体上来说，ubuntu安装PHP5.6与CentOS是差不多的，但是有一些库的名称在ubuntu和CentOS上是不一样的，安装过程中还是有一些细微的差别.</p>
-<ul>
-<li>在安装PHP时，使用的configure指令如下所示：</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure \</span><br><span class="line">--prefix=/usr/<span class="built_in">local</span>/php \</span><br><span class="line">--with-curl \</span><br><span class="line">--with-gd \</span><br><span class="line">--<span class="built_in">enable</span>-sockets \</span><br><span class="line">--with-freetype-dir=/usr/<span class="built_in">local</span>/freetype \</span><br><span class="line">--<span class="built_in">enable</span>-mbstring \</span><br><span class="line">--<span class="built_in">enable</span>-bcmath \</span><br><span class="line">--with-gettext \</span><br><span class="line">--with-jpeg-dir=/usr/<span class="built_in">local</span>/libjpeg \</span><br><span class="line">--with-config-file-path=/usr/<span class="built_in">local</span>/php/etc \</span><br><span class="line">--with-mysql=/usr/<span class="built_in">local</span>/mysql \</span><br><span class="line">--with-mysqli=/usr/<span class="built_in">local</span>/mysql/bin/mysql_config \</span><br><span class="line">--with-mysql-sock=/var/lib/mysql/mysql.sock \</span><br><span class="line">--with-pdo-mysql=/usr/<span class="built_in">local</span>/mysql \</span><br><span class="line">--<span class="built_in">enable</span>-fpm \</span><br><span class="line">--<span class="built_in">disable</span>-fileinfo</span><br></pre></td></tr></table></figure>
-
-<a id="more"></a>
-<p>其中with-curl需要安装curl、libcurl3、libcurl3-dev和php5-curl<br>需要指定jpeg-dir，采用apt-get安装的libjpeg不能被PHP的gd扩展识别，需要再次手动安装libjpeg，采用编译安装的方式，在 <a href="http://www.ijg.org/files/" target="_blank" rel="noopener">http://www.ijg.org/files/</a> 下载最新的libjpeg源码，进行编译安装：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure --prefix=/usr/<span class="built_in">local</span>/libjpeg</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-
-<p>但是libpng是能被gd扩展库识别的，安装好之后可以在phpinfo函数的输出界面观察到支持的结果<br>freetype也需要手动编译安装，下载地址为 <a href="http://download.savannah.gnu.org/releases/freetype/" target="_blank" rel="noopener">http://download.savannah.gnu.org/releases/freetype/</a> 下载最新的版本，采用如下指令进行安装：</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">./configure --prefix=/usr/<span class="built_in">local</span>/freetype</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>在安装PHP扩展库的时候，使用phpize指令可能会出现<code>Cannot find autoconf.</code>的错误。在ubuntu中，我们可以使用如下指令来解决这个问题：</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">sudo apt-get install m4</span><br><span class="line">sudo apt-get install autoconf</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>PHP</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>普通用户安装CNVkit</title>
-    <url>/2017/08/08/python/%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E5%AE%89%E8%A3%85CNVkit/</url>
-    <content><![CDATA[<p>安装python的library的时候经常需要sudo权限，原因是许多机器上安装的python都是使用apt-get(ubuntu)、yum(CentOS)安装的，在这种情况下python被安装到了root用户目录下，再使用pip安装各种库的时候，有时候库需要被安装到这些root用户目录下，就会出现权限问题。解决这个问题的方法是通过源码安装python到普通用户目录下，再通过源码安装setuptools和pip便能在普通用户下安装python的各种库。</p>
-<h2 id="1-编译安装python"><a href="#1-编译安装python" class="headerlink" title="1.编译安装python"></a>1.编译安装python</h2><p>下载python源码，<a href="https://www.python.org/downloads/source/" target="_blank" rel="noopener">https://www.python.org/downloads/source/</a><br>这里选择python2.7.13进行测试，<a href="https://www.python.org/downloads/release/python-2713/" target="_blank" rel="noopener">https://www.python.org/downloads/release/python-2713/</a><br>下载xz压缩格式的源码，使用<code>tar -xvf Python-2.7.13.tar.xz</code>解压后进入目录，<code>./configure --prefix=/home/spark/Softwares/python2</code>通过<code>--prefix</code>指定安装目录为普通用户目录，<code>make</code>进行编译，<code>make install</code>进行安装。之后在<code>~/.bashrc</code>文件内添加PATH指定python的安装路径<code>export PATH=/home/spark/Softwares/python2/bin:$PATH</code>，然后<code>source ~/.bashrc</code>，此时python便被指定为编译安装的python了。</p>
-<h2 id="2-编译安装setuptools和pip"><a href="#2-编译安装setuptools和pip" class="headerlink" title="2.编译安装setuptools和pip"></a>2.编译安装setuptools和pip</h2><p>下载setuptools源码，<a href="https://pypi.python.org/pypi/setuptools" target="_blank" rel="noopener">https://pypi.python.org/pypi/setuptools</a></p>
-<p>下载zip压缩格式源码，使用<code>unzip setuptools-36.2.7.zip</code>进行解压，进入目录之后使用<code>python setup.py install</code>进行安装，此时需要确保python指令指向的是之前编译安装的python。</p>
-<p>下载pip源码，<a href="https://pypi.python.org/pypi/pip" target="_blank" rel="noopener">https://pypi.python.org/pypi/pip</a></p>
-<p>下载tar.gz格式的源码，使用<code>tar -zxvf pip-9.0.1.tar.gz</code>进行解压，进入目录后，首先使用<code>python setup.py build</code>进行编译，然后使用<code>python setup.py install</code>进行安装，这之后会发现在编译安装python的路径的bin目录中会有pip和setuptools程序。由于之前已经添加该bin目录到PATH环境变量当中，此时使用pip安装即为普通用户目录下的pip，可以不需要sudo权限安装各种library。</p>
-]]></content>
-      <categories>
-        <category>技术</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
       </tags>
   </entry>
   <entry>
@@ -1778,6 +1771,23 @@
       </tags>
   </entry>
   <entry>
+    <title>普通用户安装CNVkit</title>
+    <url>/2017/08/08/python/%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E5%AE%89%E8%A3%85CNVkit/</url>
+    <content><![CDATA[<p>安装python的library的时候经常需要sudo权限，原因是许多机器上安装的python都是使用apt-get(ubuntu)、yum(CentOS)安装的，在这种情况下python被安装到了root用户目录下，再使用pip安装各种库的时候，有时候库需要被安装到这些root用户目录下，就会出现权限问题。解决这个问题的方法是通过源码安装python到普通用户目录下，再通过源码安装setuptools和pip便能在普通用户下安装python的各种库。</p>
+<h2 id="1-编译安装python"><a href="#1-编译安装python" class="headerlink" title="1.编译安装python"></a>1.编译安装python</h2><p>下载python源码，<a href="https://www.python.org/downloads/source/" target="_blank" rel="noopener">https://www.python.org/downloads/source/</a><br>这里选择python2.7.13进行测试，<a href="https://www.python.org/downloads/release/python-2713/" target="_blank" rel="noopener">https://www.python.org/downloads/release/python-2713/</a><br>下载xz压缩格式的源码，使用<code>tar -xvf Python-2.7.13.tar.xz</code>解压后进入目录，<code>./configure --prefix=/home/spark/Softwares/python2</code>通过<code>--prefix</code>指定安装目录为普通用户目录，<code>make</code>进行编译，<code>make install</code>进行安装。之后在<code>~/.bashrc</code>文件内添加PATH指定python的安装路径<code>export PATH=/home/spark/Softwares/python2/bin:$PATH</code>，然后<code>source ~/.bashrc</code>，此时python便被指定为编译安装的python了。</p>
+<h2 id="2-编译安装setuptools和pip"><a href="#2-编译安装setuptools和pip" class="headerlink" title="2.编译安装setuptools和pip"></a>2.编译安装setuptools和pip</h2><p>下载setuptools源码，<a href="https://pypi.python.org/pypi/setuptools" target="_blank" rel="noopener">https://pypi.python.org/pypi/setuptools</a></p>
+<p>下载zip压缩格式源码，使用<code>unzip setuptools-36.2.7.zip</code>进行解压，进入目录之后使用<code>python setup.py install</code>进行安装，此时需要确保python指令指向的是之前编译安装的python。</p>
+<p>下载pip源码，<a href="https://pypi.python.org/pypi/pip" target="_blank" rel="noopener">https://pypi.python.org/pypi/pip</a></p>
+<p>下载tar.gz格式的源码，使用<code>tar -zxvf pip-9.0.1.tar.gz</code>进行解压，进入目录后，首先使用<code>python setup.py build</code>进行编译，然后使用<code>python setup.py install</code>进行安装，这之后会发现在编译安装python的路径的bin目录中会有pip和setuptools程序。由于之前已经添加该bin目录到PATH环境变量当中，此时使用pip安装即为普通用户目录下的pip，可以不需要sudo权限安装各种library。</p>
+]]></content>
+      <categories>
+        <category>技术</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Spark对大规模数据进行分区</title>
     <url>/2018/03/17/spark/Spark%E5%AF%B9%E5%A4%A7%E8%A7%84%E6%A8%A1%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C%E5%88%86%E5%8C%BA/</url>
     <content><![CDATA[<h1 id="groupByKey"><a href="#groupByKey" class="headerlink" title="groupByKey"></a>groupByKey</h1><p>在编写处理大规模数据的Spark代码的时候遇到一个问题，对大规模数据进行groupByKey操作的时候时间非常长，而且很容易出现OOM的情况。这其中的主要原因有几点，一是groupByKey会造成大量的数据shuffle，大量的IO会影响程序的运行时间；二是每一个key下对应的数据非常不均匀，有的key对应的key非常多，在某个executor上的数据可能会超出内存大小，造成OOM的情况。</p>
@@ -1805,28 +1815,6 @@
         <category>分布式</category>
       </categories>
       <tags>
-        <tag>spark</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>在pycharm上运行pyspark程序</title>
-    <url>/2016/06/28/spark/%E5%9C%A8pycharm%E4%B8%8A%E8%BF%90%E8%A1%8Cpyspark%E7%A8%8B%E5%BA%8F/</url>
-    <content><![CDATA[<h3 id="配置pycharm"><a href="#配置pycharm" class="headerlink" title="配置pycharm"></a>配置pycharm</h3><ol>
-<li>在pycharm上创建project之后，在Run-&gt;Edit Configurations-&gt;Environment variables中添加两个环境变量：<br><code>PYTHONPATH = /opt/spark/spark1.6.2/python</code><br><code>SPARK_HOME = /opt/spark/spark1.6.2</code><a id="more"></a></li>
-<li>将<code>spark/python</code>目录中的pyspark目录拷贝到工程文件夹中</li>
-</ol>
-<h3 id="编写pyspark程序"><a href="#编写pyspark程序" class="headerlink" title="编写pyspark程序"></a>编写pyspark程序</h3><ol>
-<li>pyspark程序中经常会用到一个变量sqlContext，这个变量一般是通过<code>sqlContext = SQLContext(sc)</code>生成的，变量<code>sc</code>是一个pyspark的shenll自动生成的helper变量</li>
-<li>在pyspark的shell中，这个变量是会自动生成作为helper变量的，但是在pycharm编写的程序中需要自己去定义这个变量：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkConf, SparkContext</span><br><span class="line"><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> SQLContext</span><br><span class="line">conf = SparkConf().setAppName(<span class="string">"berkeleySpark"</span>)</span><br><span class="line">sc = SparkContext(conf=conf)</span><br><span class="line">sqlContext = SQLContext(sc)</span><br></pre></td></tr></table></figure>
-
-</li>
-</ol>
-]]></content>
-      <categories>
-        <category>分布式</category>
-      </categories>
-      <tags>
-        <tag>python</tag>
         <tag>spark</tag>
       </tags>
   </entry>
@@ -1886,6 +1874,28 @@
       </tags>
   </entry>
   <entry>
+    <title>在pycharm上运行pyspark程序</title>
+    <url>/2016/06/28/spark/%E5%9C%A8pycharm%E4%B8%8A%E8%BF%90%E8%A1%8Cpyspark%E7%A8%8B%E5%BA%8F/</url>
+    <content><![CDATA[<h3 id="配置pycharm"><a href="#配置pycharm" class="headerlink" title="配置pycharm"></a>配置pycharm</h3><ol>
+<li>在pycharm上创建project之后，在Run-&gt;Edit Configurations-&gt;Environment variables中添加两个环境变量：<br><code>PYTHONPATH = /opt/spark/spark1.6.2/python</code><br><code>SPARK_HOME = /opt/spark/spark1.6.2</code><a id="more"></a></li>
+<li>将<code>spark/python</code>目录中的pyspark目录拷贝到工程文件夹中</li>
+</ol>
+<h3 id="编写pyspark程序"><a href="#编写pyspark程序" class="headerlink" title="编写pyspark程序"></a>编写pyspark程序</h3><ol>
+<li>pyspark程序中经常会用到一个变量sqlContext，这个变量一般是通过<code>sqlContext = SQLContext(sc)</code>生成的，变量<code>sc</code>是一个pyspark的shenll自动生成的helper变量</li>
+<li>在pyspark的shell中，这个变量是会自动生成作为helper变量的，但是在pycharm编写的程序中需要自己去定义这个变量：<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> pyspark <span class="keyword">import</span> SparkConf, SparkContext</span><br><span class="line"><span class="keyword">from</span> pyspark.sql <span class="keyword">import</span> SQLContext</span><br><span class="line">conf = SparkConf().setAppName(<span class="string">"berkeleySpark"</span>)</span><br><span class="line">sc = SparkContext(conf=conf)</span><br><span class="line">sqlContext = SQLContext(sc)</span><br></pre></td></tr></table></figure>
+
+</li>
+</ol>
+]]></content>
+      <categories>
+        <category>分布式</category>
+      </categories>
+      <tags>
+        <tag>python</tag>
+        <tag>spark</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>远程调试Spark程序</title>
     <url>/2018/10/26/spark/%E8%BF%9C%E7%A8%8B%E8%B0%83%E8%AF%95Spark%E7%A8%8B%E5%BA%8F/</url>
     <content><![CDATA[<p>我们在写Spark程序的时候免不了要对我们的代码进行debug，在代码当中打上断点来查看程序执行过程中各个变量的变化情况。我一般使用Intellij IDEA来写Spark程序，可以直接在其中以local的方式运行Spark程序，也可以在其中打上断点进行调试，但这样做有一些问题：</p>
@@ -1930,6 +1940,100 @@
 ]]></content>
       <tags>
         <tag>Spark</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Intellij IDEA 编译spark源码报错解决方法</title>
+    <url>/2017/07/05/spark/spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/Intellij%20IDEA%20%E7%BC%96%E8%AF%91spark%E6%BA%90%E7%A0%81%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</url>
+    <content><![CDATA[<h3 id="SparkFlumeProtocol"><a href="#SparkFlumeProtocol" class="headerlink" title="SparkFlumeProtocol"></a>SparkFlumeProtocol</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Error:(45, 66) not found: type SparkFlumeProtocol</span><br><span class="line">  val transactionTimeout: Int, val backOffInterval: Int) extends SparkFlumeProtocol with Logging &#123;</span><br></pre></td></tr></table></figure>
+
+<p>这个问题是由于flume-sink所需要的部分源文件idea不会自动下载，所以编译时不能通过。</p>
+<h4 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h4><p>在Intellij IDEA里面：</p>
+<ul>
+<li>打开View -&gt; Tool Windows -&gt; Maven Projects</li>
+<li>右击Spark Project External Flume Sink</li>
+<li>点击Generate Sources and Update Folders<br>随后，Intellij IDEA会自动下载Flume Sink相关的包</li>
+</ul>
+<h3 id="SqlBaseParser"><a href="#SqlBaseParser" class="headerlink" title="SqlBaseParser"></a>SqlBaseParser</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Error:(36, 45) object SqlBaseParser is not a member of package org.apache.spark.sql.catalyst.parser</span><br><span class="line">import org.apache.spark.sql.catalyst.parser.SqlBaseParser._</span><br></pre></td></tr></table></figure>
+
+<p>这个问题和之前的问题类似，是idea不会自动下载部分catalyst相关的源文件，导致编译时不能通过。</p>
+<h4 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h4><p>在Intellij IDEA里面：</p>
+<ul>
+<li>打开View -&gt; Tool Windows -&gt; Maven Projects</li>
+<li>右击Spark Project Catalyst</li>
+<li>点击Generate Sources and Update Folders<br>随后，Intellij IDEA会自动下载Catalyst相关的包</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>IDEA编译spark源码出错大多都是不能正确下载相关的源文件，在Maven的管理菜单内选择相对应的库选择下载源码并更新即可解决大多数问题。</p>
+<p>spark build error集合：<br><a href="https://www.mail-archive.com/search?l=user@spark.apache.org&amp;q=subject:%22Build+error%22&amp;o=newest&amp;f=1" target="_blank" rel="noopener">https://www.mail-archive.com/search?l=user@spark.apache.org&amp;q=subject:%22Build+error%22&amp;o=newest&amp;f=1</a></p>
+]]></content>
+      <categories>
+        <category>Spark源码阅读</category>
+      </categories>
+      <tags>
+        <tag>spark</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Spark源码分析RDD缓存过程</title>
+    <url>/2018/04/05/spark/spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/Spark%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90RDD%E7%BC%93%E5%AD%98%E8%BF%87%E7%A8%8B/</url>
+    <content><![CDATA[<p>Spark提供了一种将RDD持久化的方式(cache、persist)，这种方式适用于需要多次执行action操作的RDD，因为持久化之后的RDD中的内容不需要重新计算，可以直接使用，对于多次执行action的RDD来说，这样做能省下许多重复计算的时间。Task在启动之初读取一个分区的时候，会先判断这个分区是否已经被持久化，如果没有则会再去检查是否存在Checkpoint，还没有找到的话会根据血统重新计算。RDD的缓存是一种特殊的持久化操作，即<code>RDD.cache()</code>等同于<code>RDD.persist(MEMORY_ONLY)</code>即缓存是一种只将RDD持久化到内存当中的方式。本文基于Spark 2.1版本的源码对RDD的缓存过程进行了分析，文章中涉及到的源码文件主要有以下几个：</p>
+<ul>
+<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/storage/memory/MemoryStore.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/storage/memory/MemoryStorage.scala</code></a></li>
+<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/memory/StorageMemoryPool.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/memory/StorageMemoryPool.scala</code></a></li>
+<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/util/collection/SizeTrackingVector.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/util/collection/SizeTrackingVector.scala</code></a></li>
+<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/util/collection/SizeTracker.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/util/collection/SizeTracker.scala</code></a></li>
+</ul>
+<h2 id="RDD缓存分析"><a href="#RDD缓存分析" class="headerlink" title="RDD缓存分析"></a>RDD缓存分析</h2><p>RDD在缓存到内存之前，Partition中的数据一般以迭代器(Iterator)的数据结构来访问，通过Iterator可以获得分区中每一条序列化或者非序列化的Record，这些Record在访问的时候占用的是JVM堆内存中other部分的内存区域，同一个Partition的不同Record的空间并不是连续的。RDD被缓存之后，会由Partition转化为Block，并且存储位置变为了Storage Memory区域，并且此时Block中的Record所占用的内存空间是连续的。我们可以在Spark的源码当中多次看到unroll这个词，字面意思是展开，在Spark当中的意义就是将存储在Partition中的Record由不连续的存储空间转换为连续存储空间的过程。Unroll操作的时候需要在Storage Memory当中通过<code>reserveUnrollMemoryForThisTask</code>来申请Unroll操作所需要的内存，使用完毕之后，又通过<code>releaseUnrollMemoryForThisTask</code>方法来释放这部分内存。这与1.6.0版本之前固定Unroll内存的方式不同，是动态申请的，因为这部分内存只在Unroll的时候有用，动态申请这块内存能够在不需要Unroll的时候将这块内存区域用于其他的用途上，提升内存资源的利用率。Block有两种存储方式，分别为序列化存储和非序列化存储，这两种存储方式具有其对应的Entry，在MemoryStore类中通过一个<code>LinkedHashMap</code>来存储堆内和对外内存中的所有Block对象的实例：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Note: all changes to memory allocations, notably putting blocks, evicting blocks, and</span></span><br><span class="line"><span class="comment">// acquiring or releasing unroll memory, must be synchronized on `memoryManager`!</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">val</span> entries = <span class="keyword">new</span> <span class="type">LinkedHashMap</span>[<span class="type">BlockId</span>, <span class="type">MemoryEntry</span>[_]](<span class="number">32</span>, <span class="number">0.75</span>f, <span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
+
+<p>通过这段源码的注释我们也可以知道，对这个map的数据结构进行操作的时候需要严格遵循同步的原则，因为一个Executor会对应一个MemoryStore，而一个Executor有多个core的时候会并行执行Task，就会有多个线程共享使用一块Storage Memory，即共享使用这一个LinkedHashMap，修改LinkedHashMap时需要做到同步。<br>因为不能保证存储空间可以一次容纳 Iterator 中的所有数据，当前的计算任务在 Unroll 时要向 MemoryManager 申请足够的 Unroll 空间来临时占位，空间不足则 Unroll 失败，空间足够时可以继续进行。至于为何要选择LinkedHashMap来存储也是有原因的，因为LinkedHashMap能够很好地支持LRU算法(最近最少使用，常用于页面置换算法)，我们可以看到定义LinkedHashMap的第三个参数<code>accessOrder=true</code>，即基于访问顺序，被访问到的元素会被加到LinkedHashMap的最后。基于这个特性，当新Block加入的时候发现内存空间不足的时候，会按照最近最少使用的顺序淘汰LinkedHashMap中的Block。</p>
+<h3 id="序列化存储"><a href="#序列化存储" class="headerlink" title="序列化存储"></a>序列化存储</h3><p>序列化存储使用了一个名为SerializedMemoryEntry的case class：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">case</span> <span class="class"><span class="keyword">class</span> <span class="title">SerializedMemoryEntry</span>[<span class="type">T</span>](<span class="params"></span></span></span><br><span class="line"><span class="class"><span class="params">    buffer: <span class="type">ChunkedByteBuffer</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    memoryMode: <span class="type">MemoryMode</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]</span>) <span class="keyword">extends</span> <span class="title">MemoryEntry</span>[<span class="type">T</span>] </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>: <span class="type">Long</span> = buffer.size</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的主要存储结构为<code>ChunkedByteBuffer</code>，实际上这个类是Spark自己实现的用于存储<code>ByteBuffer</code>的数据结构，其本质为<code>Array[ByteBuffer]</code>，Array的每一个元素被称为一个chunk。对于已经序列化的Partition在转化为Block进行存储时，因为在存储时就已经知道序列化的ByteBuffer的size，其所需要的Unroll空间可以直接累加计算，一次申请。存储所使用的方法为<code>putBytes</code>，需要输入Block的ID、占用的内存空间大小、存储模式为堆内内存还是堆外内存以及存放序列化数据的ByteBuffer，其返回的内容指示了是否缓存成功：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">putBytes</span></span>[<span class="type">T</span>: <span class="type">ClassTag</span>](</span><br><span class="line">      blockId: <span class="type">BlockId</span>,</span><br><span class="line">      size: <span class="type">Long</span>,</span><br><span class="line">      memoryMode: <span class="type">MemoryMode</span>,</span><br><span class="line">      _bytes: () =&gt; <span class="type">ChunkedByteBuffer</span>): <span class="type">Boolean</span></span><br></pre></td></tr></table></figure>
+
+<p>获取序列化缓存的内容可以直接使用<code>getBytes</code>方法，输入Block的ID，获取对应的ChunkByteBuffer。</p>
+<a id="more"></a>
+<h3 id="非序列化存储"><a href="#非序列化存储" class="headerlink" title="非序列化存储"></a>非序列化存储</h3><p>非序列化存储使用了一个名为DeserializedMemoryEntry的case class：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">case</span> <span class="class"><span class="keyword">class</span> <span class="title">DeserializedMemoryEntry</span>[<span class="type">T</span>](<span class="params"></span></span></span><br><span class="line"><span class="class"><span class="params">    value: <span class="type">Array</span>[<span class="type">T</span>],</span></span></span><br><span class="line"><span class="class"><span class="params">    size: <span class="type">Long</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]</span>) <span class="keyword">extends</span> <span class="title">MemoryEntry</span>[<span class="type">T</span>] </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> memoryMode: <span class="type">MemoryMode</span> = <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，非序列化的存储方式为将元素直接按照Array的方式进行存储，获取其中的存储内容时，可以直接返回装有数据的Iterator。非序列化的存储方式在遍历Record并申请内存时较为复杂，因为无法直接估计Block中所有Record的总空间大小，需要在遍历Record过程中一次申请，即每读取一条Record，采样估算其所需的Unroll空间并进行申请，空间不足时可以中断，释放已占用的Unroll空间。如果最终Unroll成功，当前Partition所占用的Unroll空间被转换为正常的缓存RDD的存储空间。采用估算使用的是<code>SizeTrackingVector</code>，其实现了<code>SizeTracker</code>接口，可以通过采样的方式，在O(1)时间估计出输入的Block的大小，若估计出的大小超出了申请的内存的临界值，便会再申请内存来存放新加入的Record。这种依次申请内存的方式，其占用的内存是通过周期性地采样近似估算而得，即并不是每次新增的数据项都会计算一次占用的内存大小，这种方法降低了时间开销但是有可能误差较大，导致某一时刻的实际内存有可能远远超出预期。但这也是一种权衡方式，即在计算以及申请内存的时间开销和申请内存准确度上的平衡，在大多数情况下，采样获得的内存大小估计还是准确的。<br>非序列化的Block有两种存储方式，一种是按照Array的方式存储原值，另一种为将原值进行序列化后存储，所调用的方法为<code>putIteratorAsValues</code>和<code>putIteratorAsBytes</code>：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Attempt to put the given block in memory store as values.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * It's possible that the iterator is too large to materialize and store in memory. To avoid</span></span><br><span class="line"><span class="comment"> * OOM exceptions, this method will gradually unroll the iterator while periodically checking</span></span><br><span class="line"><span class="comment"> * whether there is enough free memory. If the block is successfully materialized, then the</span></span><br><span class="line"><span class="comment"> * temporary unroll memory used during the materialization is "transferred" to storage memory,</span></span><br><span class="line"><span class="comment"> * so we won't acquire more memory than is actually needed to store the block.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * @return in case of success, the estimated size of the stored data. In case of failure, return</span></span><br><span class="line"><span class="comment"> *         an iterator containing the values of the block. The returned iterator will be backed</span></span><br><span class="line"><span class="comment"> *         by the combination of the partially-unrolled block and the remaining elements of the</span></span><br><span class="line"><span class="comment"> *         original input iterator. The caller must either fully consume this iterator or call</span></span><br><span class="line"><span class="comment"> *         `close()` on it in order to free the storage memory consumed by the partially-unrolled</span></span><br><span class="line"><span class="comment"> *         block.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span>[storage] <span class="function"><span class="keyword">def</span> <span class="title">putIteratorAsValues</span></span>[<span class="type">T</span>](</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    values: <span class="type">Iterator</span>[<span class="type">T</span>],</span><br><span class="line">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]): <span class="type">Either</span>[<span class="type">PartiallyUnrolledIterator</span>[<span class="type">T</span>], <span class="type">Long</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>[storage] <span class="function"><span class="keyword">def</span> <span class="title">putIteratorAsBytes</span></span>[<span class="type">T</span>](</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    values: <span class="type">Iterator</span>[<span class="type">T</span>],</span><br><span class="line">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>],</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Either</span>[<span class="type">PartiallySerializedBlock</span>[<span class="type">T</span>], <span class="type">Long</span>]</span><br></pre></td></tr></table></figure>
+
+<h2 id="RDD的持久化级别"><a href="#RDD的持久化级别" class="headerlink" title="RDD的持久化级别"></a>RDD的持久化级别</h2><p>前面既然说道了RDD缓存时会有序列化存储和非序列化存储两种方式，我们就顺便说一下RDD持久化的存储级别，这里涉及到的Spark源码当中的文件为<code>spark/core/src/main/scala/org/apache/spark/storage/StorageLevel.scala</code>，其中描述了Spark持久化存储级别当中5个重要的变量，这5个变量能组合称为RDD的11中存储级别：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _useDisk: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _useMemory: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _useOffHeap: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _deserialized: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _replication: <span class="type">Int</span> = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>这5个变量的前3个表示的是存储的位置，分别为磁盘、堆内内存和堆外内存。例如<code>DISK_ONLY</code>表示只存储在磁盘当中，<code>MEMORY_AND_DISK</code>表示可以存储在堆内内存和磁盘上，<code>OFF_HEAP</code>则只能存储在堆外内存上。<br><code>_deserialized</code>表示是否序列化，例如<code>MEMORY_ONLY_SER</code>表示序列化存储在堆内内存上，不加SER的存储级别则为不进行序列化。<br><code>_replication</code>表示备份的数量，默认不会进行冗余备份，<code>MEMORY_AND_DISK_2</code>则表示可以存储在堆内内存和磁盘上，并且创建一个副本进行备份，一般冗余备份会备份到其他的节点，保证持久化的数据的容错性。</p>
+<h2 id="Block存储的淘汰和落盘"><a href="#Block存储的淘汰和落盘" class="headerlink" title="Block存储的淘汰和落盘"></a>Block存储的淘汰和落盘</h2><p>我们可以从Spark源码的一些注释当中看到，当有新的Block要存储，内存又不够用时，会通过LRU淘汰一部分最近不常使用的Block，释放其内存给新加入的Block进行存储，如果被淘汰的Block的持久化级别当中有DISK，则会将其写入磁盘当中，称为落盘。Block的淘汰也不是仅仅依赖于LRU算法，其具有一定的规则：</p>
+<blockquote>
+<ul>
+<li>被淘汰的旧 Block 要与新 Block 的 MemoryMode 相同，即同属于堆外或堆内内存</li>
+<li>新旧 Block 不能属于同一个 RDD，避免循环淘汰</li>
+<li>旧 Block 所属 RDD 不能处于被读状态，避免引发一致性问题</li>
+<li>遍历 LinkedHashMap 中 Block，按照最近最少使用（LRU）的顺序淘汰，直到满足新 Block 所需的空间。其中 LRU 是 LinkedHashMap 的特性</li>
+</ul>
+</blockquote>
+<p>淘汰Block并释放其内存调用的方法为<code>evictBlocksToFreeSpace</code>：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Try to evict blocks to free up a given amount of space to store a particular block.</span></span><br><span class="line"><span class="comment"> * Can fail if either the block is bigger than our memory or it would require replacing</span></span><br><span class="line"><span class="comment"> * another block from the same RDD (which leads to a wasteful cyclic replacement pattern for</span></span><br><span class="line"><span class="comment"> * RDDs that don't fit into memory that we want to avoid).</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * @param blockId the ID of the block we are freeing space for, if any</span></span><br><span class="line"><span class="comment"> * @param space the size of this block</span></span><br><span class="line"><span class="comment"> * @param memoryMode the type of memory to free (on- or off-heap)</span></span><br><span class="line"><span class="comment"> * @return the amount of memory (in bytes) freed by eviction</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span>[spark] <span class="function"><span class="keyword">def</span> <span class="title">evictBlocksToFreeSpace</span></span>(</span><br><span class="line">    blockId: <span class="type">Option</span>[<span class="type">BlockId</span>],</span><br><span class="line">    space: <span class="type">Long</span>,</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Long</span></span><br></pre></td></tr></table></figure>
+
+<p>我们也可以在这段代码的注释当中看到一些淘汰Block可能会出现fail的情况，包括新存储的Block所占用的空间大于总内存，或者需要替换处于同一个RDD的不同的Block。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文主要从Spark源码的角度分析了Storage Memory部分，RDD的缓存机制，同时简略介绍了RDD持久化的存储级别。Spark对堆内内存的管理是一种逻辑上的”规划式”的管理，因为对象实例占用内存的申请和释放都由JVM完成，Spark只能在申请后和释放前记录这些内存。所谓记录就是Spark不会有具体的释放内存的操作，只是记录内存变化而已(释放内存时会将不需要的对象置为null，让JVM的GC来回收)，从源码当中我们也可以看到对各种内存的释放和申请调用的方法只是在StorageManager当中进行一个数字的记录和改变，例如如下这段代码：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transferUnrollToStorage</span></span>(amount: <span class="type">Long</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">  <span class="comment">// Synchronize so that transfer is atomic</span></span><br><span class="line">  memoryManager.synchronized &#123;</span><br><span class="line">    releaseUnrollMemoryForThisTask(<span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>, amount)</span><br><span class="line">    <span class="keyword">val</span> success = memoryManager.acquireStorageMemory(blockId, amount, <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>)</span><br><span class="line">    assert(success, <span class="string">"transferring unroll memory to storage memory failed"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Acquire storage memory if necessary to store this block in memory.</span></span><br><span class="line"><span class="keyword">val</span> enoughStorageMemory = &#123;</span><br><span class="line">  <span class="keyword">if</span> (unrollMemoryUsedByThisBlock &lt;= size) &#123;</span><br><span class="line">    <span class="keyword">val</span> acquiredExtra =</span><br><span class="line">      memoryManager.acquireStorageMemory(</span><br><span class="line">        blockId, size - unrollMemoryUsedByThisBlock, <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>)</span><br><span class="line">    <span class="keyword">if</span> (acquiredExtra) &#123;</span><br><span class="line">      transferUnrollToStorage(unrollMemoryUsedByThisBlock)</span><br><span class="line">    &#125;</span><br><span class="line">    acquiredExtra</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123; <span class="comment">// unrollMemoryUsedByThisBlock &gt; size</span></span><br><span class="line">    <span class="comment">// If this task attempt already owns more unroll memory than is necessary to store the</span></span><br><span class="line">    <span class="comment">// block, then release the extra memory that will not be used.</span></span><br><span class="line">    <span class="keyword">val</span> excessUnrollMemory = unrollMemoryUsedByThisBlock - size</span><br><span class="line">    releaseUnrollMemoryForThisTask(<span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>, excessUnrollMemory)</span><br><span class="line">    transferUnrollToStorage(size)</span><br><span class="line">    <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>unrollMemory在释放的时候，需要比较申请到的unrollMemory是否大于最后存储Block的entry的size，如果小于size，会有一个申请不足的storageMemory的过程，并将unrollMemroy转换(transfer)为storageMemory，而Storage Memory的申请还是释放最终都归结为StorageMemoryPool中一个Long类型的<code>_memoryUsed</code>变量的值的改变而已。例如如下StorageMemoryPool释放内存的代码：</p>
+<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">releaseMemory</span></span>(size: <span class="type">Long</span>): <span class="type">Unit</span> = lock.synchronized &#123;</span><br><span class="line">  <span class="keyword">if</span> (size &gt; _memoryUsed) &#123;</span><br><span class="line">    logWarning(<span class="string">s"Attempted to release <span class="subst">$size</span> bytes of storage "</span> +</span><br><span class="line">      <span class="string">s"memory when we only have <span class="subst">$&#123;_memoryUsed&#125;</span> bytes"</span>)</span><br><span class="line">    _memoryUsed = <span class="number">0</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    _memoryUsed -= size</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于Spark的内存管理，在被Spark标记为释放的对象实例，很有可能在实际上并没有被JVM回收，导致实际可用的内存小于Spark记录的可用内存，所以Spark并不能准确记录实际可用的堆内内存，从而也就无法完全OOM的异常，我们在平时管理Spark内存的时候要做好充分的内存监控以及调优，保证我们的程序能够在有限的内存环境下正常快速的运行。有时候为了调优可能还需要深刻了解JVM GC的机制，才能做到最大程度的内存充分理由和不出现OOM的异常。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a href="https://www.ibm.com/developerworks/cn/analytics/library/ba-cn-apache-spark-memory-management/index.html" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/analytics/library/ba-cn-apache-spark-memory-management/index.html</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Spark源码阅读</category>
+      </categories>
+      <tags>
+        <tag>spark</tag>
       </tags>
   </entry>
   <entry>
@@ -2039,100 +2143,6 @@ DAGScheduler是一个高层调度器，能够将DAG的各个RDD划分到不同�
 <li>Spark大数据商业实战三部曲/王家林，段智华，夏阳编著. 北京:清华大学出版社，2018</li>
 <li><a href="https://stackoverflow.com/questions/36671832/number-of-cpus-per-task-in-spark" target="_blank" rel="noopener">https://stackoverflow.com/questions/36671832/number-of-cpus-per-task-in-spark</a></li>
 </ul>
-]]></content>
-      <categories>
-        <category>Spark源码阅读</category>
-      </categories>
-      <tags>
-        <tag>spark</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Spark源码分析RDD缓存过程</title>
-    <url>/2018/04/05/spark/spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/Spark%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90RDD%E7%BC%93%E5%AD%98%E8%BF%87%E7%A8%8B/</url>
-    <content><![CDATA[<p>Spark提供了一种将RDD持久化的方式(cache、persist)，这种方式适用于需要多次执行action操作的RDD，因为持久化之后的RDD中的内容不需要重新计算，可以直接使用，对于多次执行action的RDD来说，这样做能省下许多重复计算的时间。Task在启动之初读取一个分区的时候，会先判断这个分区是否已经被持久化，如果没有则会再去检查是否存在Checkpoint，还没有找到的话会根据血统重新计算。RDD的缓存是一种特殊的持久化操作，即<code>RDD.cache()</code>等同于<code>RDD.persist(MEMORY_ONLY)</code>即缓存是一种只将RDD持久化到内存当中的方式。本文基于Spark 2.1版本的源码对RDD的缓存过程进行了分析，文章中涉及到的源码文件主要有以下几个：</p>
-<ul>
-<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/storage/memory/MemoryStore.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/storage/memory/MemoryStorage.scala</code></a></li>
-<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/memory/StorageMemoryPool.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/memory/StorageMemoryPool.scala</code></a></li>
-<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/util/collection/SizeTrackingVector.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/util/collection/SizeTrackingVector.scala</code></a></li>
-<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/util/collection/SizeTracker.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/util/collection/SizeTracker.scala</code></a></li>
-</ul>
-<h2 id="RDD缓存分析"><a href="#RDD缓存分析" class="headerlink" title="RDD缓存分析"></a>RDD缓存分析</h2><p>RDD在缓存到内存之前，Partition中的数据一般以迭代器(Iterator)的数据结构来访问，通过Iterator可以获得分区中每一条序列化或者非序列化的Record，这些Record在访问的时候占用的是JVM堆内存中other部分的内存区域，同一个Partition的不同Record的空间并不是连续的。RDD被缓存之后，会由Partition转化为Block，并且存储位置变为了Storage Memory区域，并且此时Block中的Record所占用的内存空间是连续的。我们可以在Spark的源码当中多次看到unroll这个词，字面意思是展开，在Spark当中的意义就是将存储在Partition中的Record由不连续的存储空间转换为连续存储空间的过程。Unroll操作的时候需要在Storage Memory当中通过<code>reserveUnrollMemoryForThisTask</code>来申请Unroll操作所需要的内存，使用完毕之后，又通过<code>releaseUnrollMemoryForThisTask</code>方法来释放这部分内存。这与1.6.0版本之前固定Unroll内存的方式不同，是动态申请的，因为这部分内存只在Unroll的时候有用，动态申请这块内存能够在不需要Unroll的时候将这块内存区域用于其他的用途上，提升内存资源的利用率。Block有两种存储方式，分别为序列化存储和非序列化存储，这两种存储方式具有其对应的Entry，在MemoryStore类中通过一个<code>LinkedHashMap</code>来存储堆内和对外内存中的所有Block对象的实例：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Note: all changes to memory allocations, notably putting blocks, evicting blocks, and</span></span><br><span class="line"><span class="comment">// acquiring or releasing unroll memory, must be synchronized on `memoryManager`!</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">val</span> entries = <span class="keyword">new</span> <span class="type">LinkedHashMap</span>[<span class="type">BlockId</span>, <span class="type">MemoryEntry</span>[_]](<span class="number">32</span>, <span class="number">0.75</span>f, <span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
-
-<p>通过这段源码的注释我们也可以知道，对这个map的数据结构进行操作的时候需要严格遵循同步的原则，因为一个Executor会对应一个MemoryStore，而一个Executor有多个core的时候会并行执行Task，就会有多个线程共享使用一块Storage Memory，即共享使用这一个LinkedHashMap，修改LinkedHashMap时需要做到同步。<br>因为不能保证存储空间可以一次容纳 Iterator 中的所有数据，当前的计算任务在 Unroll 时要向 MemoryManager 申请足够的 Unroll 空间来临时占位，空间不足则 Unroll 失败，空间足够时可以继续进行。至于为何要选择LinkedHashMap来存储也是有原因的，因为LinkedHashMap能够很好地支持LRU算法(最近最少使用，常用于页面置换算法)，我们可以看到定义LinkedHashMap的第三个参数<code>accessOrder=true</code>，即基于访问顺序，被访问到的元素会被加到LinkedHashMap的最后。基于这个特性，当新Block加入的时候发现内存空间不足的时候，会按照最近最少使用的顺序淘汰LinkedHashMap中的Block。</p>
-<h3 id="序列化存储"><a href="#序列化存储" class="headerlink" title="序列化存储"></a>序列化存储</h3><p>序列化存储使用了一个名为SerializedMemoryEntry的case class：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">case</span> <span class="class"><span class="keyword">class</span> <span class="title">SerializedMemoryEntry</span>[<span class="type">T</span>](<span class="params"></span></span></span><br><span class="line"><span class="class"><span class="params">    buffer: <span class="type">ChunkedByteBuffer</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    memoryMode: <span class="type">MemoryMode</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]</span>) <span class="keyword">extends</span> <span class="title">MemoryEntry</span>[<span class="type">T</span>] </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>: <span class="type">Long</span> = buffer.size</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>这里的主要存储结构为<code>ChunkedByteBuffer</code>，实际上这个类是Spark自己实现的用于存储<code>ByteBuffer</code>的数据结构，其本质为<code>Array[ByteBuffer]</code>，Array的每一个元素被称为一个chunk。对于已经序列化的Partition在转化为Block进行存储时，因为在存储时就已经知道序列化的ByteBuffer的size，其所需要的Unroll空间可以直接累加计算，一次申请。存储所使用的方法为<code>putBytes</code>，需要输入Block的ID、占用的内存空间大小、存储模式为堆内内存还是堆外内存以及存放序列化数据的ByteBuffer，其返回的内容指示了是否缓存成功：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">putBytes</span></span>[<span class="type">T</span>: <span class="type">ClassTag</span>](</span><br><span class="line">      blockId: <span class="type">BlockId</span>,</span><br><span class="line">      size: <span class="type">Long</span>,</span><br><span class="line">      memoryMode: <span class="type">MemoryMode</span>,</span><br><span class="line">      _bytes: () =&gt; <span class="type">ChunkedByteBuffer</span>): <span class="type">Boolean</span></span><br></pre></td></tr></table></figure>
-
-<p>获取序列化缓存的内容可以直接使用<code>getBytes</code>方法，输入Block的ID，获取对应的ChunkByteBuffer。</p>
-<a id="more"></a>
-<h3 id="非序列化存储"><a href="#非序列化存储" class="headerlink" title="非序列化存储"></a>非序列化存储</h3><p>非序列化存储使用了一个名为DeserializedMemoryEntry的case class：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">case</span> <span class="class"><span class="keyword">class</span> <span class="title">DeserializedMemoryEntry</span>[<span class="type">T</span>](<span class="params"></span></span></span><br><span class="line"><span class="class"><span class="params">    value: <span class="type">Array</span>[<span class="type">T</span>],</span></span></span><br><span class="line"><span class="class"><span class="params">    size: <span class="type">Long</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]</span>) <span class="keyword">extends</span> <span class="title">MemoryEntry</span>[<span class="type">T</span>] </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> memoryMode: <span class="type">MemoryMode</span> = <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>可以看到，非序列化的存储方式为将元素直接按照Array的方式进行存储，获取其中的存储内容时，可以直接返回装有数据的Iterator。非序列化的存储方式在遍历Record并申请内存时较为复杂，因为无法直接估计Block中所有Record的总空间大小，需要在遍历Record过程中一次申请，即每读取一条Record，采样估算其所需的Unroll空间并进行申请，空间不足时可以中断，释放已占用的Unroll空间。如果最终Unroll成功，当前Partition所占用的Unroll空间被转换为正常的缓存RDD的存储空间。采用估算使用的是<code>SizeTrackingVector</code>，其实现了<code>SizeTracker</code>接口，可以通过采样的方式，在O(1)时间估计出输入的Block的大小，若估计出的大小超出了申请的内存的临界值，便会再申请内存来存放新加入的Record。这种依次申请内存的方式，其占用的内存是通过周期性地采样近似估算而得，即并不是每次新增的数据项都会计算一次占用的内存大小，这种方法降低了时间开销但是有可能误差较大，导致某一时刻的实际内存有可能远远超出预期。但这也是一种权衡方式，即在计算以及申请内存的时间开销和申请内存准确度上的平衡，在大多数情况下，采样获得的内存大小估计还是准确的。<br>非序列化的Block有两种存储方式，一种是按照Array的方式存储原值，另一种为将原值进行序列化后存储，所调用的方法为<code>putIteratorAsValues</code>和<code>putIteratorAsBytes</code>：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Attempt to put the given block in memory store as values.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * It's possible that the iterator is too large to materialize and store in memory. To avoid</span></span><br><span class="line"><span class="comment"> * OOM exceptions, this method will gradually unroll the iterator while periodically checking</span></span><br><span class="line"><span class="comment"> * whether there is enough free memory. If the block is successfully materialized, then the</span></span><br><span class="line"><span class="comment"> * temporary unroll memory used during the materialization is "transferred" to storage memory,</span></span><br><span class="line"><span class="comment"> * so we won't acquire more memory than is actually needed to store the block.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * @return in case of success, the estimated size of the stored data. In case of failure, return</span></span><br><span class="line"><span class="comment"> *         an iterator containing the values of the block. The returned iterator will be backed</span></span><br><span class="line"><span class="comment"> *         by the combination of the partially-unrolled block and the remaining elements of the</span></span><br><span class="line"><span class="comment"> *         original input iterator. The caller must either fully consume this iterator or call</span></span><br><span class="line"><span class="comment"> *         `close()` on it in order to free the storage memory consumed by the partially-unrolled</span></span><br><span class="line"><span class="comment"> *         block.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span>[storage] <span class="function"><span class="keyword">def</span> <span class="title">putIteratorAsValues</span></span>[<span class="type">T</span>](</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    values: <span class="type">Iterator</span>[<span class="type">T</span>],</span><br><span class="line">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]): <span class="type">Either</span>[<span class="type">PartiallyUnrolledIterator</span>[<span class="type">T</span>], <span class="type">Long</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>[storage] <span class="function"><span class="keyword">def</span> <span class="title">putIteratorAsBytes</span></span>[<span class="type">T</span>](</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    values: <span class="type">Iterator</span>[<span class="type">T</span>],</span><br><span class="line">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>],</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Either</span>[<span class="type">PartiallySerializedBlock</span>[<span class="type">T</span>], <span class="type">Long</span>]</span><br></pre></td></tr></table></figure>
-
-<h2 id="RDD的持久化级别"><a href="#RDD的持久化级别" class="headerlink" title="RDD的持久化级别"></a>RDD的持久化级别</h2><p>前面既然说道了RDD缓存时会有序列化存储和非序列化存储两种方式，我们就顺便说一下RDD持久化的存储级别，这里涉及到的Spark源码当中的文件为<code>spark/core/src/main/scala/org/apache/spark/storage/StorageLevel.scala</code>，其中描述了Spark持久化存储级别当中5个重要的变量，这5个变量能组合称为RDD的11中存储级别：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _useDisk: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _useMemory: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _useOffHeap: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _deserialized: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _replication: <span class="type">Int</span> = <span class="number">1</span></span><br></pre></td></tr></table></figure>
-
-<p>这5个变量的前3个表示的是存储的位置，分别为磁盘、堆内内存和堆外内存。例如<code>DISK_ONLY</code>表示只存储在磁盘当中，<code>MEMORY_AND_DISK</code>表示可以存储在堆内内存和磁盘上，<code>OFF_HEAP</code>则只能存储在堆外内存上。<br><code>_deserialized</code>表示是否序列化，例如<code>MEMORY_ONLY_SER</code>表示序列化存储在堆内内存上，不加SER的存储级别则为不进行序列化。<br><code>_replication</code>表示备份的数量，默认不会进行冗余备份，<code>MEMORY_AND_DISK_2</code>则表示可以存储在堆内内存和磁盘上，并且创建一个副本进行备份，一般冗余备份会备份到其他的节点，保证持久化的数据的容错性。</p>
-<h2 id="Block存储的淘汰和落盘"><a href="#Block存储的淘汰和落盘" class="headerlink" title="Block存储的淘汰和落盘"></a>Block存储的淘汰和落盘</h2><p>我们可以从Spark源码的一些注释当中看到，当有新的Block要存储，内存又不够用时，会通过LRU淘汰一部分最近不常使用的Block，释放其内存给新加入的Block进行存储，如果被淘汰的Block的持久化级别当中有DISK，则会将其写入磁盘当中，称为落盘。Block的淘汰也不是仅仅依赖于LRU算法，其具有一定的规则：</p>
-<blockquote>
-<ul>
-<li>被淘汰的旧 Block 要与新 Block 的 MemoryMode 相同，即同属于堆外或堆内内存</li>
-<li>新旧 Block 不能属于同一个 RDD，避免循环淘汰</li>
-<li>旧 Block 所属 RDD 不能处于被读状态，避免引发一致性问题</li>
-<li>遍历 LinkedHashMap 中 Block，按照最近最少使用（LRU）的顺序淘汰，直到满足新 Block 所需的空间。其中 LRU 是 LinkedHashMap 的特性</li>
-</ul>
-</blockquote>
-<p>淘汰Block并释放其内存调用的方法为<code>evictBlocksToFreeSpace</code>：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Try to evict blocks to free up a given amount of space to store a particular block.</span></span><br><span class="line"><span class="comment"> * Can fail if either the block is bigger than our memory or it would require replacing</span></span><br><span class="line"><span class="comment"> * another block from the same RDD (which leads to a wasteful cyclic replacement pattern for</span></span><br><span class="line"><span class="comment"> * RDDs that don't fit into memory that we want to avoid).</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * @param blockId the ID of the block we are freeing space for, if any</span></span><br><span class="line"><span class="comment"> * @param space the size of this block</span></span><br><span class="line"><span class="comment"> * @param memoryMode the type of memory to free (on- or off-heap)</span></span><br><span class="line"><span class="comment"> * @return the amount of memory (in bytes) freed by eviction</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span>[spark] <span class="function"><span class="keyword">def</span> <span class="title">evictBlocksToFreeSpace</span></span>(</span><br><span class="line">    blockId: <span class="type">Option</span>[<span class="type">BlockId</span>],</span><br><span class="line">    space: <span class="type">Long</span>,</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Long</span></span><br></pre></td></tr></table></figure>
-
-<p>我们也可以在这段代码的注释当中看到一些淘汰Block可能会出现fail的情况，包括新存储的Block所占用的空间大于总内存，或者需要替换处于同一个RDD的不同的Block。</p>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文主要从Spark源码的角度分析了Storage Memory部分，RDD的缓存机制，同时简略介绍了RDD持久化的存储级别。Spark对堆内内存的管理是一种逻辑上的”规划式”的管理，因为对象实例占用内存的申请和释放都由JVM完成，Spark只能在申请后和释放前记录这些内存。所谓记录就是Spark不会有具体的释放内存的操作，只是记录内存变化而已(释放内存时会将不需要的对象置为null，让JVM的GC来回收)，从源码当中我们也可以看到对各种内存的释放和申请调用的方法只是在StorageManager当中进行一个数字的记录和改变，例如如下这段代码：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transferUnrollToStorage</span></span>(amount: <span class="type">Long</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">  <span class="comment">// Synchronize so that transfer is atomic</span></span><br><span class="line">  memoryManager.synchronized &#123;</span><br><span class="line">    releaseUnrollMemoryForThisTask(<span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>, amount)</span><br><span class="line">    <span class="keyword">val</span> success = memoryManager.acquireStorageMemory(blockId, amount, <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>)</span><br><span class="line">    assert(success, <span class="string">"transferring unroll memory to storage memory failed"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Acquire storage memory if necessary to store this block in memory.</span></span><br><span class="line"><span class="keyword">val</span> enoughStorageMemory = &#123;</span><br><span class="line">  <span class="keyword">if</span> (unrollMemoryUsedByThisBlock &lt;= size) &#123;</span><br><span class="line">    <span class="keyword">val</span> acquiredExtra =</span><br><span class="line">      memoryManager.acquireStorageMemory(</span><br><span class="line">        blockId, size - unrollMemoryUsedByThisBlock, <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>)</span><br><span class="line">    <span class="keyword">if</span> (acquiredExtra) &#123;</span><br><span class="line">      transferUnrollToStorage(unrollMemoryUsedByThisBlock)</span><br><span class="line">    &#125;</span><br><span class="line">    acquiredExtra</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123; <span class="comment">// unrollMemoryUsedByThisBlock &gt; size</span></span><br><span class="line">    <span class="comment">// If this task attempt already owns more unroll memory than is necessary to store the</span></span><br><span class="line">    <span class="comment">// block, then release the extra memory that will not be used.</span></span><br><span class="line">    <span class="keyword">val</span> excessUnrollMemory = unrollMemoryUsedByThisBlock - size</span><br><span class="line">    releaseUnrollMemoryForThisTask(<span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>, excessUnrollMemory)</span><br><span class="line">    transferUnrollToStorage(size)</span><br><span class="line">    <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>unrollMemory在释放的时候，需要比较申请到的unrollMemory是否大于最后存储Block的entry的size，如果小于size，会有一个申请不足的storageMemory的过程，并将unrollMemroy转换(transfer)为storageMemory，而Storage Memory的申请还是释放最终都归结为StorageMemoryPool中一个Long类型的<code>_memoryUsed</code>变量的值的改变而已。例如如下StorageMemoryPool释放内存的代码：</p>
-<figure class="highlight scala"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">releaseMemory</span></span>(size: <span class="type">Long</span>): <span class="type">Unit</span> = lock.synchronized &#123;</span><br><span class="line">  <span class="keyword">if</span> (size &gt; _memoryUsed) &#123;</span><br><span class="line">    logWarning(<span class="string">s"Attempted to release <span class="subst">$size</span> bytes of storage "</span> +</span><br><span class="line">      <span class="string">s"memory when we only have <span class="subst">$&#123;_memoryUsed&#125;</span> bytes"</span>)</span><br><span class="line">    _memoryUsed = <span class="number">0</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    _memoryUsed -= size</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<p>对于Spark的内存管理，在被Spark标记为释放的对象实例，很有可能在实际上并没有被JVM回收，导致实际可用的内存小于Spark记录的可用内存，所以Spark并不能准确记录实际可用的堆内内存，从而也就无法完全OOM的异常，我们在平时管理Spark内存的时候要做好充分的内存监控以及调优，保证我们的程序能够在有限的内存环境下正常快速的运行。有时候为了调优可能还需要深刻了解JVM GC的机制，才能做到最大程度的内存充分理由和不出现OOM的异常。</p>
-<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
-<li><a href="https://www.ibm.com/developerworks/cn/analytics/library/ba-cn-apache-spark-memory-management/index.html" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/analytics/library/ba-cn-apache-spark-memory-management/index.html</a></li>
-</ul>
-]]></content>
-      <categories>
-        <category>Spark源码阅读</category>
-      </categories>
-      <tags>
-        <tag>spark</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Intellij IDEA 编译spark源码报错解决方法</title>
-    <url>/2017/07/05/spark/spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/Intellij%20IDEA%20%E7%BC%96%E8%AF%91spark%E6%BA%90%E7%A0%81%E6%8A%A5%E9%94%99%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/</url>
-    <content><![CDATA[<h3 id="SparkFlumeProtocol"><a href="#SparkFlumeProtocol" class="headerlink" title="SparkFlumeProtocol"></a>SparkFlumeProtocol</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Error:(45, 66) not found: type SparkFlumeProtocol</span><br><span class="line">  val transactionTimeout: Int, val backOffInterval: Int) extends SparkFlumeProtocol with Logging &#123;</span><br></pre></td></tr></table></figure>
-
-<p>这个问题是由于flume-sink所需要的部分源文件idea不会自动下载，所以编译时不能通过。</p>
-<h4 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h4><p>在Intellij IDEA里面：</p>
-<ul>
-<li>打开View -&gt; Tool Windows -&gt; Maven Projects</li>
-<li>右击Spark Project External Flume Sink</li>
-<li>点击Generate Sources and Update Folders<br>随后，Intellij IDEA会自动下载Flume Sink相关的包</li>
-</ul>
-<h3 id="SqlBaseParser"><a href="#SqlBaseParser" class="headerlink" title="SqlBaseParser"></a>SqlBaseParser</h3><figure class="highlight plain"><table><tr><td class="code"><pre><span class="line">Error:(36, 45) object SqlBaseParser is not a member of package org.apache.spark.sql.catalyst.parser</span><br><span class="line">import org.apache.spark.sql.catalyst.parser.SqlBaseParser._</span><br></pre></td></tr></table></figure>
-
-<p>这个问题和之前的问题类似，是idea不会自动下载部分catalyst相关的源文件，导致编译时不能通过。</p>
-<h4 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h4><p>在Intellij IDEA里面：</p>
-<ul>
-<li>打开View -&gt; Tool Windows -&gt; Maven Projects</li>
-<li>右击Spark Project Catalyst</li>
-<li>点击Generate Sources and Update Folders<br>随后，Intellij IDEA会自动下载Catalyst相关的包</li>
-</ul>
-<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>IDEA编译spark源码出错大多都是不能正确下载相关的源文件，在Maven的管理菜单内选择相对应的库选择下载源码并更新即可解决大多数问题。</p>
-<p>spark build error集合：<br><a href="https://www.mail-archive.com/search?l=user@spark.apache.org&amp;q=subject:%22Build+error%22&amp;o=newest&amp;f=1" target="_blank" rel="noopener">https://www.mail-archive.com/search?l=user@spark.apache.org&amp;q=subject:%22Build+error%22&amp;o=newest&amp;f=1</a></p>
 ]]></content>
       <categories>
         <category>Spark源码阅读</category>
