@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next gemini" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="google-site-verification" content="nBL3O8Be9mH0bzPzBkFY9eTrScECyDon85pneXOb7sQ">
+<meta name="baidu-site-verification" content="7g6sOUMHy3">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.1.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.1.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="其他MPI中会用到的函数数据类型：  MPI_Barrier - int MPI_Barrier( MPI_Comm comm )阻塞执行到当前位置的处理程序，直到communicator中所有处理程序都到达该位置 MPI_Wtime - double MPI_Wtime( void )返回调用这个函数的进程节点从创建开始经过的时间 MPI_Type_size - int MPI_Type_siz">
+<meta name="keywords" content="MPI">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MPI常用函数及数据类型">
+<meta property="og:url" content="http://joey771.cn/2016/10/21/MPI/MPI常用函数及数据类型/index.html">
+<meta property="og:site_name" content="Joey&#39;s Notes">
+<meta property="og:description" content="其他MPI中会用到的函数数据类型：  MPI_Barrier - int MPI_Barrier( MPI_Comm comm )阻塞执行到当前位置的处理程序，直到communicator中所有处理程序都到达该位置 MPI_Wtime - double MPI_Wtime( void )返回调用这个函数的进程节点从创建开始经过的时间 MPI_Type_size - int MPI_Type_siz">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-13T07:47:52.257Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="MPI常用函数及数据类型">
+<meta name="twitter:description" content="其他MPI中会用到的函数数据类型：  MPI_Barrier - int MPI_Barrier( MPI_Comm comm )阻塞执行到当前位置的处理程序，直到communicator中所有处理程序都到达该位置 MPI_Wtime - double MPI_Wtime( void )返回调用这个函数的进程节点从创建开始经过的时间 MPI_Type_size - int MPI_Type_siz">
+
+
+
+
+
+
+  <link rel="canonical" href="http://joey771.cn/2016/10/21/MPI/MPI常用函数及数据类型/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>MPI常用函数及数据类型 | Joey's Notes</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Joey's Notes</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Joey</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">21</span></a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类<span class="badge">3</span></a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">56</span></a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://joey771.cn/2016/10/21/MPI/MPI常用函数及数据类型/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joey's Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">MPI常用函数及数据类型
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+                
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2016-10-21T17:21:18+08:00">2016-10-21</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/分布式/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>其他MPI中会用到的函数数据类型：</p>
+<ul>
+<li><code>MPI_Barrier</code> - <code>int MPI_Barrier( MPI_Comm comm )</code>阻塞执行到当前位置的处理程序，直到communicator中所有处理程序都到达该位置</li>
+<li><code>MPI_Wtime</code> - <code>double MPI_Wtime( void )</code>返回调用这个函数的进程节点从创建开始经过的时间</li>
+<li><code>MPI_Type_size</code> - <code>int MPI_Type_size(MPI_Datatype datatype, int *size)</code>返回datatype所占有的字节数</li>
+<li><code>MPI_Send</code> - <code>int MPI_Send(const void *buf, int count, MPI_Datatype datatype, int dest, int tag, MPI_Comm comm)</code>MPI发送数据函数，buf为发送缓冲区的起始地址，count为将发送的数据的个数，datatype为发送数据的数据类型，dest为目的进程的标识号，tag为消息标志，comm为通信域，该函数的返回值为MPI_SUCCESS时表示发送成功</li>
+<li><code>MPI_Irecv</code> = <code>int MPI_Irecv(void *buf, int count, MPI_Datatype datatype, int source, int tag, MPI_Comm comm, MPI_Status *status)</code>MPI接受数据函数，buf为接受缓冲区的起始地址，count为最多可接受的数据个数，datatype为接收数据的数据类型，source为接受数据的来源即发送数据的进程的进程标识号，tag为消息标识，与相应的发送操作的表示相匹配，comm为本进程和发送进程所在的通信域，status为返回状态<a id="more"></a></li>
+<li><code>MPI_Bcast</code> - <code>int MPI_Bcast( void *buffer, int count, MPI_Datatype datatype, int root, MPI_Comm comm )</code>从进程rank号为root的进程向通信域中的其他进程发送一条广播消息</li>
+<li><code>MPI_Datatype</code> - MPI数据类型枚举</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">typedef</span> <span class="keyword">enum</span> _MPI_Datatype &#123;</span><br><span class="line">  MPI_DATATYPE_NULL          = <span class="number">0x0c000000</span>,</span><br><span class="line">  MPI_CHAR                   = <span class="number">0x4c000101</span>,</span><br><span class="line">  MPI_UNSIGNED_CHAR          = <span class="number">0x4c000102</span>,</span><br><span class="line">  MPI_SHORT                  = <span class="number">0x4c000203</span>,</span><br><span class="line">  MPI_UNSIGNED_SHORT         = <span class="number">0x4c000204</span>,</span><br><span class="line">  MPI_INT                    = <span class="number">0x4c000405</span>,</span><br><span class="line">  MPI_UNSIGNED               = <span class="number">0x4c000406</span>,</span><br><span class="line">  MPI_LONG                   = <span class="number">0x4c000407</span>,</span><br><span class="line">  MPI_UNSIGNED_LONG          = <span class="number">0x4c000408</span>,</span><br><span class="line">  MPI_LONG_LONG_INT          = <span class="number">0x4c000809</span>,</span><br><span class="line">  MPI_LONG_LONG              = MPI_LONG_LONG_INT,</span><br><span class="line">  MPI_FLOAT                  = <span class="number">0x4c00040a</span>,</span><br><span class="line">  MPI_DOUBLE                 = <span class="number">0x4c00080b</span>,</span><br><span class="line">  MPI_LONG_DOUBLE            = <span class="number">0x4c00080c</span>,</span><br><span class="line">  MPI_BYTE                   = <span class="number">0x4c00010d</span>,</span><br><span class="line">  MPI_WCHAR                  = <span class="number">0x4c00020e</span>,</span><br><span class="line">  MPI_PACKED                 = <span class="number">0x4c00010f</span>,</span><br><span class="line">  MPI_LB                     = <span class="number">0x4c000010</span>,</span><br><span class="line">  MPI_UB                     = <span class="number">0x4c000011</span>,</span><br><span class="line">  MPI_C_COMPLEX              = <span class="number">0x4c000812</span>,</span><br><span class="line">  MPI_C_FLOAT_COMPLEX        = <span class="number">0x4c000813</span>,</span><br><span class="line">  MPI_C_DOUBLE_COMPLEX       = <span class="number">0x4c001614</span>,</span><br><span class="line">  MPI_C_LONG_DOUBLE_COMPLEX  = <span class="number">0x4c001615</span>,</span><br><span class="line">  MPI_2INT                   = <span class="number">0x4c000816</span>,</span><br><span class="line">  MPI_C_BOOL                 = <span class="number">0x4c000117</span>,</span><br><span class="line">  MPI_SIGNED_CHAR            = <span class="number">0x4c000118</span>,</span><br><span class="line">  MPI_UNSIGNED_LONG_LONG     = <span class="number">0x4c000819</span>,</span><br><span class="line">  MPI_CHARACTER              = <span class="number">0x4c00011a</span>,</span><br><span class="line">  MPI_INTEGER                = <span class="number">0x4c00041b</span>,</span><br><span class="line">  MPI_REAL                   = <span class="number">0x4c00041c</span>,</span><br><span class="line">  MPI_LOGICAL                = <span class="number">0x4c00041d</span>,</span><br><span class="line">  MPI_COMPLEX                = <span class="number">0x4c00081e</span>,</span><br><span class="line">  MPI_DOUBLE_PRECISION       = <span class="number">0x4c00081f</span>,</span><br><span class="line">  MPI_2INTEGER               = <span class="number">0x4c000820</span>,</span><br><span class="line">  MPI_2REAL                  = <span class="number">0x4c000821</span>,</span><br><span class="line">  MPI_DOUBLE_COMPLEX         = <span class="number">0x4c001022</span>,</span><br><span class="line">  MPI_2DOUBLE_PRECISION      = <span class="number">0x4c001023</span>,</span><br><span class="line">  MPI_2COMPLEX               = <span class="number">0x4c001024</span>,</span><br><span class="line">  MPI_2DOUBLE_COMPLEX        = <span class="number">0x4c002025</span>,</span><br><span class="line">  MPI_REAL2                  = MPI_DATATYPE_NULL,</span><br><span class="line">  MPI_REAL4                  = <span class="number">0x4c000427</span>,</span><br><span class="line">  MPI_COMPLEX8               = <span class="number">0x4c000828</span>,</span><br><span class="line">  MPI_REAL8                  = <span class="number">0x4c000829</span>,</span><br><span class="line">  MPI_COMPLEX16              = <span class="number">0x4c00102a</span>,</span><br><span class="line">  MPI_REAL16                 = MPI_DATATYPE_NULL,</span><br><span class="line">  MPI_COMPLEX32              = MPI_DATATYPE_NULL,</span><br><span class="line">  MPI_INTEGER1               = <span class="number">0x4c00012d</span>,</span><br><span class="line">  MPI_COMPLEX4               = MPI_DATATYPE_NULL,</span><br><span class="line">  MPI_INTEGER2               = <span class="number">0x4c00022f</span>,</span><br><span class="line">  MPI_INTEGER4               = <span class="number">0x4c000430</span>,</span><br><span class="line">  MPI_INTEGER8               = <span class="number">0x4c000831</span>,</span><br><span class="line">  MPI_INTEGER16              = MPI_DATATYPE_NULL,</span><br><span class="line">  MPI_INT8_T                 = <span class="number">0x4c000133</span>,</span><br><span class="line">  MPI_INT16_T                = <span class="number">0x4c000234</span>,</span><br><span class="line">  MPI_INT32_T                = <span class="number">0x4c000435</span>,</span><br><span class="line">  MPI_INT64_T                = <span class="number">0x4c000836</span>,</span><br><span class="line">  MPI_UINT8_T                = <span class="number">0x4c000137</span>,</span><br><span class="line">  MPI_UINT16_T               = <span class="number">0x4c000238</span>,</span><br><span class="line">  MPI_UINT32_T               = <span class="number">0x4c000439</span>,</span><br><span class="line">  MPI_UINT64_T               = <span class="number">0x4c00083a</span>,</span><br><span class="line">  MPI_AINT                   = <span class="number">0x4c00083b</span> (_WIN64), <span class="number">0x4c00043b</span>,</span><br><span class="line">  MPI_OFFSET                 = <span class="number">0x4c00083c</span>,</span><br><span class="line">  MPI_FLOAT_INT              = <span class="number">0x8c000000</span>,</span><br><span class="line">  MPI_DOUBLE_INT             = <span class="number">0x8c000001</span>,</span><br><span class="line">  MPI_LONG_INT               = <span class="number">0x8c000002</span>,</span><br><span class="line">  MPI_SHORT_INT              = <span class="number">0x8c000003</span>,</span><br><span class="line">  MPI_LONG_DOUBLE_INT        = <span class="number">0x8c000004</span></span><br><span class="line">&#125; MPI_Datatype;</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/MPI/" rel="tag"># MPI</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/10/21/MPI/MPI的helloworld教程/" rel="next" title="MPI的helloworld教程">
+                <i class="fa fa-chevron-left"></i> MPI的helloworld教程
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/06/14/linux/Linux搭建NAT共享网络/" rel="prev" title="Linux搭建NAT共享网络">
+                Linux搭建NAT共享网络 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/assets/blogImg/avatar.jpg" alt="Jiayi Liu">
+            
+              <p class="site-author-name" itemprop="name">Jiayi Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">56</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/liujiayi771" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:liujiayi771@gmail.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jiayi Liu</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Gemini</a> v6.1.0</div>
+
+<script src="https://s19.cnzz.com/z_stat.php?id=1273773104&web_id=1273773104" language="JavaScript"></script>
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.1.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+  
+</body>
+</html>

@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next gemini" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="google-site-verification" content="nBL3O8Be9mH0bzPzBkFY9eTrScECyDon85pneXOb7sQ">
+<meta name="baidu-site-verification" content="7g6sOUMHy3">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.1.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.1.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="yum安装软件首先通过yum安装kerberos所需要的软件 1yum install -y krb5-server krb5-workstation pam_krb5  修改服务端配置1cd /var/kerberos/krb5kdc  我们需要修改该目录下的两个配置文件：  kdc.conf kadm5.acl  假设我们的realm为KDC.COM，修改kadm5.acl为如下内容： 1*/">
+<meta name="keywords" content="kerberos">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CentOS7上安装Kerberos KDC">
+<meta property="og:url" content="http://joey771.cn/2020/04/24/CentOS7上安装Kerberos-KDC/index.html">
+<meta property="og:site_name" content="Joey&#39;s Notes">
+<meta property="og:description" content="yum安装软件首先通过yum安装kerberos所需要的软件 1yum install -y krb5-server krb5-workstation pam_krb5  修改服务端配置1cd /var/kerberos/krb5kdc  我们需要修改该目录下的两个配置文件：  kdc.conf kadm5.acl  假设我们的realm为KDC.COM，修改kadm5.acl为如下内容： 1*/">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-04-24T09:30:25.854Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="CentOS7上安装Kerberos KDC">
+<meta name="twitter:description" content="yum安装软件首先通过yum安装kerberos所需要的软件 1yum install -y krb5-server krb5-workstation pam_krb5  修改服务端配置1cd /var/kerberos/krb5kdc  我们需要修改该目录下的两个配置文件：  kdc.conf kadm5.acl  假设我们的realm为KDC.COM，修改kadm5.acl为如下内容： 1*/">
+
+
+
+
+
+
+  <link rel="canonical" href="http://joey771.cn/2020/04/24/CentOS7上安装Kerberos-KDC/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>CentOS7上安装Kerberos KDC | Joey's Notes</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Joey's Notes</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Joey</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">21</span></a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类<span class="badge">3</span></a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">56</span></a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://joey771.cn/2020/04/24/CentOS7上安装Kerberos-KDC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joey's Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">CentOS7上安装Kerberos KDC
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+                
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-24T17:29:41+08:00">2020-04-24</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="yum安装软件"><a href="#yum安装软件" class="headerlink" title="yum安装软件"></a>yum安装软件</h3><p>首先通过yum安装kerberos所需要的软件</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y krb5-server krb5-workstation pam_krb5</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改服务端配置"><a href="#修改服务端配置" class="headerlink" title="修改服务端配置"></a>修改服务端配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /var/kerberos/krb5kdc</span><br></pre></td></tr></table></figure>
+
+<p>我们需要修改该目录下的两个配置文件：</p>
+<ul>
+<li>kdc.conf</li>
+<li>kadm5.acl</li>
+</ul>
+<p>假设我们的realm为KDC.COM，修改<code>kadm5.acl</code>为如下内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*/admin@KDC.COM     *</span><br></pre></td></tr></table></figure>
+
+<p>修改<code>kdc.conf</code>为如下内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[kdcdefaults]</span><br><span class="line"> kdc_ports = 88</span><br><span class="line"> kdc_tcp_ports = 88</span><br><span class="line"></span><br><span class="line">[realms]</span><br><span class="line"> KDC.COM = &#123;</span><br><span class="line">  <span class="comment">#master_key_type = aes256-cts</span></span><br><span class="line">  max_renewable_life = 7d</span><br><span class="line">  acl_file = /var/kerberos/krb5kdc/kadm5.acl</span><br><span class="line">  dict_file = /usr/share/dict/words</span><br><span class="line">  admin_keytab = /var/kerberos/krb5kdc/kadm5.keytab</span><br><span class="line">  supported_enctypes = aes256-cts:normal aes128-cts:normal des3-hmac-sha1:normal arcfour-hmac:normal camellia256-cts:normal camellia128-cts:normal des-hmac-sha1:normal des-cbc-md5:normal des-cbc-crc:normal</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改客户端配置"><a href="#修改客户端配置" class="headerlink" title="修改客户端配置"></a>修改客户端配置</h3><p>我们用作KDC服务的服务器也将会是一个Kerberos客户端，我们需要修改客户端配置文件<code>/etc/krb5.conf</code>，文件内容如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Configuration snippets may be placed in this directory as well</span></span><br><span class="line">includedir /etc/krb5.conf.d/</span><br><span class="line"></span><br><span class="line">[logging]</span><br><span class="line"> default = FILE:/var/<span class="built_in">log</span>/krb5libs.log</span><br><span class="line"> kdc = FILE:/var/<span class="built_in">log</span>/krb5kdc.log</span><br><span class="line"> admin_server = FILE:/var/<span class="built_in">log</span>/kadmind.log</span><br><span class="line"></span><br><span class="line">[libdefaults]</span><br><span class="line"> dns_lookup_realm = <span class="literal">false</span></span><br><span class="line"> ticket_lifetime = 24h</span><br><span class="line"> renew_lifetime = 7d</span><br><span class="line"> forwardable = <span class="literal">true</span></span><br><span class="line"> rdns = <span class="literal">false</span></span><br><span class="line"> pkinit_anchors = /etc/pki/tls/certs/ca-bundle.crt</span><br><span class="line"> default_realm = KDC.COM</span><br><span class="line"> default_ccache_name = KEYRING:persistent:%&#123;uid&#125;</span><br><span class="line"> default_tgs_enctypes = aes128-cts arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-hmac-sha1 aes256-cts</span><br><span class="line"> default_tkt_enctypes = aes128-cts arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-hmac-sha1 aes256-cts</span><br><span class="line"> permitted_enctypes = aes256-cts-hmac-sha1-96 des3-cbc-sha1 arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-cbc-md4</span><br><span class="line"> allow_weak_crypto = yes</span><br><span class="line"></span><br><span class="line">[realms]</span><br><span class="line"> KDC.COM = &#123;</span><br><span class="line">  kdc = kdc.hostname</span><br><span class="line">  admin_server = kdc.hostname</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line">[domain_realm]</span><br><span class="line"> .kdc.com = KDC.COM</span><br><span class="line"> kdc.com = KDC.COM</span><br></pre></td></tr></table></figure>
+
+<h3 id="创建KDC数据库"><a href="#创建KDC数据库" class="headerlink" title="创建KDC数据库"></a>创建KDC数据库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kdb5_util create -s -r KDC.COM</span><br></pre></td></tr></table></figure>
+
+<h3 id="开启Kerberos"><a href="#开启Kerberos" class="headerlink" title="开启Kerberos"></a>开启Kerberos</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl start krb5kdc kadmin</span><br><span class="line">systemctl <span class="built_in">enable</span> krb5kdc kadmin</span><br></pre></td></tr></table></figure>
+
+<p>接下来需要创建kadmin的管理员账号：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kadmin.local</span><br><span class="line">kadmin.local: addprinc root/admin</span><br><span class="line">kadmin.local: quit</span><br></pre></td></tr></table></figure>
+
+<h3 id="修改SSH客户端配置"><a href="#修改SSH客户端配置" class="headerlink" title="修改SSH客户端配置"></a>修改SSH客户端配置</h3><p>修改<code>/etc/ssh/ssh_config</code>，添加如下配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GSSAPIAuthentication yes</span><br><span class="line">GSSAPIDelegateCredentials yes</span><br></pre></td></tr></table></figure>
+
+<p>执行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">authconfig  --enablekrb5 --update</span><br><span class="line">systemctl reload sshd</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/kerberos/" rel="tag"># kerberos</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/04/26/CentOS-7安装Facebook-folly库/" rel="next" title="CentOS 7安装Facebook folly库">
+                <i class="fa fa-chevron-left"></i> CentOS 7安装Facebook folly库
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/06/04/Presto使用OpenLDAP进行登录认证/" rel="prev" title="Presto使用OpenLDAP进行登录认证">
+                Presto使用OpenLDAP进行登录认证 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/assets/blogImg/avatar.jpg" alt="Jiayi Liu">
+            
+              <p class="site-author-name" itemprop="name">Jiayi Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">56</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/liujiayi771" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:liujiayi771@gmail.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#yum安装软件"><span class="nav-number">1.</span> <span class="nav-text">yum安装软件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改服务端配置"><span class="nav-number">2.</span> <span class="nav-text">修改服务端配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改客户端配置"><span class="nav-number">3.</span> <span class="nav-text">修改客户端配置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#创建KDC数据库"><span class="nav-number">4.</span> <span class="nav-text">创建KDC数据库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#开启Kerberos"><span class="nav-number">5.</span> <span class="nav-text">开启Kerberos</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#修改SSH客户端配置"><span class="nav-number">6.</span> <span class="nav-text">修改SSH客户端配置</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jiayi Liu</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Gemini</a> v6.1.0</div>
+
+<script src="https://s19.cnzz.com/z_stat.php?id=1273773104&web_id=1273773104" language="JavaScript"></script>
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.1.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+  
+</body>
+</html>

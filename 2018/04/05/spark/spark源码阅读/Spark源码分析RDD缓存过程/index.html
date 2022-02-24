@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next gemini" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="google-site-verification" content="nBL3O8Be9mH0bzPzBkFY9eTrScECyDon85pneXOb7sQ">
+<meta name="baidu-site-verification" content="7g6sOUMHy3">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.1.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.1.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="Spark提供了一种将RDD持久化的方式(cache、persist)，这种方式适用于需要多次执行action操作的RDD，因为持久化之后的RDD中的内容不需要重新计算，可以直接使用，对于多次执行action的RDD来说，这样做能省下许多重复计算的时间。Task在启动之初读取一个分区的时候，会先判断这个分区是否已经被持久化，如果没有则会再去检查是否存在Checkpoint，还没有找到的话会根据血统">
+<meta name="keywords" content="spark">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark源码分析RDD缓存过程">
+<meta property="og:url" content="http://joey771.cn/2018/04/05/spark/spark源码阅读/Spark源码分析RDD缓存过程/index.html">
+<meta property="og:site_name" content="Joey&#39;s Notes">
+<meta property="og:description" content="Spark提供了一种将RDD持久化的方式(cache、persist)，这种方式适用于需要多次执行action操作的RDD，因为持久化之后的RDD中的内容不需要重新计算，可以直接使用，对于多次执行action的RDD来说，这样做能省下许多重复计算的时间。Task在启动之初读取一个分区的时候，会先判断这个分区是否已经被持久化，如果没有则会再去检查是否存在Checkpoint，还没有找到的话会根据血统">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-13T07:47:52.266Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spark源码分析RDD缓存过程">
+<meta name="twitter:description" content="Spark提供了一种将RDD持久化的方式(cache、persist)，这种方式适用于需要多次执行action操作的RDD，因为持久化之后的RDD中的内容不需要重新计算，可以直接使用，对于多次执行action的RDD来说，这样做能省下许多重复计算的时间。Task在启动之初读取一个分区的时候，会先判断这个分区是否已经被持久化，如果没有则会再去检查是否存在Checkpoint，还没有找到的话会根据血统">
+
+
+
+
+
+
+  <link rel="canonical" href="http://joey771.cn/2018/04/05/spark/spark源码阅读/Spark源码分析RDD缓存过程/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Spark源码分析RDD缓存过程 | Joey's Notes</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Joey's Notes</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Joey</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">21</span></a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类<span class="badge">3</span></a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">56</span></a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://joey771.cn/2018/04/05/spark/spark源码阅读/Spark源码分析RDD缓存过程/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joey's Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Spark源码分析RDD缓存过程
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+                
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-05T13:43:39+08:00">2018-04-05</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/Spark源码阅读/" itemprop="url" rel="index"><span itemprop="name">Spark源码阅读</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Spark提供了一种将RDD持久化的方式(cache、persist)，这种方式适用于需要多次执行action操作的RDD，因为持久化之后的RDD中的内容不需要重新计算，可以直接使用，对于多次执行action的RDD来说，这样做能省下许多重复计算的时间。Task在启动之初读取一个分区的时候，会先判断这个分区是否已经被持久化，如果没有则会再去检查是否存在Checkpoint，还没有找到的话会根据血统重新计算。RDD的缓存是一种特殊的持久化操作，即<code>RDD.cache()</code>等同于<code>RDD.persist(MEMORY_ONLY)</code>即缓存是一种只将RDD持久化到内存当中的方式。本文基于Spark 2.1版本的源码对RDD的缓存过程进行了分析，文章中涉及到的源码文件主要有以下几个：</p>
+<ul>
+<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/storage/memory/MemoryStore.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/storage/memory/MemoryStorage.scala</code></a></li>
+<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/memory/StorageMemoryPool.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/memory/StorageMemoryPool.scala</code></a></li>
+<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/util/collection/SizeTrackingVector.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/util/collection/SizeTrackingVector.scala</code></a></li>
+<li><a href="https://github.com/apache/spark/blob/branch-2.1/core/src/main/scala/org/apache/spark/util/collection/SizeTracker.scala" target="_blank" rel="noopener"><code>spark/core/src/main/scala/org/apache/spark/util/collection/SizeTracker.scala</code></a></li>
+</ul>
+<h2 id="RDD缓存分析"><a href="#RDD缓存分析" class="headerlink" title="RDD缓存分析"></a>RDD缓存分析</h2><p>RDD在缓存到内存之前，Partition中的数据一般以迭代器(Iterator)的数据结构来访问，通过Iterator可以获得分区中每一条序列化或者非序列化的Record，这些Record在访问的时候占用的是JVM堆内存中other部分的内存区域，同一个Partition的不同Record的空间并不是连续的。RDD被缓存之后，会由Partition转化为Block，并且存储位置变为了Storage Memory区域，并且此时Block中的Record所占用的内存空间是连续的。我们可以在Spark的源码当中多次看到unroll这个词，字面意思是展开，在Spark当中的意义就是将存储在Partition中的Record由不连续的存储空间转换为连续存储空间的过程。Unroll操作的时候需要在Storage Memory当中通过<code>reserveUnrollMemoryForThisTask</code>来申请Unroll操作所需要的内存，使用完毕之后，又通过<code>releaseUnrollMemoryForThisTask</code>方法来释放这部分内存。这与1.6.0版本之前固定Unroll内存的方式不同，是动态申请的，因为这部分内存只在Unroll的时候有用，动态申请这块内存能够在不需要Unroll的时候将这块内存区域用于其他的用途上，提升内存资源的利用率。Block有两种存储方式，分别为序列化存储和非序列化存储，这两种存储方式具有其对应的Entry，在MemoryStore类中通过一个<code>LinkedHashMap</code>来存储堆内和对外内存中的所有Block对象的实例：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Note: all changes to memory allocations, notably putting blocks, evicting blocks, and</span></span><br><span class="line"><span class="comment">// acquiring or releasing unroll memory, must be synchronized on `memoryManager`!</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">val</span> entries = <span class="keyword">new</span> <span class="type">LinkedHashMap</span>[<span class="type">BlockId</span>, <span class="type">MemoryEntry</span>[_]](<span class="number">32</span>, <span class="number">0.75</span>f, <span class="literal">true</span>)</span><br></pre></td></tr></table></figure>
+
+<p>通过这段源码的注释我们也可以知道，对这个map的数据结构进行操作的时候需要严格遵循同步的原则，因为一个Executor会对应一个MemoryStore，而一个Executor有多个core的时候会并行执行Task，就会有多个线程共享使用一块Storage Memory，即共享使用这一个LinkedHashMap，修改LinkedHashMap时需要做到同步。<br>因为不能保证存储空间可以一次容纳 Iterator 中的所有数据，当前的计算任务在 Unroll 时要向 MemoryManager 申请足够的 Unroll 空间来临时占位，空间不足则 Unroll 失败，空间足够时可以继续进行。至于为何要选择LinkedHashMap来存储也是有原因的，因为LinkedHashMap能够很好地支持LRU算法(最近最少使用，常用于页面置换算法)，我们可以看到定义LinkedHashMap的第三个参数<code>accessOrder=true</code>，即基于访问顺序，被访问到的元素会被加到LinkedHashMap的最后。基于这个特性，当新Block加入的时候发现内存空间不足的时候，会按照最近最少使用的顺序淘汰LinkedHashMap中的Block。</p>
+<h3 id="序列化存储"><a href="#序列化存储" class="headerlink" title="序列化存储"></a>序列化存储</h3><p>序列化存储使用了一个名为SerializedMemoryEntry的case class：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">case</span> <span class="class"><span class="keyword">class</span> <span class="title">SerializedMemoryEntry</span>[<span class="type">T</span>](<span class="params"></span></span></span><br><span class="line"><span class="class"><span class="params">    buffer: <span class="type">ChunkedByteBuffer</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    memoryMode: <span class="type">MemoryMode</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]</span>) <span class="keyword">extends</span> <span class="title">MemoryEntry</span>[<span class="type">T</span>] </span>&#123;</span><br><span class="line">  <span class="function"><span class="keyword">def</span> <span class="title">size</span></span>: <span class="type">Long</span> = buffer.size</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的主要存储结构为<code>ChunkedByteBuffer</code>，实际上这个类是Spark自己实现的用于存储<code>ByteBuffer</code>的数据结构，其本质为<code>Array[ByteBuffer]</code>，Array的每一个元素被称为一个chunk。对于已经序列化的Partition在转化为Block进行存储时，因为在存储时就已经知道序列化的ByteBuffer的size，其所需要的Unroll空间可以直接累加计算，一次申请。存储所使用的方法为<code>putBytes</code>，需要输入Block的ID、占用的内存空间大小、存储模式为堆内内存还是堆外内存以及存放序列化数据的ByteBuffer，其返回的内容指示了是否缓存成功：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">putBytes</span></span>[<span class="type">T</span>: <span class="type">ClassTag</span>](</span><br><span class="line">      blockId: <span class="type">BlockId</span>,</span><br><span class="line">      size: <span class="type">Long</span>,</span><br><span class="line">      memoryMode: <span class="type">MemoryMode</span>,</span><br><span class="line">      _bytes: () =&gt; <span class="type">ChunkedByteBuffer</span>): <span class="type">Boolean</span></span><br></pre></td></tr></table></figure>
+
+<p>获取序列化缓存的内容可以直接使用<code>getBytes</code>方法，输入Block的ID，获取对应的ChunkByteBuffer。</p>
+<a id="more"></a>
+<h3 id="非序列化存储"><a href="#非序列化存储" class="headerlink" title="非序列化存储"></a>非序列化存储</h3><p>非序列化存储使用了一个名为DeserializedMemoryEntry的case class：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">case</span> <span class="class"><span class="keyword">class</span> <span class="title">DeserializedMemoryEntry</span>[<span class="type">T</span>](<span class="params"></span></span></span><br><span class="line"><span class="class"><span class="params">    value: <span class="type">Array</span>[<span class="type">T</span>],</span></span></span><br><span class="line"><span class="class"><span class="params">    size: <span class="type">Long</span>,</span></span></span><br><span class="line"><span class="class"><span class="params">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]</span>) <span class="keyword">extends</span> <span class="title">MemoryEntry</span>[<span class="type">T</span>] </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> memoryMode: <span class="type">MemoryMode</span> = <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到，非序列化的存储方式为将元素直接按照Array的方式进行存储，获取其中的存储内容时，可以直接返回装有数据的Iterator。非序列化的存储方式在遍历Record并申请内存时较为复杂，因为无法直接估计Block中所有Record的总空间大小，需要在遍历Record过程中一次申请，即每读取一条Record，采样估算其所需的Unroll空间并进行申请，空间不足时可以中断，释放已占用的Unroll空间。如果最终Unroll成功，当前Partition所占用的Unroll空间被转换为正常的缓存RDD的存储空间。采用估算使用的是<code>SizeTrackingVector</code>，其实现了<code>SizeTracker</code>接口，可以通过采样的方式，在O(1)时间估计出输入的Block的大小，若估计出的大小超出了申请的内存的临界值，便会再申请内存来存放新加入的Record。这种依次申请内存的方式，其占用的内存是通过周期性地采样近似估算而得，即并不是每次新增的数据项都会计算一次占用的内存大小，这种方法降低了时间开销但是有可能误差较大，导致某一时刻的实际内存有可能远远超出预期。但这也是一种权衡方式，即在计算以及申请内存的时间开销和申请内存准确度上的平衡，在大多数情况下，采样获得的内存大小估计还是准确的。<br>非序列化的Block有两种存储方式，一种是按照Array的方式存储原值，另一种为将原值进行序列化后存储，所调用的方法为<code>putIteratorAsValues</code>和<code>putIteratorAsBytes</code>：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Attempt to put the given block in memory store as values.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * It's possible that the iterator is too large to materialize and store in memory. To avoid</span></span><br><span class="line"><span class="comment"> * OOM exceptions, this method will gradually unroll the iterator while periodically checking</span></span><br><span class="line"><span class="comment"> * whether there is enough free memory. If the block is successfully materialized, then the</span></span><br><span class="line"><span class="comment"> * temporary unroll memory used during the materialization is "transferred" to storage memory,</span></span><br><span class="line"><span class="comment"> * so we won't acquire more memory than is actually needed to store the block.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * @return in case of success, the estimated size of the stored data. In case of failure, return</span></span><br><span class="line"><span class="comment"> *         an iterator containing the values of the block. The returned iterator will be backed</span></span><br><span class="line"><span class="comment"> *         by the combination of the partially-unrolled block and the remaining elements of the</span></span><br><span class="line"><span class="comment"> *         original input iterator. The caller must either fully consume this iterator or call</span></span><br><span class="line"><span class="comment"> *         `close()` on it in order to free the storage memory consumed by the partially-unrolled</span></span><br><span class="line"><span class="comment"> *         block.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span>[storage] <span class="function"><span class="keyword">def</span> <span class="title">putIteratorAsValues</span></span>[<span class="type">T</span>](</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    values: <span class="type">Iterator</span>[<span class="type">T</span>],</span><br><span class="line">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>]): <span class="type">Either</span>[<span class="type">PartiallyUnrolledIterator</span>[<span class="type">T</span>], <span class="type">Long</span>]</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>[storage] <span class="function"><span class="keyword">def</span> <span class="title">putIteratorAsBytes</span></span>[<span class="type">T</span>](</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    values: <span class="type">Iterator</span>[<span class="type">T</span>],</span><br><span class="line">    classTag: <span class="type">ClassTag</span>[<span class="type">T</span>],</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Either</span>[<span class="type">PartiallySerializedBlock</span>[<span class="type">T</span>], <span class="type">Long</span>]</span><br></pre></td></tr></table></figure>
+
+<h2 id="RDD的持久化级别"><a href="#RDD的持久化级别" class="headerlink" title="RDD的持久化级别"></a>RDD的持久化级别</h2><p>前面既然说道了RDD缓存时会有序列化存储和非序列化存储两种方式，我们就顺便说一下RDD持久化的存储级别，这里涉及到的Spark源码当中的文件为<code>spark/core/src/main/scala/org/apache/spark/storage/StorageLevel.scala</code>，其中描述了Spark持久化存储级别当中5个重要的变量，这5个变量能组合称为RDD的11中存储级别：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _useDisk: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _useMemory: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _useOffHeap: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _deserialized: <span class="type">Boolean</span>,</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">var</span> _replication: <span class="type">Int</span> = <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>这5个变量的前3个表示的是存储的位置，分别为磁盘、堆内内存和堆外内存。例如<code>DISK_ONLY</code>表示只存储在磁盘当中，<code>MEMORY_AND_DISK</code>表示可以存储在堆内内存和磁盘上，<code>OFF_HEAP</code>则只能存储在堆外内存上。<br><code>_deserialized</code>表示是否序列化，例如<code>MEMORY_ONLY_SER</code>表示序列化存储在堆内内存上，不加SER的存储级别则为不进行序列化。<br><code>_replication</code>表示备份的数量，默认不会进行冗余备份，<code>MEMORY_AND_DISK_2</code>则表示可以存储在堆内内存和磁盘上，并且创建一个副本进行备份，一般冗余备份会备份到其他的节点，保证持久化的数据的容错性。</p>
+<h2 id="Block存储的淘汰和落盘"><a href="#Block存储的淘汰和落盘" class="headerlink" title="Block存储的淘汰和落盘"></a>Block存储的淘汰和落盘</h2><p>我们可以从Spark源码的一些注释当中看到，当有新的Block要存储，内存又不够用时，会通过LRU淘汰一部分最近不常使用的Block，释放其内存给新加入的Block进行存储，如果被淘汰的Block的持久化级别当中有DISK，则会将其写入磁盘当中，称为落盘。Block的淘汰也不是仅仅依赖于LRU算法，其具有一定的规则：</p>
+<blockquote>
+<ul>
+<li>被淘汰的旧 Block 要与新 Block 的 MemoryMode 相同，即同属于堆外或堆内内存</li>
+<li>新旧 Block 不能属于同一个 RDD，避免循环淘汰</li>
+<li>旧 Block 所属 RDD 不能处于被读状态，避免引发一致性问题</li>
+<li>遍历 LinkedHashMap 中 Block，按照最近最少使用（LRU）的顺序淘汰，直到满足新 Block 所需的空间。其中 LRU 是 LinkedHashMap 的特性</li>
+</ul>
+</blockquote>
+<p>淘汰Block并释放其内存调用的方法为<code>evictBlocksToFreeSpace</code>：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Try to evict blocks to free up a given amount of space to store a particular block.</span></span><br><span class="line"><span class="comment"> * Can fail if either the block is bigger than our memory or it would require replacing</span></span><br><span class="line"><span class="comment"> * another block from the same RDD (which leads to a wasteful cyclic replacement pattern for</span></span><br><span class="line"><span class="comment"> * RDDs that don't fit into memory that we want to avoid).</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * @param blockId the ID of the block we are freeing space for, if any</span></span><br><span class="line"><span class="comment"> * @param space the size of this block</span></span><br><span class="line"><span class="comment"> * @param memoryMode the type of memory to free (on- or off-heap)</span></span><br><span class="line"><span class="comment"> * @return the amount of memory (in bytes) freed by eviction</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">private</span>[spark] <span class="function"><span class="keyword">def</span> <span class="title">evictBlocksToFreeSpace</span></span>(</span><br><span class="line">    blockId: <span class="type">Option</span>[<span class="type">BlockId</span>],</span><br><span class="line">    space: <span class="type">Long</span>,</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Long</span></span><br></pre></td></tr></table></figure>
+
+<p>我们也可以在这段代码的注释当中看到一些淘汰Block可能会出现fail的情况，包括新存储的Block所占用的空间大于总内存，或者需要替换处于同一个RDD的不同的Block。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>本文主要从Spark源码的角度分析了Storage Memory部分，RDD的缓存机制，同时简略介绍了RDD持久化的存储级别。Spark对堆内内存的管理是一种逻辑上的”规划式”的管理，因为对象实例占用内存的申请和释放都由JVM完成，Spark只能在申请后和释放前记录这些内存。所谓记录就是Spark不会有具体的释放内存的操作，只是记录内存变化而已(释放内存时会将不需要的对象置为null，让JVM的GC来回收)，从源码当中我们也可以看到对各种内存的释放和申请调用的方法只是在StorageManager当中进行一个数字的记录和改变，例如如下这段代码：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">transferUnrollToStorage</span></span>(amount: <span class="type">Long</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">  <span class="comment">// Synchronize so that transfer is atomic</span></span><br><span class="line">  memoryManager.synchronized &#123;</span><br><span class="line">    releaseUnrollMemoryForThisTask(<span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>, amount)</span><br><span class="line">    <span class="keyword">val</span> success = memoryManager.acquireStorageMemory(blockId, amount, <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>)</span><br><span class="line">    assert(success, <span class="string">"transferring unroll memory to storage memory failed"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment">// Acquire storage memory if necessary to store this block in memory.</span></span><br><span class="line"><span class="keyword">val</span> enoughStorageMemory = &#123;</span><br><span class="line">  <span class="keyword">if</span> (unrollMemoryUsedByThisBlock &lt;= size) &#123;</span><br><span class="line">    <span class="keyword">val</span> acquiredExtra =</span><br><span class="line">      memoryManager.acquireStorageMemory(</span><br><span class="line">        blockId, size - unrollMemoryUsedByThisBlock, <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>)</span><br><span class="line">    <span class="keyword">if</span> (acquiredExtra) &#123;</span><br><span class="line">      transferUnrollToStorage(unrollMemoryUsedByThisBlock)</span><br><span class="line">    &#125;</span><br><span class="line">    acquiredExtra</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123; <span class="comment">// unrollMemoryUsedByThisBlock &gt; size</span></span><br><span class="line">    <span class="comment">// If this task attempt already owns more unroll memory than is necessary to store the</span></span><br><span class="line">    <span class="comment">// block, then release the extra memory that will not be used.</span></span><br><span class="line">    <span class="keyword">val</span> excessUnrollMemory = unrollMemoryUsedByThisBlock - size</span><br><span class="line">    releaseUnrollMemoryForThisTask(<span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span>, excessUnrollMemory)</span><br><span class="line">    transferUnrollToStorage(size)</span><br><span class="line">    <span class="literal">true</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>unrollMemory在释放的时候，需要比较申请到的unrollMemory是否大于最后存储Block的entry的size，如果小于size，会有一个申请不足的storageMemory的过程，并将unrollMemroy转换(transfer)为storageMemory，而Storage Memory的申请还是释放最终都归结为StorageMemoryPool中一个Long类型的<code>_memoryUsed</code>变量的值的改变而已。例如如下StorageMemoryPool释放内存的代码：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">releaseMemory</span></span>(size: <span class="type">Long</span>): <span class="type">Unit</span> = lock.synchronized &#123;</span><br><span class="line">  <span class="keyword">if</span> (size &gt; _memoryUsed) &#123;</span><br><span class="line">    logWarning(<span class="string">s"Attempted to release <span class="subst">$size</span> bytes of storage "</span> +</span><br><span class="line">      <span class="string">s"memory when we only have <span class="subst">$&#123;_memoryUsed&#125;</span> bytes"</span>)</span><br><span class="line">    _memoryUsed = <span class="number">0</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    _memoryUsed -= size</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>对于Spark的内存管理，在被Spark标记为释放的对象实例，很有可能在实际上并没有被JVM回收，导致实际可用的内存小于Spark记录的可用内存，所以Spark并不能准确记录实际可用的堆内内存，从而也就无法完全OOM的异常，我们在平时管理Spark内存的时候要做好充分的内存监控以及调优，保证我们的程序能够在有限的内存环境下正常快速的运行。有时候为了调优可能还需要深刻了解JVM GC的机制，才能做到最大程度的内存充分理由和不出现OOM的异常。</p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a href="https://www.ibm.com/developerworks/cn/analytics/library/ba-cn-apache-spark-memory-management/index.html" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/analytics/library/ba-cn-apache-spark-memory-management/index.html</a></li>
+</ul>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/spark/" rel="tag"># spark</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/04/04/spark/Spark的内存管理/" rel="next" title="spark的内存管理">
+                <i class="fa fa-chevron-left"></i> spark的内存管理
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/04/16/linux/CentOS安装高版本gcc/" rel="prev" title="CentOS安装高版本gcc">
+                CentOS安装高版本gcc <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/assets/blogImg/avatar.jpg" alt="Jiayi Liu">
+            
+              <p class="site-author-name" itemprop="name">Jiayi Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">56</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/liujiayi771" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:liujiayi771@gmail.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#RDD缓存分析"><span class="nav-number">1.</span> <span class="nav-text">RDD缓存分析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#序列化存储"><span class="nav-number">1.1.</span> <span class="nav-text">序列化存储</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#非序列化存储"><span class="nav-number">1.2.</span> <span class="nav-text">非序列化存储</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#RDD的持久化级别"><span class="nav-number">2.</span> <span class="nav-text">RDD的持久化级别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Block存储的淘汰和落盘"><span class="nav-number">3.</span> <span class="nav-text">Block存储的淘汰和落盘</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#总结"><span class="nav-number">4.</span> <span class="nav-text">总结</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#参考资料"><span class="nav-number">4.1.</span> <span class="nav-text">参考资料</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jiayi Liu</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Gemini</a> v6.1.0</div>
+
+<script src="https://s19.cnzz.com/z_stat.php?id=1273773104&web_id=1273773104" language="JavaScript"></script>
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.1.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+  
+</body>
+</html>

@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+
+
+
+
+<html class="theme-next gemini" lang="zh-CN">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="google-site-verification" content="nBL3O8Be9mH0bzPzBkFY9eTrScECyDon85pneXOb7sQ">
+<meta name="baidu-site-verification" content="7g6sOUMHy3">
+
+
+
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=6.1.0" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.1.0">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.1.0">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=6.1.0" color="#222">
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '6.1.0',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="登录MATLAB的MathWorks，选择右上角的我的账户，点击许可证右侧的许可证管理，进入后选择安装和激活，之后选择“激活并获取许可证文件”，选择激活计算机，填入相关信息。其中主机ID即为电脑用于上外网的网卡的MAC地址，可以使用ipconfig进行查看，计算机登录名就是当前登录用户的用户名，不知道的话可以使用whoami指令进行查看。填写完成后会生成一个序列号，和一个lisence.lic文件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux命令行安装MATLAB">
+<meta property="og:url" content="http://joey771.cn/2019/01/18/linux命令行安装MATLAB/index.html">
+<meta property="og:site_name" content="Joey&#39;s Notes">
+<meta property="og:description" content="登录MATLAB的MathWorks，选择右上角的我的账户，点击许可证右侧的许可证管理，进入后选择安装和激活，之后选择“激活并获取许可证文件”，选择激活计算机，填入相关信息。其中主机ID即为电脑用于上外网的网卡的MAC地址，可以使用ipconfig进行查看，计算机登录名就是当前登录用户的用户名，不知道的话可以使用whoami指令进行查看。填写完成后会生成一个序列号，和一个lisence.lic文件">
+<meta property="og:locale" content="zh-CN">
+<meta property="og:updated_time" content="2020-03-13T07:47:52.262Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="linux命令行安装MATLAB">
+<meta name="twitter:description" content="登录MATLAB的MathWorks，选择右上角的我的账户，点击许可证右侧的许可证管理，进入后选择安装和激活，之后选择“激活并获取许可证文件”，选择激活计算机，填入相关信息。其中主机ID即为电脑用于上外网的网卡的MAC地址，可以使用ipconfig进行查看，计算机登录名就是当前登录用户的用户名，不知道的话可以使用whoami指令进行查看。填写完成后会生成一个序列号，和一个lisence.lic文件">
+
+
+
+
+
+
+  <link rel="canonical" href="http://joey771.cn/2019/01/18/linux命令行安装MATLAB/">
+
+
+
+<script type="text/javascript" id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>linux命令行安装MATLAB | Joey's Notes</title>
+  
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style type="text/css">
+    .use-motion .motion-element,
+    .use-motion .brand,
+    .use-motion .menu-item,
+    .sidebar-inner,
+    .use-motion .post-block,
+    .use-motion .pagination,
+    .use-motion .comments,
+    .use-motion .post-header,
+    .use-motion .post-body,
+    .use-motion .collection-title { opacity: initial; }
+
+    .use-motion .logo,
+    .use-motion .site-title,
+    .use-motion .site-subtitle {
+      opacity: initial;
+      top: initial;
+    }
+
+    .use-motion {
+      .logo-line-before i { left: initial; }
+      .logo-line-after i { right: initial; }
+    }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Joey's Notes</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Joey</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="切换导航栏">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+    <a href="/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-home"></i> <br>首页</a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+    <a href="/tags/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>标签<span class="badge">21</span></a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+    <a href="/categories/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-th"></i> <br>分类<span class="badge">3</span></a>
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+    <a href="/archives/" rel="section">
+      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>归档<span class="badge">56</span></a>
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://joey771.cn/2019/01/18/linux命令行安装MATLAB/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joey's Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">linux命令行安装MATLAB
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+                
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-18T09:51:19+08:00">2019-01-18</time>
+            
+
+            
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>登录MATLAB的MathWorks，选择右上角的我的账户，点击许可证右侧的许可证管理，进入后选择安装和激活，之后选择“激活并获取许可证文件”，选择激活计算机，填入相关信息。其中主机ID即为电脑用于上外网的网卡的MAC地址，可以使用<code>ipconfig</code>进行查看，计算机登录名就是当前登录用户的用户名，不知道的话可以使用<code>whoami</code>指令进行查看。填写完成后会生成一个序列号，和一个lisence.lic文件，将文件上传至安装MATLAB的服务器上并记录激活序列号。</p>
+<p>下载包含所有产品的完整MATLAB安装包，官网下载的只是一个100MB多的一个网络安装器，安装过程中才会下载需要的产品，这对于命令行安装是不适用的，命令行安装必须使用完整的离线安装包。之后需要填写silent安装模式下的安装配置文件，具体模板如下：</p>
+<a id="more"></a>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br></pre></td><td class="code"><pre><span class="line">##################################################################</span><br><span class="line">##</span><br><span class="line">## Use this file to specify parameters required by the installer at runtime.</span><br><span class="line">##</span><br><span class="line">## Instructions for using this file.</span><br><span class="line">##</span><br><span class="line">## 1. Create a copy of this template file and fill in the required</span><br><span class="line">##    information.</span><br><span class="line">##</span><br><span class="line">## 2. Uncomment only those lines that start with a single &apos;#&apos;</span><br><span class="line">##    and set the desired values. All allowed values for the</span><br><span class="line">##    parameters are defined in the comments section for each</span><br><span class="line">##    parameter.</span><br><span class="line">##</span><br><span class="line">## 3. Launch the installer from the command line, using the -inputFile option</span><br><span class="line">##    to specify the name of your installer initialization file.</span><br><span class="line">##</span><br><span class="line">##    (Windows) setup.exe -inputFile &lt;file_name&gt;</span><br><span class="line">##    (Mac/Unix) install -inputFile &lt;file_name&gt;</span><br><span class="line">##</span><br><span class="line">## NOTE:</span><br><span class="line">##    If you want to run the activation application in silent</span><br><span class="line">##    mode immediately after the installer completes, you must create</span><br><span class="line">##    an activation initialization file and specify its name as the</span><br><span class="line">##    value of the activationPropertiesFile= option. You can also</span><br><span class="line">##    pass the name of the activation initialization file to the</span><br><span class="line">##    installer using the -activationPropertiesFile command line</span><br><span class="line">##    option.</span><br><span class="line">##</span><br><span class="line">##################################################################</span><br><span class="line">##</span><br><span class="line">##</span><br><span class="line">## SPECIFY INSTALLATION FOLDER</span><br><span class="line">##</span><br><span class="line">## Example:</span><br><span class="line">##        (Windows) destinationFolder=C:\Program Files\MATLAB\RXXXX</span><br><span class="line">##        (Unix) destinationFolder=/usr/local/RXXXX</span><br><span class="line">##        (Mac) destinationFolder=/Applications</span><br><span class="line">##</span><br><span class="line">## Set the desired value for destinationFolder and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># destinationFolder=</span><br><span class="line"></span><br><span class="line">##</span><br><span class="line">## SPECIFY FILE INSTALLATION KEY</span><br><span class="line">##</span><br><span class="line">## Example: fileInstallationKey=xxxxx-xxxxx-xxxxx-xxxxx.....</span><br><span class="line">##</span><br><span class="line">## Set the desired value for fileInstallationKey and</span><br><span class="line">## uncomment the line.</span><br><span class="line">##</span><br><span class="line"># fileInstallationKey=</span><br><span class="line"></span><br><span class="line">##</span><br><span class="line">## ACCEPT LICENSE AGREEMENT</span><br><span class="line">##</span><br><span class="line">## You must agree to the license agreement to install MathWorks products.</span><br><span class="line">## The license agreement can be found in the license_agreement.txt file at the</span><br><span class="line">## root level of the installation DVD.</span><br><span class="line">##</span><br><span class="line">## Example: agreeToLicense=yes</span><br><span class="line">##</span><br><span class="line">## Set agreeToLicense value to yes or no and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># agreeToLicense=</span><br><span class="line"></span><br><span class="line">##</span><br><span class="line">## SPECIFY OUTPUT LOG</span><br><span class="line">##</span><br><span class="line">## Specify full path of file into which you want the results of the</span><br><span class="line">## installation to be recorded.</span><br><span class="line">##</span><br><span class="line">## Example:</span><br><span class="line">##            (Windows) outputFile=C:\TEMP\mathworks_&lt;user_name&gt;.log</span><br><span class="line">##            (Unix/Mac) outputFile=/tmp/mathworks_&lt;user_name&gt;.log</span><br><span class="line">##</span><br><span class="line">## Set the desired value for outputFile and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># outputFile=</span><br><span class="line"></span><br><span class="line">## SPECIFY INSTALLER MODE</span><br><span class="line">##</span><br><span class="line">## interactive: Run the installer GUI, waiting for user input on all</span><br><span class="line">##              dialog boxes.</span><br><span class="line">##</span><br><span class="line">## silent:      Run the installer without displaying the GUI.</span><br><span class="line">##</span><br><span class="line">## automated:   Run the installer GUI, displaying all dialog boxes, but only</span><br><span class="line">##              waiting for user input on dialogs that are missing required</span><br><span class="line">##              input.</span><br><span class="line">##</span><br><span class="line">## Set mode value to either interactive, silent, or automated and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># mode=</span><br><span class="line"></span><br><span class="line">## SPECIFY LENGTH OF TIME DIALOG BOXES ARE DISPLAYED</span><br><span class="line">##</span><br><span class="line">## Specify how long the installer dialog boxes are displayed, in milliseconds.</span><br><span class="line">##</span><br><span class="line">## NOTE: Use this value only if you set the installer mode to automated.</span><br><span class="line">##</span><br><span class="line">## By default, the dialog boxes display on the screen for one second.</span><br><span class="line">##</span><br><span class="line">## Example: (To specify a value of 1 second.) automatedModeTimeout=1000</span><br><span class="line">##</span><br><span class="line">## Set the desired value for automatedModeTimeout and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># automatedModeTimeout=</span><br><span class="line"></span><br><span class="line">## SPECIFY ACTIVATION PROPERTIES FILE (For non-network license types only)</span><br><span class="line">##</span><br><span class="line">## Enter the path to an existing file that contains properties to configure</span><br><span class="line">## the activation process.</span><br><span class="line"></span><br><span class="line"># activationPropertiesFile=</span><br><span class="line"></span><br><span class="line">########## Begin: Options for Network License Types #########</span><br><span class="line">##</span><br><span class="line">## SPECIFY PATH TO LICENSE FILE (Required for network license types only)</span><br><span class="line">##</span><br><span class="line">## This value is required when installing either the License Manager or when</span><br><span class="line">## installing as a Network End-User</span><br><span class="line">## Example:</span><br><span class="line">##            (Windows) licensePath=C:\TEMP\license.dat</span><br><span class="line">##            (Unix) licensePath=/tmp/license.dat</span><br><span class="line">## Set the desired value for licensePath and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># licensePath=</span><br><span class="line"></span><br><span class="line">## CHOOSE TO INSTALL LICENSE MANAGER (For network license types only)</span><br><span class="line">##</span><br><span class="line">## Installs license manager files to disk.</span><br><span class="line">##</span><br><span class="line">## NOTE: You only need to install the license manager files</span><br><span class="line">## on your license server.</span><br><span class="line">##</span><br><span class="line">## Set lmgrFiles value to true or false and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># lmgrFiles=</span><br><span class="line"></span><br><span class="line">## INSTALL LICENSE MANAGER AS A SERVICE (For network license types only)</span><br><span class="line">##</span><br><span class="line">## Configure the license manager as a service on Windows.</span><br><span class="line">##</span><br><span class="line">## NOTE: Not applicable for Unix or Mac.</span><br><span class="line">##</span><br><span class="line">## NOTE: The lmgr_files option (set in previous step) must also be set to true.</span><br><span class="line">##</span><br><span class="line">## Set lmgrService value to true or false and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># lmgrService=</span><br><span class="line"></span><br><span class="line">########## End: Options for Network License Types #########</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">################# Begin - Windows Only Options ################</span><br><span class="line">##</span><br><span class="line">## CHOOSE TO SET FILE ASSOCIATIONS</span><br><span class="line">##</span><br><span class="line">## Set to true if you want the installer to associate file types used by MathWorks</span><br><span class="line">## products to this version of MATLAB, or false if you do not want the installer to</span><br><span class="line">## associate MathWorks file types with this version of MATLAB.</span><br><span class="line">##</span><br><span class="line">## Default value is true.</span><br><span class="line">##</span><br><span class="line">## Set setFileAssoc value to true or false and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># setFileAssoc=</span><br><span class="line"></span><br><span class="line">##</span><br><span class="line">## CHOOSE TO CREATE WINDOWS DESKTOP SHORTCUT</span><br><span class="line">##</span><br><span class="line">## Set to true if you would like the installer to create a desktop shortcut icon</span><br><span class="line">## when MATLAB is installed or false if you don&apos;t want the shortcut created.</span><br><span class="line">##</span><br><span class="line">## Set desktopShortcut value to true or false and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># desktopShortcut=</span><br><span class="line"></span><br><span class="line">## CHOOSE TO ADD SHORTCUT TO WINDOWS START MENU</span><br><span class="line">##</span><br><span class="line">## Set to true if you would like the installer to create a Start Menu shortcut</span><br><span class="line">## icon when MATLAB is installed or false if you don&apos;t want the shortcut created.</span><br><span class="line">##</span><br><span class="line">## Set startMenuShortcut value to true or false and</span><br><span class="line">## uncomment the line.</span><br><span class="line"></span><br><span class="line"># startMenuShortcut=</span><br><span class="line"></span><br><span class="line">## CREATE a MATLAB Startup Accelerator task</span><br><span class="line">##</span><br><span class="line">## The MATLAB Startup Accelerator installer creates a</span><br><span class="line">## system task to preload MATLAB into the system&apos;s cache</span><br><span class="line">## for faster startup.</span><br><span class="line">##</span><br><span class="line">## NOTE: By default, a MATLAB Startup Accelerator task will</span><br><span class="line">## automatically be created.</span><br><span class="line">##</span><br><span class="line">## If you want a MATLAB Startup Accelerator task to be created,</span><br><span class="line">## do not edit this section.</span><br><span class="line">##</span><br><span class="line">## Set createAccelTask value to false if you do not want to</span><br><span class="line">## create an Accelerator task and uncomment the line.</span><br><span class="line"></span><br><span class="line"># createAccelTask=</span><br><span class="line"></span><br><span class="line">## Enable Login Named User  licensing</span><br><span class="line">##</span><br><span class="line">## Set to Yes to enable use of a Login Named User license for all users of this MATLAB installation</span><br><span class="line">## Users must log in to their MathWorks Account when MATLAB starts.</span><br><span class="line">##</span><br><span class="line">## Example: enableLNU=yes</span><br><span class="line">##</span><br><span class="line">## NOTE: This flag is valid in silent installations only.</span><br><span class="line"></span><br><span class="line"># enableLNU=yes</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">################ End - Windows Only Options ################</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">## SPECIFY PRODUCTS YOU WANT TO INSTALL</span><br><span class="line">##</span><br><span class="line">## By default, the installer installs all the products and</span><br><span class="line">## documentation for which you are licensed. Products you are not licensed for</span><br><span class="line">## are not installed, even if they are listed here.</span><br><span class="line">##</span><br><span class="line">## Note:</span><br><span class="line">## 1. To automatically install all your licensed products, do not edit</span><br><span class="line">##    any lines in this section.</span><br><span class="line">##</span><br><span class="line">## 2. To install a specific product or a subset of products for</span><br><span class="line">##    which you are licensed, uncomment the line for the product(s) you want</span><br><span class="line">##    to install.</span><br><span class="line"></span><br><span class="line">#product.5G_Toolbox</span><br><span class="line">#product.Aerospace_Blockset</span><br><span class="line">#product.Aerospace_Toolbox</span><br><span class="line">#product.Antenna_Toolbox</span><br><span class="line">#product.Audio_System_Toolbox</span><br><span class="line">#product.Automated_Driving_System_Toolbox</span><br><span class="line">#product.Bioinformatics_Toolbox</span><br><span class="line">#product.Communications_Toolbox</span><br><span class="line">#product.Computer_Vision_System_Toolbox</span><br><span class="line">#product.Control_System_Toolbox</span><br><span class="line">#product.Curve_Fitting_Toolbox</span><br><span class="line">#product.DO_Qualification_Kit</span><br><span class="line">#product.DSP_System_Toolbox</span><br><span class="line">#product.Data_Acquisition_Toolbox</span><br><span class="line">#product.Database_Toolbox</span><br><span class="line">#product.Datafeed_Toolbox</span><br><span class="line">#product.Deep_Learning_Toolbox</span><br><span class="line">#product.Econometrics_Toolbox</span><br><span class="line">#product.Embedded_Coder</span><br><span class="line">#product.Filter_Design_HDL_Coder</span><br><span class="line">#product.Financial_Instruments_Toolbox</span><br><span class="line">#product.Financial_Toolbox</span><br><span class="line">#product.Fixed_Point_Designer</span><br><span class="line">#product.Fuzzy_Logic_Toolbox</span><br><span class="line">#product.GPU_Coder</span><br><span class="line">#product.Global_Optimization_Toolbox</span><br><span class="line">#product.HDL_Coder</span><br><span class="line">#product.HDL_Verifier</span><br><span class="line">#product.IEC_Certification_Kit</span><br><span class="line">#product.Image_Acquisition_Toolbox</span><br><span class="line">#product.Image_Processing_Toolbox</span><br><span class="line">#product.Instrument_Control_Toolbox</span><br><span class="line">#product.LTE_HDL_Toolbox</span><br><span class="line">#product.LTE_Toolbox</span><br><span class="line">#product.MATLAB</span><br><span class="line">#product.MATLAB_Coder</span><br><span class="line">#product.MATLAB_Compiler</span><br><span class="line">#product.MATLAB_Compiler_SDK</span><br><span class="line">#product.MATLAB_Distributed_Computing_Server</span><br><span class="line">#product.MATLAB_Production_Server</span><br><span class="line">#product.MATLAB_Report_Generator</span><br><span class="line">#product.Mapping_Toolbox</span><br><span class="line">#product.Model_Predictive_Control_Toolbox</span><br><span class="line">#product.Model_Based_Calibration_Toolbox</span><br><span class="line">#product.OPC_Toolbox</span><br><span class="line">#product.Optimization_Toolbox</span><br><span class="line">#product.Parallel_Computing_Toolbox</span><br><span class="line">#product.Partial_Differential_Equation_Toolbox</span><br><span class="line">#product.Phased_Array_System_Toolbox</span><br><span class="line">#product.Polyspace_Bug_Finder</span><br><span class="line">#product.Polyspace_Code_Prover</span><br><span class="line">#product.Powertrain_Blockset</span><br><span class="line">#product.Predictive_Maintenance_Toolbox</span><br><span class="line">#product.RF_Blockset</span><br><span class="line">#product.RF_Toolbox</span><br><span class="line">#product.Risk_Management_Toolbox</span><br><span class="line">#product.Robotics_System_Toolbox</span><br><span class="line">#product.Robust_Control_Toolbox</span><br><span class="line">#product.Sensor_Fusion_and_Tracking_Toolbox</span><br><span class="line">#product.Signal_Processing_Toolbox</span><br><span class="line">#product.SimBiology</span><br><span class="line">#product.SimEvents</span><br><span class="line">#product.Simscape</span><br><span class="line">#product.Simscape_Driveline</span><br><span class="line">#product.Simscape_Electrical</span><br><span class="line">#product.Simscape_Fluids</span><br><span class="line">#product.Simscape_Multibody</span><br><span class="line">#product.Simulink</span><br><span class="line">#product.Simulink_3D_Animation</span><br><span class="line">#product.Simulink_Check</span><br><span class="line">#product.Simulink_Code_Inspector</span><br><span class="line">#product.Simulink_Coder</span><br><span class="line">#product.Simulink_Control_Design</span><br><span class="line">#product.Simulink_Coverage</span><br><span class="line">#product.Simulink_Design_Optimization</span><br><span class="line">#product.Simulink_Design_Verifier</span><br><span class="line">#product.Simulink_Desktop_Real_Time</span><br><span class="line">#product.Simulink_PLC_Coder</span><br><span class="line">#product.Simulink_Real_Time</span><br><span class="line">#product.Simulink_Report_Generator</span><br><span class="line">#product.Simulink_Requirements</span><br><span class="line">#product.Simulink_Test</span><br><span class="line">#product.Spreadsheet_Link</span><br><span class="line">#product.Stateflow</span><br><span class="line">#product.Statistics_and_Machine_Learning_Toolbox</span><br><span class="line">#product.Symbolic_Math_Toolbox</span><br><span class="line">#product.System_Identification_Toolbox</span><br><span class="line">#product.Text_Analytics_Toolbox</span><br><span class="line">#product.Trading_Toolbox</span><br><span class="line">#product.Vehicle_Dynamics_Blockset</span><br><span class="line">#product.Vehicle_Network_Toolbox</span><br><span class="line">#product.Vision_HDL_Toolbox</span><br><span class="line">#product.WLAN_Toolbox</span><br><span class="line">#product.Wavelet_Toolbox</span><br></pre></td></tr></table></figure>
+
+<p>我们需要填写的内容主要有：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">destinationFolder=/usr/local/RXXXX</span><br><span class="line">fileInstallationKey=xxxxx-xxxxx-xxxxx-xxxxx.....</span><br><span class="line">agreeToLicense=yes</span><br><span class="line">mode=silent</span><br><span class="line">licensePath=/tmp/license.lic</span><br></pre></td></tr></table></figure>
+
+<p>该配置文件需要指定安装路径（不指定的话安装路径默认为/usr/local/MATLAB），同意协议，安装模式为silent，激活序列号，证书文件路径，最后可以指定需要安装的产品，按照模板中的内容将对应产品前的注释取消即可，若不知道需要哪些产品，不添加任何产品则会安装所有的产品。之后解压离线安装包，这里需要注意的是，离线安装包解压后里面很多可执行文件的权限会没有执行权限，直接安装的话会很快结束，无法正常安装，由于不方便将所有可执行文件都找出来添加执行权限，这里需要暴力使用<code>chmod -R 777 MATLAB_dir</code>将安装包解压文件夹下的所有文件的权限都变为777，这样才能正确安装，之后使用如下指令进行安装（installer_input.txt为之前写的配置文件的路径）：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./install.sh -inputFile installer_input.txt</span><br></pre></td></tr></table></figure>
+
+<p>安装完成后，还需要将license.lic文件移动到安装目录下的license目录当中完成激活。<br>之后可能会遇到libXt.so.6找不到的问题，该库文件是用于支持x11的，按道理说以命令行方式运行是不需要x11的，但是还是会报错，解决方法便是安装缺失的这个库</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install libxt6</span><br></pre></td></tr></table></figure>
+
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/01/18/ubuntu安装OpenCL运行及编译环境/" rel="next" title="ubuntu安装OpenCL运行及编译环境">
+                <i class="fa fa-chevron-left"></i> ubuntu安装OpenCL运行及编译环境
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2019/04/09/修改Microsoft-Offince加载项加载行为/" rel="prev" title="修改Microsoft Offince加载项加载行为">
+                修改Microsoft Offince加载项加载行为 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image" src="/assets/blogImg/avatar.jpg" alt="Jiayi Liu">
+            
+              <p class="site-author-name" itemprop="name">Jiayi Liu</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">56</span>
+                    <span class="site-state-item-name">日志</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">3</span>
+                    <span class="site-state-item-name">分类</span>
+                  
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  <a href="/tags/index.html">
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">21</span>
+                    <span class="site-state-item-name">标签</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/liujiayi771" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                  
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="mailto:liujiayi771@gmail.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                  
+                </span>
+              
+            </div>
+          
+
+          
+          
+
+          
+          
+
+          
+            
+          
+          
+
+        </div>
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2021</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jiayi Liu</span>
+
+  
+
+  
+</div>
+
+
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v3.9.0</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Gemini</a> v6.1.0</div>
+
+<script src="https://s19.cnzz.com/z_stat.php?id=1273773104&web_id=1273773104" language="JavaScript"></script>
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=6.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=6.1.0"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=6.1.0"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.1.0"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=6.1.0"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=6.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.1.0"></script>
+
+
+
+  
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    <script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
+  
+</body>
+</html>
