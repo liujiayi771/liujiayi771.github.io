@@ -20,7 +20,17 @@ sudo apt install opencl-headers
 ```
 sudo apt install ocl-icd-opencl-dev
 ```
-要使得CPU也支持运行OpenCL程序，需要去intel官网下载opencl-sdk，地址是:http://software.intel.com/en-us/vcsource/tools/opencl-sdk ，选择runtime版本进行下载，目前最新的适合ubuntu的地址是： http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/12526/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz ，适合CentOS的地址是： http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/13454/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz 
+要使得CPU也支持运行OpenCL程序，需要去intel官网下载opencl-sdk，地址是:
+
+http://software.intel.com/en-us/vcsource/tools/opencl-sdk 
+
+选择runtime版本进行下载，目前最新的适合ubuntu的地址是： 
+
+http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/12526/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz 
+
+适合CentOS的地址是： 
+
+http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/13454/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz 
 
 安装前需要先安装`lsb-core`，sdk依赖于这个库，版本必须大于4.0
 
