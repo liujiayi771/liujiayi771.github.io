@@ -273,7 +273,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-06-29 17:07:26" itemprop="dateModified" datetime="2023-06-29T17:07:26+08:00">2023-06-29</time>
+                <time title="修改时间：2023-06-29 18:10:52" itemprop="dateModified" datetime="2023-06-29T18:10:52+08:00">2023-06-29</time>
               </span>
 
           
@@ -296,10 +296,10 @@
 <h3 id="3-安装dircolors-solarized"><a href="#3-安装dircolors-solarized" class="headerlink" title="3.安装dircolors-solarized"></a>3.安装dircolors-solarized</h3><ul>
 <li>安装之后能够使得终端中使用ls指令具有彩色的输出</li>
 <li><code>brew install coreutils</code></li>
-<li><code>git clone https://github.com/liujiayi771/dircolors-solarized.git</code>，将clone文件夹中的dircolors.ansi-dark复制到~&#x2F;.dir_colors</li>
+<li><code>git clone git://github.com/seebi/dircolors-solarized.git</code>，将clone文件夹中的dircolors.ansi-dark复制到~&#x2F;.dir_colors</li>
 <li>在.zshrc中添加如下内容</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">if brew list | grep coreutils &gt; /dev/null ; then</span><br><span class="line">	PATH=&quot;$(brew --prefix coreutils)/libexec/gnubin:$PATH&quot;</span><br><span class="line">	alias ls=&#x27;ls -F --show-control-chars --color=auto&#x27;</span><br><span class="line">	eval `gdircolors -b $HOME/.dir_colors`</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">if brew list | grep coreutils &gt; /dev/null ; then</span><br><span class="line">	PATH=&quot;$(brew --prefix coreutils)/libexec/gnubin:$PATH&quot;</span><br><span class="line">  alias ls=&#x27;gls -FHG --color=auto&#x27;</span><br><span class="line">	eval `gdircolors -b $HOME/.dir_colors`</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
 <h3 id="4-修改vim主题"><a href="#4-修改vim主题" class="headerlink" title="4.修改vim主题"></a>4.修改vim主题</h3><ul>
 <li><code>git clone git://github.com/altercation/solarized.git</code></li>
 <li><code>mkdir -p ~/.vim/colors</code></li>
@@ -307,6 +307,7 @@
 <li><code>vim ~/.vimrc</code>，添加如下内容</li>
 </ul>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">syntax enable</span><br><span class="line">set background=dark</span><br><span class="line">colorscheme solarized</span><br><span class="line">set nu</span><br></pre></td></tr></table></figure>
+
       
     </div>
 

@@ -286,17 +286,18 @@
 <h3 id="3-安装dircolors-solarized"><a href="#3-安装dircolors-solarized" class="headerlink" title="3.安装dircolors-solarized"></a>3.安装dircolors-solarized</h3><ul>
 <li>安装之后能够使得终端中使用ls指令具有彩色的输出</li>
 <li><code>brew install coreutils</code></li>
-<li><code>git clone https://github.com/liujiayi771/dircolors-solarized.git</code>，将clone文件夹中的dircolors.ansi-dark复制到~&#x2F;.dir_colors</li>
+<li><code>git clone git://github.com/seebi/dircolors-solarized.git</code>，将clone文件夹中的dircolors.ansi-dark复制到~&#x2F;.dir_colors</li>
 <li>在.zshrc中添加如下内容</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">if brew list | grep coreutils &gt; /dev/null ; then</span><br><span class="line">	PATH=&quot;$(brew --prefix coreutils)/libexec/gnubin:$PATH&quot;</span><br><span class="line">	alias ls=&#x27;ls -F --show-control-chars --color=auto&#x27;</span><br><span class="line">	eval `gdircolors -b $HOME/.dir_colors`</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">if brew list | grep coreutils &gt; /dev/null ; then</span><br><span class="line">	PATH=&quot;$(brew --prefix coreutils)/libexec/gnubin:$PATH&quot;</span><br><span class="line">  alias ls=&#x27;gls -FHG --color=auto&#x27;</span><br><span class="line">	eval `gdircolors -b $HOME/.dir_colors`</span><br><span class="line">fi</span><br></pre></td></tr></table></figure>
 <h3 id="4-修改vim主题"><a href="#4-修改vim主题" class="headerlink" title="4.修改vim主题"></a>4.修改vim主题</h3><ul>
 <li><code>git clone git://github.com/altercation/solarized.git</code></li>
 <li><code>mkdir -p ~/.vim/colors</code></li>
 <li><code>cp solarized/vim-colors-solarized/colors/solarized.vim ~/.vim/colors</code></li>
 <li><code>vim ~/.vimrc</code>，添加如下内容</li>
 </ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">syntax enable</span><br><span class="line">set background=dark</span><br><span class="line">colorscheme solarized</span><br><span class="line">set nu</span><br></pre></td></tr></table></figure>]]></content>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">syntax enable</span><br><span class="line">set background=dark</span><br><span class="line">colorscheme solarized</span><br><span class="line">set nu</span><br></pre></td></tr></table></figure>
+]]></content>
       <tags>
         <tag>mac</tag>
       </tags>
