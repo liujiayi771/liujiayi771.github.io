@@ -1,103 +1,24 @@
 <!DOCTYPE html>
-
-
-
-
-<html class="theme-next gemini" lang="zh-CN">
+<html lang="zh-CN">
 <head>
-  <meta charset="UTF-8"/>
-<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2"/>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
 <meta name="theme-color" content="#222">
-<meta name="google-site-verification" content="nBL3O8Be9mH0bzPzBkFY9eTrScECyDon85pneXOb7sQ" />
-<meta name="baidu-site-verification" content="7g6sOUMHy3" />
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
 
 
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
 
-
-
-
-
-
-
-
-
-
-<meta http-equiv="Cache-Control" content="no-transform" />
-<meta http-equiv="Cache-Control" content="no-siteapp" />
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
-
-<link href="/css/main.css?v=6.1.0" rel="stylesheet" type="text/css" />
-
-
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=6.1.0">
-
-
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=6.1.0">
-
-
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=6.1.0">
-
-
-  <link rel="mask-icon" href="/images/logo.svg?v=6.1.0" color="#222">
-
-
-
-
-
-
-
-
-
-<script type="text/javascript" id="hexo.configurations">
-  var NexT = window.NexT || {};
-  var CONFIG = {
-    root: '',
-    scheme: 'Gemini',
-    version: '6.1.0',
-    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
-    fancybox: false,
-    fastclick: false,
-    lazyload: false,
-    tabs: true,
-    motion: {"enable":false,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
-    algolia: {
-      applicationID: '',
-      apiKey: '',
-      indexName: '',
-      hits: {"per_page":10},
-      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
-    }
-  };
-</script>
-
-
-  
-
-
-
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"liujiayi771.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
 
   <meta property="og:type" content="website">
 <meta property="og:title" content="Joey&#39;s Notes">
@@ -107,18 +28,16 @@
 <meta property="article:author" content="Jiayi Liu">
 <meta name="twitter:card" content="summary">
 
+<link rel="canonical" href="http://liujiayi771.github.io/">
 
 
-
-
-
-  <link rel="canonical" href="http://liujiayi771.github.io/"/>
-
-
-
-<script type="text/javascript" id="page.configurations">
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
   CONFIG.page = {
     sidebar: "",
+    isHome : true,
+    isPost : false,
+    lang   : 'zh-CN'
   };
 </script>
 
@@ -130,72 +49,58 @@
 
 
 
-
-
-
   <noscript>
-  <style type="text/css">
-    .use-motion .motion-element,
-    .use-motion .brand,
-    .use-motion .menu-item,
-    .sidebar-inner,
-    .use-motion .post-block,
-    .use-motion .pagination,
-    .use-motion .comments,
-    .use-motion .post-header,
-    .use-motion .post-body,
-    .use-motion .collection-title { opacity: initial; }
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
 
-    .use-motion .logo,
-    .use-motion .site-title,
-    .use-motion .site-subtitle {
-      opacity: initial;
-      top: initial;
-    }
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
 
-    .use-motion {
-      .logo-line-before i { left: initial; }
-      .logo-line-after i { right: initial; }
-    }
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
   </style>
 </noscript>
 
-<meta name="generator" content="Hexo 6.3.0"></head>
+</head>
 
-<body itemscope itemtype="http://schema.org/WebPage" lang="zh-CN">
-
-  
-  
-    
-  
-
-  <div class="container sidebar-position-left 
-  page-home">
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
     <div class="headband"></div>
 
-    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
-      <div class="header-inner"><div class="site-brand-wrapper">
-  <div class="site-meta ">
-    
-
-    <div class="custom-logo-site-title">
-      <a href="/" class="brand" rel="start">
-        <span class="logo-line-before"><i></i></span>
-        <span class="site-title">Joey's Notes</span>
-        <span class="logo-line-after"><i></i></span>
-      </a>
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
     </div>
-      
-        <p class="site-subtitle">Joey</p>
-      
   </div>
 
-  <div class="site-nav-toggle">
-    <button aria-label="切换导航栏">
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-      <span class="btn-bar"></span>
-    </button>
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Joey's Notes</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Joey</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
   </div>
 </div>
 
@@ -203,55 +108,30 @@
 
 
 <nav class="site-nav">
-  
-    <ul id="menu" class="menu">
-      
-        
-        
-        
-          
-          <li class="menu-item menu-item-home menu-item-active">
-    <a href="/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-home"></i> <br />首页</a>
-  </li>
-        
-        
-        
-          
-          <li class="menu-item menu-item-tags">
-    <a href="/tags/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />标签<span class="badge">21</span></a>
-  </li>
-        
-        
-        
-          
-          <li class="menu-item menu-item-categories">
-    <a href="/categories/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-th"></i> <br />分类<span class="badge">3</span></a>
-  </li>
-        
-        
-        
-          
-          <li class="menu-item menu-item-archives">
-    <a href="/archives/" rel="section">
-      <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />归档<span class="badge">56</span></a>
-  </li>
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
 
-      
-      
-    </ul>
-  
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
 
-  
+  </li>
+        <li class="menu-item menu-item-tags">
 
-  
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">21</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">3</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">56</span></a>
+
+  </li>
+  </ul>
 </nav>
 
-
-
-  
 
 
 
@@ -259,101 +139,61 @@
     </header>
 
     
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
 
 
-    <main id="main" class="main">
+    <main class="main">
       <div class="main-inner">
         <div class="content-wrap">
           
-            
 
-          
-          <div id="content" class="content">
+          <div class="content index posts-expand">
             
-  <section id="posts" class="posts-expand">
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2021/04/08/dracula%E4%B8%BB%E9%A2%98vim%E9%85%8D%E7%BD%AE/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Joey's Notes">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2021/04/08/dracula%E4%B8%BB%E9%A2%98vim%E9%85%8D%E7%BD%AE/" itemprop="url">
-                  dracula主题vim配置
-                </a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2021/04/08/dracula%E4%B8%BB%E9%A2%98vim%E9%85%8D%E7%BD%AE/" class="post-title-link" itemprop="url">dracula主题vim配置</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
-                
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2021-04-08T17:41:27+08:00">2021-04-08</time>
-            
+              <span class="post-meta-item-text">发表于</span>
 
-            
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <time title="创建时间：2021-04-08 17:41:27" itemprop="dateCreated datePublished" datetime="2021-04-08T17:41:27+08:00">2021-04-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-06-29 17:07:26" itemprop="dateModified" datetime="2023-06-29T17:07:26+08:00">2023-06-29</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -361,136 +201,68 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>最近喜欢用Dracula主题，主题官网：<a target="_blank" rel="noopener" href="https://draculatheme.com/">https://draculatheme.com/</a></p>
+          <p>最近喜欢用Dracula主题，主题官网：<a target="_blank" rel="noopener" href="https://draculatheme.com/">https://draculatheme.com/</a></p>
 <p>在mac上设置了Dracula全家桶，设置vim主题的时候，效果一直不是很好，找了很多资料，最后找到了一个比较满意的配置，记录一下</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">packadd! dracula</span><br><span class="line">syntax <span class="built_in">enable</span></span><br><span class="line">colorscheme dracula</span><br><span class="line"><span class="built_in">set</span> hlsearch</span><br><span class="line"><span class="built_in">set</span> nu</span><br><span class="line"><span class="built_in">set</span> termguicolors</span><br><span class="line">highlight Normal ctermbg=None</span><br><span class="line"><span class="built_in">let</span> &amp;t_ZH=<span class="string">&quot;\e[3m&quot;</span></span><br><span class="line"><span class="built_in">let</span> &amp;t_ZR=<span class="string">&quot;\e[23m&quot;</span></span><br></pre></td></tr></table></figure>
 
 <p>主要是最下面四行配置，<code>highlight Normal ctermbg=None</code>能让vim的背景和iterm2的背景相同，最后两行能让一些奇怪的高亮恢复正常，还能显示斜体</p>
 
-          
-        
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2020/06/04/Presto%E4%BD%BF%E7%94%A8OpenLDAP%E8%BF%9B%E8%A1%8C%E7%99%BB%E5%BD%95%E8%AE%A4%E8%AF%81/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Joey's Notes">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/06/04/Presto%E4%BD%BF%E7%94%A8OpenLDAP%E8%BF%9B%E8%A1%8C%E7%99%BB%E5%BD%95%E8%AE%A4%E8%AF%81/" itemprop="url">
-                  Presto使用OpenLDAP进行登录认证
-                </a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/06/04/Presto%E4%BD%BF%E7%94%A8OpenLDAP%E8%BF%9B%E8%A1%8C%E7%99%BB%E5%BD%95%E8%AE%A4%E8%AF%81/" class="post-title-link" itemprop="url">Presto使用OpenLDAP进行登录认证</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
-                
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-06-04T15:17:44+08:00">2020-06-04</time>
-            
+              <span class="post-meta-item-text">发表于</span>
 
-            
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <time title="创建时间：2020-06-04 15:17:44" itemprop="dateCreated datePublished" datetime="2020-06-04T15:17:44+08:00">2020-06-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-06-29 17:07:26" itemprop="dateModified" datetime="2023-06-29T17:07:26+08:00">2023-06-29</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -498,12 +270,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>presto对接OpenLDAP只支持ldaps，需要OpenLDAP开启SSL，本文将首先介绍OpenLDAP如何开启SSL。</p>
+          <p>presto对接OpenLDAP只支持ldaps，需要OpenLDAP开启SSL，本文将首先介绍OpenLDAP如何开启SSL。</p>
 <h2 id="OpenLDAP开启SSL"><a href="#OpenLDAP开启SSL" class="headerlink" title="OpenLDAP开启SSL"></a>OpenLDAP开启SSL</h2><p>OpenLDAP开启SSL需要生成LDAP证书，有两种证书生成方式：</p>
 <ol>
 <li>自签名证书。该方式较为简单，LDAP客户端需要进行设置不进行证书校验；</li>
@@ -621,125 +388,62 @@
 <p>输出<code>anonymous</code>说明连接成功，在关闭匿名访问的情况下，用如下方式输入ldap的dn和密码进行校验：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapwhoami -x -w <span class="string">&quot;&lt;passwd&gt;&quot;</span> -D &lt;user_dn&gt; -H ldaps://&lt;ldap_server&gt;:636</span><br></pre></td></tr></table></figure>
 
-          
-        
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2020/04/24/CentOS7%E4%B8%8A%E5%AE%89%E8%A3%85Kerberos-KDC/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Joey's Notes">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2020/04/24/CentOS7%E4%B8%8A%E5%AE%89%E8%A3%85Kerberos-KDC/" itemprop="url">
-                  CentOS7上安装Kerberos KDC
-                </a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2020/04/24/CentOS7%E4%B8%8A%E5%AE%89%E8%A3%85Kerberos-KDC/" class="post-title-link" itemprop="url">CentOS7上安装Kerberos KDC</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
-                
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2020-04-24T17:29:41+08:00">2020-04-24</time>
-            
+              <span class="post-meta-item-text">发表于</span>
 
-            
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <time title="创建时间：2020-04-24 17:29:41" itemprop="dateCreated datePublished" datetime="2020-04-24T17:29:41+08:00">2020-04-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-06-29 17:07:26" itemprop="dateModified" datetime="2023-06-29T17:07:26+08:00">2023-06-29</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -747,12 +451,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <h3 id="yum安装软件"><a href="#yum安装软件" class="headerlink" title="yum安装软件"></a>yum安装软件</h3><p>首先通过yum安装kerberos所需要的软件</p>
+          <h3 id="yum安装软件"><a href="#yum安装软件" class="headerlink" title="yum安装软件"></a>yum安装软件</h3><p>首先通过yum安装kerberos所需要的软件</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y krb5-server krb5-workstation pam_krb5</span><br></pre></td></tr></table></figure>
 
 <h3 id="修改服务端配置"><a href="#修改服务端配置" class="headerlink" title="修改服务端配置"></a>修改服务端配置</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /var/kerberos/krb5kdc</span><br></pre></td></tr></table></figure>
@@ -782,125 +481,62 @@
 <p>执行：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">authconfig  --enablekrb5 --update</span><br><span class="line">systemctl reload sshd</span><br></pre></td></tr></table></figure>
 
-          
-        
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2019/04/26/CentOS-7%E5%AE%89%E8%A3%85Facebook-folly%E5%BA%93/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Joey's Notes">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/04/26/CentOS-7%E5%AE%89%E8%A3%85Facebook-folly%E5%BA%93/" itemprop="url">
-                  CentOS 7安装Facebook folly库
-                </a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/04/26/CentOS-7%E5%AE%89%E8%A3%85Facebook-folly%E5%BA%93/" class="post-title-link" itemprop="url">CentOS 7安装Facebook folly库</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
-                
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-26T14:47:01+08:00">2019-04-26</time>
-            
+              <span class="post-meta-item-text">发表于</span>
 
-            
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <time title="创建时间：2019-04-26 14:47:01" itemprop="dateCreated datePublished" datetime="2019-04-26T14:47:01+08:00">2019-04-26</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-06-29 17:07:26" itemprop="dateModified" datetime="2023-06-29T17:07:26+08:00">2023-06-29</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -908,12 +544,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>folly是Facebook提出的一个基于C++14的C++组件库，包含有非常多具有实用性和效率性的数据结构。其github地址为： <a target="_blank" rel="noopener" href="https://github.com/facebook/folly">https://github.com/facebook/folly</a> 。在其README当中提供了在ubuntu和MacOS中的安装教程，没有CentOS中的安装教程，并且在CentOS当中安装会遇到很多问题，本文对在CentOS 7系统中安装folly库进行了过程记录。</p>
+          <p>folly是Facebook提出的一个基于C++14的C++组件库，包含有非常多具有实用性和效率性的数据结构。其github地址为： <a target="_blank" rel="noopener" href="https://github.com/facebook/folly">https://github.com/facebook/folly</a> 。在其README当中提供了在ubuntu和MacOS中的安装教程，没有CentOS中的安装教程，并且在CentOS当中安装会遇到很多问题，本文对在CentOS 7系统中安装folly库进行了过程记录。</p>
 <p>最新的folly需要gcc的版本高于5.1，但是CentOS 7中的gcc版本为4.8，直接升级安装gcc非常麻烦，并且可能会对其他项目使用的gcc造成影响，以采用我另一篇博客中提及的方法切换到高版本的gcc： </p>
 <p><a href="http://liujiayi771.github.io/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/">http://liujiayi771.github.io/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/</a> </p>
 <p>从官网提供的ubuntu安装教程中可以看出，其依赖于boost-devel、glog-devel、gflags-devel、double-conversion等库，有些库可以通过yum来进行安装，有些则需要通过源码编译安装。首先是可以使用yum安装的库：</p>
@@ -925,125 +556,62 @@
 <p>编译安装folly</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">git <span class="built_in">clone</span> https://github.com/facebook/folly.git</span><br><span class="line"><span class="built_in">cd</span> folly</span><br><span class="line"><span class="built_in">mkdir</span> _build &amp;&amp; <span class="built_in">cd</span> _build</span><br><span class="line">cmake ..</span><br><span class="line">make -j 8</span><br><span class="line">sudo make install</span><br></pre></td></tr></table></figure>
 
-          
-        
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2019/04/11/%E8%8B%B9%E6%9E%9C%E7%94%B5%E8%84%91U%E7%9B%98%E5%AE%89%E8%A3%85%E6%96%B0%E7%89%88MacOS/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Joey's Notes">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/04/11/%E8%8B%B9%E6%9E%9C%E7%94%B5%E8%84%91U%E7%9B%98%E5%AE%89%E8%A3%85%E6%96%B0%E7%89%88MacOS/" itemprop="url">
-                  苹果电脑U盘安装新版MacOS
-                </a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/04/11/%E8%8B%B9%E6%9E%9C%E7%94%B5%E8%84%91U%E7%9B%98%E5%AE%89%E8%A3%85%E6%96%B0%E7%89%88MacOS/" class="post-title-link" itemprop="url">苹果电脑U盘安装新版MacOS</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
-                
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-11T16:05:45+08:00">2019-04-11</time>
-            
+              <span class="post-meta-item-text">发表于</span>
 
-            
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <time title="创建时间：2019-04-11 16:05:45" itemprop="dateCreated datePublished" datetime="2019-04-11T16:05:45+08:00">2019-04-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-06-29 17:07:26" itemprop="dateModified" datetime="2023-06-29T17:07:26+08:00">2023-06-29</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -1051,12 +619,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>最近拿到了一台2012年中的MacBook Air，其系统版本非常老，还是10.7，需要对其系统进行升级。一开时以为直接用系统更新就能升级上去，但是第一次更新就遇到了“不能存储更新”的问题，无法升级，试了好几次都在最后快下完的时候报这个错误。查资料说是因为系统版本太老了，要手动下载组合更新包才能升级。</p>
+          <p>最近拿到了一台2012年中的MacBook Air，其系统版本非常老，还是10.7，需要对其系统进行升级。一开时以为直接用系统更新就能升级上去，但是第一次更新就遇到了“不能存储更新”的问题，无法升级，试了好几次都在最后快下完的时候报这个错误。查资料说是因为系统版本太老了，要手动下载组合更新包才能升级。</p>
 <p>在<a target="_blank" rel="noopener" href="https://support.apple.com/zh_CN/downloads/macos">https://support.apple.com/zh_CN/downloads/macos</a> 上可以找到所有MacOS的组合更新包，一直往下拉找到10.7.5的组合更新包，下下来以后直接安装非常容易就安装上去了。接下来继续检查更新，更新了一些软件内容，之后就提示所有内容已经是最新的了，但是这时候系统版本还是10.7.5，已经无法再往上升级了，于是去下了10.8版本最早的组合更新包10.8.2，点击安装确提示只能支持10.8的系统。</p>
 <p>查了资料才知道，当时10.8发布的时候从10.7.5升上去是要19美元的，人民币好像120多，之后苹果系统都是免费的了。App Store里面10.8的升级早就下架了，已经无法以正常的更新途径来更新系统了，只能自己制作U盘启动盘来更新这个系统。首先查了一下各个版本的MacOS对老机型的兼容性。</p>
 <ul>
@@ -1072,125 +635,62 @@
 <p>我是把app文件拖到了Downloads目录下的，这里xxx就代表了这个app文件的名字，其他版本的MacOS制作U盘启动盘的命令都是一样的，这个过程持续的时间比较长。做好之后重启电脑，按住option键，选择U盘启动，之后的过程很简单，一步一步点就行了。但是到最后还是安装失败了，报了一个错“应用程序副本不能验证 它在下载过程中可能已遭破坏或篡改”。这个问题很多人都说在安装的时候在终端里通过date修改时间就可以解决，我试了一下没办法解决这个问题。但是我看了一下，遇到这个问题的大多数都是安装10.11以及之前版本的MacOS的，那时候系统还不叫MacOS，叫OSX。估计OSX有个时间上的验证机制，于是放弃安装10.11，毕竟这台电脑还可以装10.12，10.13和10.14，估计就不会有这个问题了。重新制作启动盘，流程和上面一样，然后就顺利安装上去了。</p>
 <p>接下来就是用boot camp安装win10双系统，又遇到了奇葩问题，用boot camp做了启动盘之后一直会出现无法引导的问题，可以用efi引导进去安装，但是会遇到分区表类型无法兼容efi的问题，删除分区和格式化都没法解决，找到一个比较挫的方法是先在Mac系统里把BOOTCAMP的分区格式化成Mac OS扩展（日志式），然后安装windows的时候删除那个分区即可安装上去，但是这样那个分区在Mac系统中就不受boot camp控制了，删除windows系统还原分区的时候比较麻烦。查了很久，一个帖子恰好也是这一款MacBook Air，也出现了一样的问题，被我查到了<a target="_blank" rel="noopener" href="https://www.cnblogs.com/pinganzi/p/10354296.html">https://www.cnblogs.com/pinganzi/p/10354296.html</a> ，他的第一个问题我没遇到，第二个问题和我一样，于是我换了一个USB2.0的U盘，马上就解决问题了，但是安装win10的时候会说需要先格式化成NTFS，直接点格式化就可以安装了。</p>
 
-          
-        
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2019/04/09/%E4%BF%AE%E6%94%B9Microsoft-Offince%E5%8A%A0%E8%BD%BD%E9%A1%B9%E5%8A%A0%E8%BD%BD%E8%A1%8C%E4%B8%BA/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Joey's Notes">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/04/09/%E4%BF%AE%E6%94%B9Microsoft-Offince%E5%8A%A0%E8%BD%BD%E9%A1%B9%E5%8A%A0%E8%BD%BD%E8%A1%8C%E4%B8%BA/" itemprop="url">
-                  修改Microsoft Offince加载项加载行为
-                </a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/04/09/%E4%BF%AE%E6%94%B9Microsoft-Offince%E5%8A%A0%E8%BD%BD%E9%A1%B9%E5%8A%A0%E8%BD%BD%E8%A1%8C%E4%B8%BA/" class="post-title-link" itemprop="url">修改Microsoft Offince加载项加载行为</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
-                
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-04-09T18:41:59+08:00">2019-04-09</time>
-            
+              <span class="post-meta-item-text">发表于</span>
 
-            
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <time title="创建时间：2019-04-09 18:41:59" itemprop="dateCreated datePublished" datetime="2019-04-09T18:41:59+08:00">2019-04-09</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-06-29 17:07:26" itemprop="dateModified" datetime="2023-06-29T17:07:26+08:00">2023-06-29</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -1198,134 +698,66 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>最近在写论文时，需要将word文档导出为pdf文档。将word导出为pdf之前一直使用的是另存为的方法，也可以使用打印选择Adobe PDF来生成pdf文件，但是这两种方法都有一定的局限性。打印的方法生成pdf不能选择添加书签，但是能控制输出文件的清晰度，调到比较高时，能生成非常清晰的pdf文件。word2016中已经可以使用另存为来导出pdf，并且在选项当中也可以设置是否导出书签，但是输出的pdf文件的清晰度调整选项不够多，输出的pdf中图片会被压缩，变得模糊。<br>实际上，安装了Adobe Acrobat的word当中有一个Acrobat的加载项菜单，里面的首选项菜单可以很详细地配置导出的pdf文件的一些参数，可以选择高质量打印，并且将其中的图片的压缩和采样全都关掉，并且可以设置输出的清晰度以及书签等等。但是这个加载项在生成pdf结束后，会导致word崩溃，出来一个提示问我是否要禁用该加载项，一时手滑点到了是，结果这个加载项就被禁用了。禁用之后也好办，可以在word的选项-加载项-转到里面勾选Adobe PDFMaker加载项进行加载。但是这个加载项原本是随word启动自动加载的，现在变成了每次都要去选项里面设置加载，非常麻烦，并且选项里面并没有菜单可以选择让这个加载项自动加载。这里便需要修改注册表来实现随word启动自动加载，注册表的位置为:</p>
+          <p>最近在写论文时，需要将word文档导出为pdf文档。将word导出为pdf之前一直使用的是另存为的方法，也可以使用打印选择Adobe PDF来生成pdf文件，但是这两种方法都有一定的局限性。打印的方法生成pdf不能选择添加书签，但是能控制输出文件的清晰度，调到比较高时，能生成非常清晰的pdf文件。word2016中已经可以使用另存为来导出pdf，并且在选项当中也可以设置是否导出书签，但是输出的pdf文件的清晰度调整选项不够多，输出的pdf中图片会被压缩，变得模糊。<br>实际上，安装了Adobe Acrobat的word当中有一个Acrobat的加载项菜单，里面的首选项菜单可以很详细地配置导出的pdf文件的一些参数，可以选择高质量打印，并且将其中的图片的压缩和采样全都关掉，并且可以设置输出的清晰度以及书签等等。但是这个加载项在生成pdf结束后，会导致word崩溃，出来一个提示问我是否要禁用该加载项，一时手滑点到了是，结果这个加载项就被禁用了。禁用之后也好办，可以在word的选项-加载项-转到里面勾选Adobe PDFMaker加载项进行加载。但是这个加载项原本是随word启动自动加载的，现在变成了每次都要去选项里面设置加载，非常麻烦，并且选项里面并没有菜单可以选择让这个加载项自动加载。这里便需要修改注册表来实现随word启动自动加载，注册表的位置为:</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">HKEY_CURRENT_USER\Software\Microsoft\Office\Word\Addins\PDFMaker.OfficeAddin</span><br></pre></td></tr></table></figure>
 <p>进去之后发现有一个LoadBehavior的键的值现在是0，我观察到Addins里面还有有道词典的加载项，这个加载项是会随word自动启动的，其LoadBehavior的值为3，于是将PDFMaker.OfficeAddin中LoadBehavior的值也改为3便能自动随word启动了，大功告成。</p>
 
-          
-        
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2019/01/18/linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%AE%89%E8%A3%85MATLAB/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Joey's Notes">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/01/18/linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%AE%89%E8%A3%85MATLAB/" itemprop="url">
-                  linux命令行安装MATLAB
-                </a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/01/18/linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%AE%89%E8%A3%85MATLAB/" class="post-title-link" itemprop="url">linux命令行安装MATLAB</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
-                
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-18T09:51:19+08:00">2019-01-18</time>
-            
+              <span class="post-meta-item-text">发表于</span>
 
-            
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <time title="创建时间：2019-01-18 09:51:19" itemprop="dateCreated datePublished" datetime="2019-01-18T09:51:19+08:00">2019-01-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-06-29 17:07:26" itemprop="dateModified" datetime="2023-06-29T17:07:26+08:00">2023-06-29</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -1333,137 +765,72 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
           <p>登录MATLAB的MathWorks，选择右上角的我的账户，点击许可证右侧的许可证管理，进入后选择安装和激活，之后选择“激活并获取许可证文件”，选择激活计算机，填入相关信息。其中主机ID即为电脑用于上外网的网卡的MAC地址，可以使用<code>ipconfig</code>进行查看，计算机登录名就是当前登录用户的用户名，不知道的话可以使用<code>whoami</code>指令进行查看。填写完成后会生成一个序列号，和一个lisence.lic文件，将文件上传至安装MATLAB的服务器上并记录激活序列号。</p>
 <p>下载包含所有产品的完整MATLAB安装包，官网下载的只是一个100MB多的一个网络安装器，安装过程中才会下载需要的产品，这对于命令行安装是不适用的，命令行安装必须使用完整的离线安装包。之后需要填写silent安装模式下的安装配置文件，具体模板如下：</p>
           <!--noindex-->
-          <div class="post-button text-center">
-            <a class="btn" href="/2019/01/18/linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%AE%89%E8%A3%85MATLAB/#more" rel="contents">
-              阅读全文 &raquo;
-            </a>
-          </div>
+            <div class="post-button">
+              <a class="btn" href="/2019/01/18/linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%AE%89%E8%A3%85MATLAB/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
           <!--/noindex-->
         
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2019/01/18/ubuntu%E5%AE%89%E8%A3%85OpenCL%E8%BF%90%E8%A1%8C%E5%8F%8A%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Joey's Notes">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2019/01/18/ubuntu%E5%AE%89%E8%A3%85OpenCL%E8%BF%90%E8%A1%8C%E5%8F%8A%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/" itemprop="url">
-                  ubuntu安装OpenCL运行及编译环境
-                </a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2019/01/18/ubuntu%E5%AE%89%E8%A3%85OpenCL%E8%BF%90%E8%A1%8C%E5%8F%8A%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/" class="post-title-link" itemprop="url">ubuntu安装OpenCL运行及编译环境</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
-                
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2019-01-18T09:19:46+08:00">2019-01-18</time>
-            
+              <span class="post-meta-item-text">发表于</span>
 
-            
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <time title="创建时间：2019-01-18 09:19:46" itemprop="dateCreated datePublished" datetime="2019-01-18T09:19:46+08:00">2019-01-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-06-29 17:07:26" itemprop="dateModified" datetime="2023-06-29T17:07:26+08:00">2023-06-29</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -1471,12 +838,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>最近需要运行一个基于OpenCL开发的软件，服务器上的NVIDIA 1080Ti和Intel CPU都支持OpenCL，安装OpenCL之前可以安装一个clinfo的软件可以看到服务器上目前支持的OpenCL设备。</p>
+          <p>最近需要运行一个基于OpenCL开发的软件，服务器上的NVIDIA 1080Ti和Intel CPU都支持OpenCL，安装OpenCL之前可以安装一个clinfo的软件可以看到服务器上目前支持的OpenCL设备。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install clinfo</span><br></pre></td></tr></table></figure>
 <p>一般安装NVIDIA的驱动的时候就会有选项选择是否安装OpenCL的驱动，若没有选择那个选项，clinfo是看不到有NVIDIA的cl设备的，接下来安装的几个软件一般也会将没有选择OpenCL的NVIDIA缺失的库作为依赖安装上，使得基于NVIDIA的cl设备能够正常使用。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install ocl-icd-libopencl1</span><br><span class="line">sudo apt install opencl-headers</span><br></pre></td></tr></table></figure>
@@ -1508,125 +870,62 @@
 </blockquote>
 <p>具体可以看 <a target="_blank" rel="noopener" href="https://software.intel.com/en-us/forums/opencl/topic/785262">https://software.intel.com/en-us/forums/opencl/topic/785262</a></p>
 
-          
-        
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2018/12/12/linux/Linux%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8F%8A%E6%8C%82%E8%BD%BD%E6%95%B0%E6%8D%AE%E7%9B%98/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Joey's Notes">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/12/12/linux/Linux%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8F%8A%E6%8C%82%E8%BD%BD%E6%95%B0%E6%8D%AE%E7%9B%98/" itemprop="url">
-                  Linux初始化及挂载数据盘
-                </a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/12/12/linux/Linux%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8F%8A%E6%8C%82%E8%BD%BD%E6%95%B0%E6%8D%AE%E7%9B%98/" class="post-title-link" itemprop="url">Linux初始化及挂载数据盘</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
-                
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-12-12T11:24:40+08:00">2018-12-12</time>
-            
+              <span class="post-meta-item-text">发表于</span>
 
-            
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <time title="创建时间：2018-12-12 11:24:40" itemprop="dateCreated datePublished" datetime="2018-12-12T11:24:40+08:00">2018-12-12</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-06-29 17:07:26" itemprop="dateModified" datetime="2023-06-29T17:07:26+08:00">2023-06-29</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -1634,12 +933,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <h2 id="磁盘分区形式"><a href="#磁盘分区形式" class="headerlink" title="磁盘分区形式"></a>磁盘分区形式</h2><p>常用的磁盘分区形式如下表所示，并且针对Linux操作系统，不同的磁盘分区形式需要选择不同的分区工具。</p>
+          <h2 id="磁盘分区形式"><a href="#磁盘分区形式" class="headerlink" title="磁盘分区形式"></a>磁盘分区形式</h2><p>常用的磁盘分区形式如下表所示，并且针对Linux操作系统，不同的磁盘分区形式需要选择不同的分区工具。</p>
 <table>
 <thead>
 <tr>
@@ -1712,125 +1006,62 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UUID=1851e23f-1c57-40ab-86bb-5fc5fc606ffa /mnt/data      ext4 defaults     0   2</span><br></pre></td></tr></table></figure>
 
 
-          
-        
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
       
-
-  
-
   
   
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
     <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2018/11/13/ansible%E6%95%99%E7%A8%8B%E4%B9%8Bfile%E6%A8%A1%E5%9D%97%E7%9A%84%E4%BD%BF%E7%94%A8/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="">
-      <meta itemprop="description" content="">
       <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
     </span>
 
     <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
       <meta itemprop="name" content="Joey's Notes">
     </span>
-
-    
       <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2018/11/13/ansible%E6%95%99%E7%A8%8B%E4%B9%8Bfile%E6%A8%A1%E5%9D%97%E7%9A%84%E4%BD%BF%E7%94%A8/" itemprop="url">
-                  ansible教程之file模块的使用
-                </a>
-              
-            
-          </h1>
-        
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2018/11/13/ansible%E6%95%99%E7%A8%8B%E4%B9%8Bfile%E6%A8%A1%E5%9D%97%E7%9A%84%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">ansible教程之file模块的使用</a>
+        </h2>
 
         <div class="post-meta">
-          <span class="post-time">
-            
-                
-            
-
-            
+            <span class="post-meta-item">
               <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
+                <i class="far fa-calendar"></i>
               </span>
-              
-                <span class="post-meta-item-text">发表于</span>
-              
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-11-13T09:30:07+08:00">2018-11-13</time>
-            
+              <span class="post-meta-item-text">发表于</span>
 
-            
-            
-
-            
-          </span>
-
-          
-
-          
-            
-          
-
-          
-          
-
-          
-
-          
+              <time title="创建时间：2018-11-13 09:30:07" itemprop="dateCreated datePublished" datetime="2018-11-13T09:30:07+08:00">2018-11-13</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-06-29 17:07:26" itemprop="dateModified" datetime="2023-06-29T17:07:26+08:00">2023-06-29</time>
+              </span>
 
           
 
         </div>
       </header>
-    
 
     
     
@@ -1838,12 +1069,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-      
-
-      
-        
-          
-            <p>ansible是一个自动化运维非常重要的工具，对于做大数据开发的人来说，ansible是一个管理集群的利器，我们可以用它来在集群中批量执行一些指令，而不需要对服务器一台一台进行操作。ansible的功能非常多，但是对于我来说一般只用来在集群中批量执行一些命令，例如批量安装软件、批量删除文件、批量新建文件夹等，具体详细的功能可以参考这个中文文档 <a target="_blank" rel="noopener" href="http://www.ansible.com.cn/docs/">ansible中文权威指南</a>。</p>
+          <p>ansible是一个自动化运维非常重要的工具，对于做大数据开发的人来说，ansible是一个管理集群的利器，我们可以用它来在集群中批量执行一些指令，而不需要对服务器一台一台进行操作。ansible的功能非常多，但是对于我来说一般只用来在集群中批量执行一些命令，例如批量安装软件、批量删除文件、批量新建文件夹等，具体详细的功能可以参考这个中文文档 <a target="_blank" rel="noopener" href="http://www.ansible.com.cn/docs/">ansible中文权威指南</a>。</p>
 <h3 id="用ansible对集群中文件进行管理"><a href="#用ansible对集群中文件进行管理" class="headerlink" title="用ansible对集群中文件进行管理"></a>用ansible对集群中文件进行管理</h3><p>有时候我们可能需要在集群中批量删除某些文件，例如有时候spark slave节点上的work文件夹中的无用文件太多，又没有被自动清除，我们可以使用如下ansible指令来对文件夹中的文件进行批量删除：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ansible spark -m shell -a &quot;rm -rf /usr/local/spark/work/*&quot;</span><br></pre></td></tr></table></figure>
 <p>这样做确实能正确将work文件夹中的内容都删除掉，但是会收到一个警告信息：</p>
@@ -1860,48 +1086,24 @@
 <h4 id="file模块递归设置文件的属主或属组"><a href="#file模块递归设置文件的属主或属组" class="headerlink" title="file模块递归设置文件的属主或属组"></a>file模块递归设置文件的属主或属组</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ansible spark -m file -a &quot;path=/usr/local/spark owner=spark group=spark recurse=yes&quot;</span><br></pre></td></tr></table></figure>
 <p><code>owner</code>设置属主，<code>group</code>设置属组，<code>recurse</code>设置是否对目录进行递归进行设置。</p>
 
-          
-        
       
     </div>
 
     
-
     
     
-    
-
-    
-
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
+      <footer class="post-footer">
         <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
+      </footer>
   </article>
+  
+  
+  
 
-
-    
-  </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/2/">&lt;i class&#x3D;&quot;fa fa-angle-right&quot; aria-label&#x3D;&quot;下一页&quot;&gt;&lt;&#x2F;i&gt;</a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="下一页"></i></a>
   </nav>
 
 
@@ -1909,232 +1111,122 @@
           </div>
           
 
-        </div>
-        
-          
-  
-  <div class="sidebar-toggle">
-    <div class="sidebar-toggle-line-wrap">
-      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
-      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
-    </div>
-  </div>
-
-  <aside id="sidebar" class="sidebar">
-    
-    <div class="sidebar-inner">
-
-      
-
-      
-
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
-        <div class="site-overview">
-          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
-            
-              <img class="site-author-image" itemprop="image"
-                src="/assets/blogImg/avatar.jpg"
-                alt="" />
-            
-              <p class="site-author-name" itemprop="name"></p>
-              <p class="site-description motion-element" itemprop="description"></p>
-          </div>
-
-          
-            <nav class="site-state motion-element">
-              
-                <div class="site-state-item site-state-posts">
-                
-                  <a href="/archives/%20%7C%7C%20archive">
-                
-                    <span class="site-state-item-count">56</span>
-                    <span class="site-state-item-name">日志</span>
-                  </a>
-                </div>
-              
-
-              
-                
-                
-                <div class="site-state-item site-state-categories">
-                  
-                    
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                    <span class="site-state-item-count">3</span>
-                    <span class="site-state-item-name">分类</span>
-                  
-                </div>
-              
-
-              
-                
-                
-                <div class="site-state-item site-state-tags">
-                  <a href="/tags/index.html">
-                    
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                      
-                    
-                    <span class="site-state-item-count">21</span>
-                    <span class="site-state-item-name">标签</span>
-                  </a>
-                </div>
-              
-            </nav>
-          
-
-          
-
-          
-            <div class="links-of-author motion-element">
-              
-                <span class="links-of-author-item">
-                  <a href="https://github.com/liujiayi771" target="_blank" title="GitHub"><i class="fa fa-fw fa-github"></i>GitHub</a>
-                  
-                </span>
-              
-                <span class="links-of-author-item">
-                  <a href="mailto:liujiayi771@gmail.com" target="_blank" title="E-Mail"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
-                  
-                </span>
-              
-            </div>
-          
-
-          
-          
-
-          
-          
-
-          
-            
-          
-          
-
-        </div>
-      </section>
-
-      
-
-      
-
-    </div>
-  </aside>
-
-
-        
-      </div>
-    </main>
-
-    <footer id="footer" class="footer">
-      <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2023</span>
-  <span class="with-love" id="animate">
-    <i class="fa fa-user"></i>
-  </span>
-  <span class="author" itemprop="copyrightHolder">Jiayi Liu</span>
-
-  
-
-  
-</div>
-
-
-
-
-  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动 v6.3.0</div>
-
-
-
-  <span class="post-meta-divider">|</span>
-
-
-
-  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/theme-next/hexo-theme-next">NexT.Gemini</a> v6.1.0</div>
-
-<script src="https://s19.cnzz.com/z_stat.php?id=1273773104&web_id=1273773104" language="JavaScript"></script>
-
-
-        
-
-
-
-
-
-
-
-
-        
-      </div>
-    </footer>
-
-    
-      <div class="back-to-top">
-        <i class="fa fa-arrow-up"></i>
-        
-      </div>
-    
-
-    
-
-  </div>
-
-  
-
-<script type="text/javascript">
-  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
-    window.Promise = null;
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
   }
 </script>
 
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Jiayi Liu"
+      src="/assets/blogImg/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Jiayi Liu</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">56</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">21</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/liujiayi771" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;liujiayi771" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:liujiayi771@gmail.com" title="E-Mail → mailto:liujiayi771@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jiayi Liu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
 
 
 
@@ -2143,7 +1235,24 @@
 
 
 
+      </div>
+    </footer>
+  </div>
 
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
 
 
 
@@ -2162,109 +1271,11 @@
 
 
 
-  
-  
-    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
-  
-
-  
-  
-    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
-  
-
-
-  
-
-
-  <script type="text/javascript" src="/js/src/utils.js?v=6.1.0"></script>
-
-  <script type="text/javascript" src="/js/src/motion.js?v=6.1.0"></script>
-
-
-
-  
-  
-
-
-  <script type="text/javascript" src="/js/src/affix.js?v=6.1.0"></script>
-
-  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=6.1.0"></script>
-
 
 
   
 
   
 
-
-  <script type="text/javascript" src="/js/src/bootstrap.js?v=6.1.0"></script>
-
-
-
-  
-
-
-
-	
-
-
-
-
-
-  
-
-
-
-
-
-  
-
-
-
-
-
-
-
-
-
-
-  
-
-
-
-
-
-  
-
-  
-
-  
-
-  
-
-  
-  
-
-  
-
-  
-
-  
-
-  
-
-  
-    <script type="text/javascript" src="//cdn.bootcss.com/canvas-nest.js/1.0.0/canvas-nest.min.js"></script>
-  
 </body>
 </html>
