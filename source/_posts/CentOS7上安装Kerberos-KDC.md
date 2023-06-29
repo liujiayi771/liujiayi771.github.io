@@ -18,7 +18,7 @@ cd /var/kerberos/krb5kdc
 我们需要修改该目录下的两个配置文件：
 * kdc.conf
 * kadm5.acl
-
+<!-- more -->
 假设我们的realm为KDC.COM，修改`kadm5.acl`为如下内容：
 ```bash
 */admin@KDC.COM     *

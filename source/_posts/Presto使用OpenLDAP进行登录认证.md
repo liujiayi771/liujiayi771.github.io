@@ -28,7 +28,7 @@ Organizational Unit Name (eg, section) []:
 Common Name (eg, your name or your server's hostname) []: localhost
 Email Address []:
 ```
-
+<!-- more -->
 创建完成后，在`/etc/openldap/certs`目录下会产生`ldap.key`和`ldap.crt`，修改这两个文件的属主：
 ```bash
 chown ldap:ldap /etc/openldap/certs/ldap.*

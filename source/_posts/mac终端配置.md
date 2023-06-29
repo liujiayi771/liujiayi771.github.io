@@ -17,13 +17,13 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/mas
 ### 3.安装dircolors-solarized
 * 安装之后能够使得终端中使用ls指令具有彩色的输出
 * `brew install coreutils`
-* `git clone https://github.com/liujiayi771/dircolors-solarized.git`，将clone文件夹中的dircolors.ansi-dark复制到~/.dir_colors
+* `git clone git://github.com/seebi/dircolors-solarized.git`，将clone文件夹中的dircolors.ansi-dark复制到~/.dir_colors
 * 在.zshrc中添加如下内容
 
 ```
 if brew list | grep coreutils > /dev/null ; then
 	PATH="$(brew --prefix coreutils)/libexec/gnubin:$PATH"
-	alias ls='ls -F --show-control-chars --color=auto'
+  alias ls='gls -FHG --color=auto'
 	eval `gdircolors -b $HOME/.dir_colors`
 fi
 ```
