@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://liujiayi771.github.io/2020/06/04/Presto%E4%BD%BF%E7%94%A8OpenLDAP%E8%BF%9B%E8%A1%8C%E7%99%BB%E5%BD%95%E8%AE%A4%E8%AF%81/</loc>
+    <lastmod>2023-06-29</lastmod>
+  </url>
+  <url>
+    <loc>http://liujiayi771.github.io/2020/04/24/CentOS7%E4%B8%8A%E5%AE%89%E8%A3%85Kerberos-KDC/</loc>
+    <lastmod>2023-06-29</lastmod>
+  </url>
+  <url>
     <loc>http://liujiayi771.github.io/2017/08/22/mac%E7%BB%88%E7%AB%AF%E9%85%8D%E7%BD%AE/</loc>
     <lastmod>2023-06-29</lastmod>
   </url>
@@ -173,10 +181,6 @@
     <lastmod>2023-06-29</lastmod>
   </url>
   <url>
-    <loc>http://liujiayi771.github.io/2020/06/04/Presto%E4%BD%BF%E7%94%A8OpenLDAP%E8%BF%9B%E8%A1%8C%E7%99%BB%E5%BD%95%E8%AE%A4%E8%AF%81/</loc>
-    <lastmod>2023-06-29</lastmod>
-  </url>
-  <url>
     <loc>http://liujiayi771.github.io/2017/11/16/Mesos-kill-framework%E7%9A%84%E6%96%B9%E6%B3%95/</loc>
     <lastmod>2023-06-29</lastmod>
   </url>
@@ -206,10 +210,6 @@
   </url>
   <url>
     <loc>http://liujiayi771.github.io/2018/10/29/Gradle%E4%B8%AD%E6%B7%BB%E5%8A%A0C-C-%E4%BB%A3%E7%A0%81%E7%BC%96%E8%AF%91%E6%89%93%E5%8C%85%E6%B5%81%E7%A8%8B/</loc>
-    <lastmod>2023-06-29</lastmod>
-  </url>
-  <url>
-    <loc>http://liujiayi771.github.io/2020/04/24/CentOS7%E4%B8%8A%E5%AE%89%E8%A3%85Kerberos-KDC/</loc>
     <lastmod>2023-06-29</lastmod>
   </url>
   <url>

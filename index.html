@@ -256,7 +256,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-06-29 17:07:26" itemprop="dateModified" datetime="2023-06-29T17:07:26+08:00">2023-06-29</time>
+                <time title="修改时间：2023-06-29 18:16:13" itemprop="dateModified" datetime="2023-06-29T18:16:13+08:00">2023-06-29</time>
               </span>
 
           
@@ -282,112 +282,14 @@
 
 <p>填写信息中比较重要的是Common Name，需要填写安装OpenLDAP的主机的hostname，其他信息可以不填写：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Country Name (2 letter code) [XX]: CN</span><br><span class="line">State or Province Name (full name) []:</span><br><span class="line">Locality Name (eg, city) [Default City]:</span><br><span class="line">Organization Name (eg, company) [Default Company Ltd]:</span><br><span class="line">Organizational Unit Name (eg, section) []:</span><br><span class="line">Common Name (eg, your name or your server<span class="string">&#x27;s hostname) []: localhost</span></span><br><span class="line"><span class="string">Email Address []:</span></span><br></pre></td></tr></table></figure>
-
-<p>创建完成后，在<code>/etc/openldap/certs</code>目录下会产生<code>ldap.key</code>和<code>ldap.crt</code>，修改这两个文件的属主：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chown</span> ldap:ldap /etc/openldap/certs/ldap.*</span><br></pre></td></tr></table></figure>
-
-<p>之后，我们通过ldif文件修改配置的方式修改OpenLDAP中关于证书信息的配置项，新建<code>certs.ldif</code>文件，内容如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">dn: cn=config</span><br><span class="line">changetype: modify</span><br><span class="line">replace: olcTLSCertificateFile</span><br><span class="line">olcTLSCertificateFile: /etc/openldap/certs/ldap.crt</span><br><span class="line">-</span><br><span class="line">replace: olcTLSCertificateKeyFile</span><br><span class="line">olcTLSCertificateKeyFile: /etc/openldap/certs/ldap.key</span><br></pre></td></tr></table></figure>
-
-<p>在修改配置前，我们先看一下原有配置的内容：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">slapcat -b <span class="string">&quot;cn=config&quot;</span> | egrep <span class="string">&quot;olcTLSCertificateKeyFile|olcTLSCertificateFile&quot;</span></span><br></pre></td></tr></table></figure>
-
-<p>使用<code>certs.ldif</code>修改配置的命令为：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapmodify -Y EXTERNAL  -H ldapi:/// -f certs.ldif</span><br></pre></td></tr></table></figure>
-
-<p>修改完成后可以使用上述检查配置的命令检查一下修改是否生效了。</p>
-<h3 id="CA签名证书"><a href="#CA签名证书" class="headerlink" title="CA签名证书"></a>CA签名证书</h3><p>在<code>/etc/pki/CA</code>目录中创建<code>serial</code>和<code>index.txt</code>文件用于记录生成证书过程：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /etc/pki/CA</span><br><span class="line"><span class="built_in">echo</span> 0001 &gt; serial</span><br><span class="line"><span class="built_in">touch</span> index.txt</span><br></pre></td></tr></table></figure>
-<h4 id="1-生成CA所使用的密钥"><a href="#1-生成CA所使用的密钥" class="headerlink" title="1. 生成CA所使用的密钥"></a>1. 生成CA所使用的密钥</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -aes256 -out /etc/pki/CA/private/ca.key.pem</span><br></pre></td></tr></table></figure>
-<p>输入秘钥的密码。</p>
-<h4 id="2-创建CA证书"><a href="#2-创建CA证书" class="headerlink" title="2. 创建CA证书"></a>2. 创建CA证书</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -x509 -days 3650 -key /etc/pki/CA/private/ca.key.pem -extensions v3_ca -out /etc/pki/CA/certs/ca.cert.pem</span><br></pre></td></tr></table></figure>
-<p>创建证书需要输入一些信息，Country Name可以输入CN，State or Province Name、Locality Name、Organization Name、Organizational Unit Name我们可以填入一个固定的字符串，比如“ZZ”，在后面创建ldap server的证书时，填写的内容需要与这里保持一致，最终使用CA签名时才能签名成功，Common Name需要填写安装OpenLDAP的主机的hostname，其他没有说明的地方可以不用填写。</p>
-<blockquote>
-<p>注意：CN（Common Name）和主机名必须要匹配</p>
-</blockquote>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Enter pass phrase <span class="keyword">for</span> /etc/pki/CA/private/ca.key.pem:</span><br><span class="line">You are about to be asked to enter information that will be incorporated</span><br><span class="line">into your certificate request.</span><br><span class="line">What you are about to enter is what is called a Distinguished Name or a DN.</span><br><span class="line">There are quite a few fields but you can leave some blank</span><br><span class="line">For some fields there will be a default value,</span><br><span class="line">If you enter <span class="string">&#x27;.&#x27;</span>, the field will be left blank.</span><br><span class="line">-----</span><br><span class="line">Country Name (2 letter code) [XX]:CN</span><br><span class="line">State or Province Name (full name) []:ZZ</span><br><span class="line">Locality Name (eg, city) [Default City]:ZZ</span><br><span class="line">Organization Name (eg, company) [Default Company Ltd]:ZZ</span><br><span class="line">Organizational Unit Name (eg, section) []:ZZ</span><br><span class="line">Common Name (eg, your name or your server<span class="string">&#x27;s hostname) []:localhost</span></span><br><span class="line"><span class="string">Email Address []:</span></span><br></pre></td></tr></table></figure>
-
-<h4 id="3-创建ldap-server使用的秘钥"><a href="#3-创建ldap-server使用的秘钥" class="headerlink" title="3. 创建ldap server使用的秘钥"></a>3. 创建ldap server使用的秘钥</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl genrsa -out /etc/pki/CA/private/ldap.key</span><br></pre></td></tr></table></figure>
-
-<h4 id="4-创建ldap-server的证书文件"><a href="#4-创建ldap-server的证书文件" class="headerlink" title="4. 创建ldap server的证书文件"></a>4. 创建ldap server的证书文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl req -new -key /etc/pki/CA/private/ldap.key -out /etc/pki/CA/certs/ldap.csr</span><br></pre></td></tr></table></figure>
-<p>输入信息需要和创建CA证书时保持一致，CN填入OpenLDAP安装主机的hostname。</p>
-<h4 id="5-使用CA对ldap-server的证书进行签名"><a href="#5-使用CA对ldap-server的证书进行签名" class="headerlink" title="5. 使用CA对ldap server的证书进行签名"></a>5. 使用CA对ldap server的证书进行签名</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl ca -keyfile /etc/pki/CA/private/ca.key.pem -cert /etc/pki/CA/certs/ca.cert.pem -<span class="keyword">in</span> /etc/pki/CA/certs/ldap.csr -out /etc/pki/CA/certs/ldap.crt</span><br></pre></td></tr></table></figure>
-
-<p>这时候已经完成了ldap server证书由我们创建的CA进行签名的过程，此时<code>index.txt</code>文件中的内容应该已经发生了变化，使用<code>cat /etc/pki/CA/index.txt</code>进行查看。我们也可以使用<code>openssl</code>来验证ldap server证书是否被CA正确签名：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">openssl verify -CAfile /etc/pki/CA/certs/ca.cert.pem /etc/pki/CA/certs/ldap.crt</span><br></pre></td></tr></table></figure>
-
-<p>我们需要将证书、秘钥文件拷贝到<code>/etc/openldap/certs</code>目录中，将CA证书放到<code>/etc/openldap/cacerts/</code>目录中：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> -v /etc/pki/CA/certs/* /etc/openldap/certs/</span><br><span class="line"><span class="built_in">cp</span> -v /etc/pki/CA/private/ldap.key /etc/openldap/certs/</span><br><span class="line"><span class="built_in">mkdir</span> /etc/openldap/cacerts/</span><br><span class="line"><span class="built_in">cp</span> -v /etc/pki/CA/certs/ca.cert.pem /etc/openldap/cacerts/</span><br></pre></td></tr></table></figure>
-<p>修改目录属主：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">chown</span> -R ldap:ldap /etc/openldap/certs</span><br><span class="line"><span class="built_in">chown</span> -R ldap:ldap /etc/openldap/cacerts</span><br></pre></td></tr></table></figure>
-
-<h4 id="6-修改OpenLDAP配置生效CA签名证书"><a href="#6-修改OpenLDAP配置生效CA签名证书" class="headerlink" title="6. 修改OpenLDAP配置生效CA签名证书"></a>6. 修改OpenLDAP配置生效CA签名证书</h4><p>新建<code>certs.ldif</code>文件，其内容如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">dn: cn=config</span><br><span class="line">changetype: modify</span><br><span class="line">replace: olcTLSCertificateFile</span><br><span class="line">olcTLSCertificateFile: /etc/openldap/certs/ldap.crt</span><br><span class="line">-</span><br><span class="line">replace: olcTLSCertificateKeyFile</span><br><span class="line">olcTLSCertificateKeyFile: /etc/openldap/certs/ldap.key</span><br><span class="line">-</span><br><span class="line">add: olcTLSCACertificateFile</span><br><span class="line">olcTLSCACertificateFile: /etc/openldap/cacerts/ca.cert.pem</span><br></pre></td></tr></table></figure>
-<p>执行如下命令进行修改：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapmodify -Y EXTERNAL -H ldapi:// -f certs.ldif</span><br></pre></td></tr></table></figure>
-<p>使用如下命令确保生效：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">slapcat -b <span class="string">&quot;cn=config&quot;</span> | egrep <span class="string">&quot;olcTLSCertificateFile|olcTLSCertificateKeyFile|olcTLSCACertificateFile&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="配置OpenLDAP开启SSL监听"><a href="#配置OpenLDAP开启SSL监听" class="headerlink" title="配置OpenLDAP开启SSL监听"></a>配置OpenLDAP开启SSL监听</h3><p>修改配置文件<code>/etc/sysconfig/slapd</code>，添加<code>ldaps</code>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SLAPD_URLS=<span class="string">&quot;ldapi:/// ldap:/// ldaps:///&quot;</span></span><br></pre></td></tr></table></figure>
-<h4 id="如果是CA签名证书"><a href="#如果是CA签名证书" class="headerlink" title="如果是CA签名证书"></a>如果是CA签名证书</h4><p>修改<code>/etc/openldap/ldap.conf</code>中的配置，添加服务端CA证书的存储路径：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">#TLS_CACERTDIR /etc/openldap/certs</span><br><span class="line">TLS_CACERT /etc/openldap/cacerts/ca.cert.pem</span><br></pre></td></tr></table></figure>
-<h4 id="如果是自签名证书"><a href="#如果是自签名证书" class="headerlink" title="如果是自签名证书"></a>如果是自签名证书</h4><p>自签名证书需要修改<code>/etc/openldap/ldap.conf</code>中的配置，关闭校验：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#TLS_CACERTDIR /etc/openldap/certs</span></span><br><span class="line">TLS_REQCERT never</span><br></pre></td></tr></table></figure>
-<p>重启OpenLDAP：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart slapd</span><br></pre></td></tr></table></figure>
-<p>重启完成后，首先检查ldaps所使用的636端口是否已经启动：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">netstat -nlp | grep 636</span><br></pre></td></tr></table></figure>
-<p>可以使用如下命令来测试ldaps连接：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapwhoami -x -H ldaps://&lt;ldap_server&gt;:636</span><br></pre></td></tr></table></figure>
-<p>如果能够成功显示anonymous，说明成功通过SSL连上了OpenLDAP server，同时OpenLDAP server是支持匿名访问的（老版本Presto连接ldap需要ldap开启匿名访问）。</p>
-<p>也可以使用如下简单认证的方式来验证ldaps连接是否正确（该方法不能测试匿名连接，如果上面方法失败，但是这个方法成功，说明ldaps连接没问题，但是匿名访问不被允许，若Presto版本对接ldap必须使用匿名访问，则需要配置OpenLDAP ACL或删除disallow匿名访问的配置）：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapwhoami -x -w <span class="string">&quot;&lt;passwd&gt;&quot;</span> -D &lt;user_dn&gt; -H ldaps://&lt;ldap_server&gt;:636</span><br></pre></td></tr></table></figure>
-
-<h2 id="配置Presto支持LDAP认证"><a href="#配置Presto支持LDAP认证" class="headerlink" title="配置Presto支持LDAP认证"></a>配置Presto支持LDAP认证</h2><p>Presto支持LDAP认证，客户端必须以HTTPS的方式访问presto server。开启LDAP认证只需要对presto coordinator进行配置使其支持SSL&#x2F;TLS，presto worker不需要进行修改，只有客户端和presto coordinator之间的连接需要认证。</p>
-<h3 id="导入ldap-server证书到java-cacerts"><a href="#导入ldap-server证书到java-cacerts" class="headerlink" title="导入ldap server证书到java cacerts"></a>导入ldap server证书到java cacerts</h3><p>Presto服务要想通过ldaps与ldap server通信，必须将ldap server的证书导入java cacerts，从源码上看Presto服务会直接读取java的cacerts：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keytool -import -<span class="built_in">alias</span> ldap_server -file /etc/openldap/certs/ldap.crt -keystore <span class="variable">$&#123;JAVA_HOME&#125;</span>/jre/lib/security/cacerts -storepass changeit</span><br></pre></td></tr></table></figure>
-
-<h3 id="生成presto-server秘钥"><a href="#生成presto-server秘钥" class="headerlink" title="生成presto server秘钥"></a>生成presto server秘钥</h3><p>配置presto coordinator支持SSL&#x2F;TLS，需要生成presto server的秘钥（keystore）文件。</p>
-<h4 id="1-生成presto-server私钥："><a href="#1-生成presto-server私钥：" class="headerlink" title="1. 生成presto server私钥："></a>1. 生成presto server私钥：</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keytool -genkey -v -keystore presto-private.keystore -<span class="built_in">alias</span> presto-private -keyalg RSA -dname <span class="string">&quot;CN=&lt;hostname&gt;, OU=, O=, L=, ST=, C=CN&quot;</span> -validity 20000 -keypass &lt;passwd&gt; -storepass &lt;passwd&gt;</span><br></pre></td></tr></table></figure>
-<p>这里CN（Common Name）必须填写presto server所在主机的hostname，其他的可以不需要填写。</p>
-<h4 id="2-导出证书文件"><a href="#2-导出证书文件" class="headerlink" title="2. 导出证书文件"></a>2. 导出证书文件</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keytool -<span class="built_in">export</span> -<span class="built_in">alias</span> presto-private -keystore presto-private.keystore -file presto-public.cer -storepass &lt;passwd&gt;</span><br></pre></td></tr></table></figure>
-
-<h4 id="3-由证书文件生成公钥给客户端使用"><a href="#3-由证书文件生成公钥给客户端使用" class="headerlink" title="3. 由证书文件生成公钥给客户端使用"></a>3. 由证书文件生成公钥给客户端使用</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">keytool -import -<span class="built_in">alias</span> presto-public -file presto-public.cer -keystore presto.keystore -storepass &lt;passwd&gt;</span><br></pre></td></tr></table></figure>
-<p>此处<code>&lt;passwd&gt;</code>可与私钥不同，后续客户端登录时需要显示输入该密码</p>
-<h3 id="修改Presto-coordinator配置"><a href="#修改Presto-coordinator配置" class="headerlink" title="修改Presto coordinator配置"></a>修改Presto coordinator配置</h3><p>修改<code>etc/config.properties</code>文件，添加如下配置：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">http-server.authentication.type=PASSWORD</span><br><span class="line">http-server.https.enabled=<span class="literal">true</span></span><br><span class="line">http-server.https.port=8443</span><br><span class="line"></span><br><span class="line">http-server.https.keystore.path=&lt;private_keystore_path&gt;</span><br><span class="line">http-server.https.keystore.key=&lt;keystore_passwd&gt;</span><br></pre></td></tr></table></figure>
-<p>修改<code>etc/password-authenticator.properties</code>文件，添加如下配置：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">password-authenticator.name=ldap</span><br><span class="line">ldap.url=ldaps://&lt;ldap_server&gt;:636</span><br><span class="line">ldap.user-bind-pattern=uid=<span class="variable">$&#123;USER&#125;</span>,dc=example,dc=com</span><br></pre></td></tr></table></figure>
-<p><code>ldap.user-bind-pattern</code>需要填写登录用户如何映射到ldap的dn，其中<code>$&#123;USER&#125;</code>表示登录的用户名，即presto cli登录时<code>--username</code>参数填写的内容。</p>
-<p>配置完成后需要重启Presto coordinator使配置生效，之后便可以使用客户端登录，进行ldap认证了。</p>
-<h3 id="Presto-cli登录配置"><a href="#Presto-cli登录配置" class="headerlink" title="Presto cli登录配置"></a>Presto cli登录配置</h3><p>使用如下命令连接presto server，相比没有ldap认证时候需要填写keystore、user、password等内容：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">presto --server https://&lt;presto_server&gt;:&lt;https_port&gt; --keystore-path &lt;public_keystore_path&gt; --keystore-password &lt;public_keystore_passwd&gt; --catalog hive --user &lt;ldap_username&gt; --password</span><br></pre></td></tr></table></figure>
-<p>输入密码之后将可以进入presto命令行。若密码输入错误，也可以进入presto命令行，但是执行presto命令会出现认证失败的报错。输入正确的ldap用户名和密码，执行<code>show schemas;</code>，若能正确输出结果说明配置正确。</p>
-<h2 id="OpenLDAP客户端通过ldaps访问ldap服务"><a href="#OpenLDAP客户端通过ldaps访问ldap服务" class="headerlink" title="OpenLDAP客户端通过ldaps访问ldap服务"></a>OpenLDAP客户端通过ldaps访问ldap服务</h2><p>下面也顺便把ldap客户端通过ldaps访问ldap服务的方法说一下，也分为自签名证书和CA签名证书。<br>客户端需要安装：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y openldap-clients nss-pam-ldapd</span><br></pre></td></tr></table></figure>
-<h4 id="1-使用autoconfig生成客户端配置"><a href="#1-使用autoconfig生成客户端配置" class="headerlink" title="1. 使用autoconfig生成客户端配置"></a>1. 使用autoconfig生成客户端配置</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">authconfig --enableldap --enableldapauth --ldapserver=ldaps://&lt;ldap_server&gt; --ldapbasedn=<span class="string">&quot;&lt;base_dn&gt;&quot;</span> --enablemkhomedir --disableldaptls --update</span><br></pre></td></tr></table></figure>
-
-<h3 id="自签名证书需要完成的步骤"><a href="#自签名证书需要完成的步骤" class="headerlink" title="自签名证书需要完成的步骤"></a>自签名证书需要完成的步骤</h3><p>修改<code>/etc/nslcd.conf</code>配置</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tls_reqcert allow</span><br></pre></td></tr></table></figure>
-
-<h3 id="CA签名证书-1"><a href="#CA签名证书-1" class="headerlink" title="CA签名证书"></a>CA签名证书</h3><p>需要将ldap server的CA前面证书<code>/etc/openldap/cacerts/ca.cert.pem</code>拷贝到客户端，放在<code>/etc/openldap/cacerts/</code>目录中。<br>通过如下命令给证书生成hash：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/etc/pki/tls/misc/c_hash /etc/openldap/cacerts/ca.cert.pem</span><br></pre></td></tr></table></figure>
-<p>会输出证书的hash值，需要做一个名称为hash值软链放在<code>/etc/openldap/cacerts/</code>目录中，假设hash值输出为<code>6822c9d7.0</code>，则软链为：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -s /etc/openldap/cacerts/ca.cert.pem /etc/openldap/cacerts/6822c9d7.0</span><br></pre></td></tr></table></figure>
-
-<p>重启ldap客户端服务：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl restart nslcd</span><br></pre></td></tr></table></figure>
-
-<p>以上的方式比较正式，如果嫌麻烦，也可以简单配置<code>/etc/openldap/ldap.conf</code>跳过证书校验：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#TLS_CACERTDIR /etc/openldap/certs</span></span><br><span class="line">TLS_REQCERT never</span><br></pre></td></tr></table></figure>
-<p>CA签名证书的方式也可以将CA证书拷贝到客户端之后，修改<code>/etc/openldap/ldap.conf</code>：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#TLS_CACERTDIR /etc/openldap/certs</span></span><br><span class="line">TLS_CACERT /etc/openldap/cacerts/ca.cert.pem</span><br></pre></td></tr></table></figure>
-<p>达到的效果是类似的，最后也是用如下命令在客户端上进行校验：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapwhoami -x -H ldaps://&lt;ldap_server&gt;:636</span><br></pre></td></tr></table></figure>
-<p>输出<code>anonymous</code>说明连接成功，在关闭匿名访问的情况下，用如下方式输入ldap的dn和密码进行校验：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ldapwhoami -x -w <span class="string">&quot;&lt;passwd&gt;&quot;</span> -D &lt;user_dn&gt; -H ldaps://&lt;ldap_server&gt;:636</span><br></pre></td></tr></table></figure>
-
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/06/04/Presto%E4%BD%BF%E7%94%A8OpenLDAP%E8%BF%9B%E8%A1%8C%E7%99%BB%E5%BD%95%E8%AE%A4%E8%AF%81/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
@@ -437,7 +339,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2023-06-29 17:07:26" itemprop="dateModified" datetime="2023-06-29T17:07:26+08:00">2023-06-29</time>
+                <time title="修改时间：2023-06-29 18:15:54" itemprop="dateModified" datetime="2023-06-29T18:15:54+08:00">2023-06-29</time>
               </span>
 
           
@@ -458,29 +360,15 @@
 <p>我们需要修改该目录下的两个配置文件：</p>
 <ul>
 <li>kdc.conf</li>
-<li>kadm5.acl</li>
-</ul>
-<p>假设我们的realm为KDC.COM，修改<code>kadm5.acl</code>为如下内容：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">*/admin@KDC.COM     *</span><br></pre></td></tr></table></figure>
-<p>修改<code>kdc.conf</code>为如下内容：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">[kdcdefaults]</span><br><span class="line"> kdc_ports = 88</span><br><span class="line"> kdc_tcp_ports = 88</span><br><span class="line"></span><br><span class="line">[realms]</span><br><span class="line"> KDC.COM = &#123;</span><br><span class="line">  <span class="comment">#master_key_type = aes256-cts</span></span><br><span class="line">  max_renewable_life = 7d</span><br><span class="line">  acl_file = /var/kerberos/krb5kdc/kadm5.acl</span><br><span class="line">  dict_file = /usr/share/dict/words</span><br><span class="line">  admin_keytab = /var/kerberos/krb5kdc/kadm5.keytab</span><br><span class="line">  supported_enctypes = aes256-cts:normal aes128-cts:normal des3-hmac-sha1:normal arcfour-hmac:normal camellia256-cts:normal camellia128-cts:normal des-hmac-sha1:normal des-cbc-md5:normal des-cbc-crc:normal</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
-
-<h3 id="修改客户端配置"><a href="#修改客户端配置" class="headerlink" title="修改客户端配置"></a>修改客户端配置</h3><p>我们用作KDC服务的服务器也将会是一个Kerberos客户端，我们需要修改客户端配置文件<code>/etc/krb5.conf</code>，文件内容如下：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Configuration snippets may be placed in this directory as well</span></span><br><span class="line">includedir /etc/krb5.conf.d/</span><br><span class="line"></span><br><span class="line">[logging]</span><br><span class="line"> default = FILE:/var/log/krb5libs.<span class="built_in">log</span></span><br><span class="line"> kdc = FILE:/var/log/krb5kdc.<span class="built_in">log</span></span><br><span class="line"> admin_server = FILE:/var/log/kadmind.log</span><br><span class="line"></span><br><span class="line">[libdefaults]</span><br><span class="line"> dns_lookup_realm = <span class="literal">false</span></span><br><span class="line"> ticket_lifetime = 24h</span><br><span class="line"> renew_lifetime = 7d</span><br><span class="line"> forwardable = <span class="literal">true</span></span><br><span class="line"> rdns = <span class="literal">false</span></span><br><span class="line"> pkinit_anchors = /etc/pki/tls/certs/ca-bundle.crt</span><br><span class="line"> default_realm = KDC.COM</span><br><span class="line"> default_ccache_name = KEYRING:persistent:%&#123;uid&#125;</span><br><span class="line"> default_tgs_enctypes = aes128-cts arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-hmac-sha1 aes256-cts</span><br><span class="line"> default_tkt_enctypes = aes128-cts arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-hmac-sha1 aes256-cts</span><br><span class="line"> permitted_enctypes = aes256-cts-hmac-sha1-96 des3-cbc-sha1 arcfour-hmac-md5 des-cbc-crc des-cbc-md5 des-cbc-md4</span><br><span class="line"> allow_weak_crypto = <span class="built_in">yes</span></span><br><span class="line"></span><br><span class="line">[realms]</span><br><span class="line"> KDC.COM = &#123;</span><br><span class="line">  kdc = kdc.hostname</span><br><span class="line">  admin_server = kdc.hostname</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line">[domain_realm]</span><br><span class="line"> .kdc.com = KDC.COM</span><br><span class="line"> kdc.com = KDC.COM</span><br></pre></td></tr></table></figure>
-
-<h3 id="创建KDC数据库"><a href="#创建KDC数据库" class="headerlink" title="创建KDC数据库"></a>创建KDC数据库</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kdb5_util create -s -r KDC.COM</span><br></pre></td></tr></table></figure>
-
-<h3 id="开启Kerberos"><a href="#开启Kerberos" class="headerlink" title="开启Kerberos"></a>开启Kerberos</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">systemctl start krb5kdc kadmin</span><br><span class="line">systemctl <span class="built_in">enable</span> krb5kdc kadmin</span><br></pre></td></tr></table></figure>
-
-<p>接下来需要创建kadmin的管理员账号：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">kadmin.local</span><br><span class="line">kadmin.local: addprinc root/admin</span><br><span class="line">kadmin.local: quit</span><br></pre></td></tr></table></figure>
-
-<h3 id="修改SSH客户端配置"><a href="#修改SSH客户端配置" class="headerlink" title="修改SSH客户端配置"></a>修改SSH客户端配置</h3><p>修改<code>/etc/ssh/ssh_config</code>，添加如下配置：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">GSSAPIAuthentication <span class="built_in">yes</span></span><br><span class="line">GSSAPIDelegateCredentials <span class="built_in">yes</span></span><br></pre></td></tr></table></figure>
-
-<p>执行：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">authconfig  --enablekrb5 --update</span><br><span class="line">systemctl reload sshd</span><br></pre></td></tr></table></figure>
-
+<li>kadm5.acl
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2020/04/24/CentOS7%E4%B8%8A%E5%AE%89%E8%A3%85Kerberos-KDC/#more" rel="contents">
+                阅读全文 &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
       
     </div>
 
