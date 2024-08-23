@@ -126,7 +126,7 @@
   </li>
         <li class="menu-item menu-item-archives">
 
-    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">57</span></a>
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">58</span></a>
 
   </li>
   </ul>
@@ -152,6 +152,76 @@
 
           <div class="content index posts-expand">
             
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2024/08/23/mac-app/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joey's Notes">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2024/08/23/mac-app/" class="post-title-link" itemprop="url">macOS 15.0开启信任任何来源的应用程序</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-08-23 09:36:29 / 修改时间：09:36:47" itemprop="dateCreated datePublished" datetime="2024-08-23T09:36:29+08:00">2024-08-23</time>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <p>在macOS 15.0中，我们已经不能像之前那样使用如下命令开启信任任何来源的应用程序。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo spctl --master-disable</span><br></pre></td></tr></table></figure>
+
+<p>需要自己编辑一个描述文件来进行开启，描述文件为如下内容：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version=<span class="string">&quot;1.0&quot;</span> encoding=<span class="string">&quot;UTF-8&quot;</span>?&gt;</span></span><br><span class="line"><span class="meta">&lt;!DOCTYPE <span class="keyword">plist</span> <span class="keyword">PUBLIC</span> <span class="string">&quot;-//Apple//DTD PLIST 1.0//EN&quot;</span> <span class="string">&quot;http://www.apple.com/DTDs/PropertyList-1.0.dtd&quot;</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">plist</span> <span class="attr">version</span>=<span class="string">&quot;1.0&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadContent<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">array</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">dict</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadType<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">string</span>&gt;</span>com.apple.systempolicy.control<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadUUID<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">string</span>&gt;</span>uuid-1<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadIdentifier<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">string</span>&gt;</span>com.yourcompany.profile.systempolicy<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadDisplayName<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">string</span>&gt;</span>System Policy Control<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadDescription<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">string</span>&gt;</span>Configures System Policy Control settings<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadVersion<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">integer</span>&gt;</span>1<span class="tag">&lt;/<span class="name">integer</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">key</span>&gt;</span>EnableAssessment<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">false</span> /&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">array</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadDisplayName<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>Disable Gatekeeper<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadIdentifier<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>com.yourcompany.profile<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadRemovalDisallowed<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">false</span> /&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadScope<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>System<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadType<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>Configuration<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadUUID<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">string</span>&gt;</span>uuid-2<span class="tag">&lt;/<span class="name">string</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">key</span>&gt;</span>PayloadVersion<span class="tag">&lt;/<span class="name">key</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">integer</span>&gt;</span>1<span class="tag">&lt;/<span class="name">integer</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">dict</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plist</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>其中uui’d-1和uuid-2需要自行使用<code>uuidgen</code>命令生成，不一样即可。之后将如上文件保存为<code>disable.mobileconfig</code>文件，在Finder中双击运行安装该描述文件即可。</p>
+<p>完成以上步骤后就可以在设置-隐私与安全性最下面的安全性中看到已经开启了“任何来源”的应用。</p>
+<p>之后安装一些破解软件时还是会遇到已损坏无法打开的报错，可以使用如下命令添加签名。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo xattr -d com.apple.quarantine /Applications/xxxx.app</span><br></pre></td></tr></table></figure>
+
+
+
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
       
   
   
@@ -844,142 +914,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
-    <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2018/12/12/linux/Linux%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8F%8A%E6%8C%82%E8%BD%BD%E6%95%B0%E6%8D%AE%E7%9B%98/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
-      <meta itemprop="name" content="Jiayi Liu">
-      <meta itemprop="description" content="">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="Joey's Notes">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2018/12/12/linux/Linux%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8F%8A%E6%8C%82%E8%BD%BD%E6%95%B0%E6%8D%AE%E7%9B%98/" class="post-title-link" itemprop="url">Linux初始化及挂载数据盘</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">发表于</span>
-
-              <time title="创建时间：2018-12-12 11:24:40" itemprop="dateCreated datePublished" datetime="2018-12-12T11:24:40+08:00">2018-12-12</time>
-            </span>
-              <span class="post-meta-item">
-                <span class="post-meta-item-icon">
-                  <i class="far fa-calendar-check"></i>
-                </span>
-                <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-07-03 09:20:18" itemprop="dateModified" datetime="2024-07-03T09:20:18+08:00">2024-07-03</time>
-              </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="磁盘分区形式"><a href="#磁盘分区形式" class="headerlink" title="磁盘分区形式"></a>磁盘分区形式</h2><p>常用的磁盘分区形式如下表所示，并且针对Linux操作系统，不同的磁盘分区形式需要选择不同的分区工具。</p>
-<table>
-<thead>
-<tr>
-<th>磁盘分区形式</th>
-<th align="center">支持最大磁盘容量</th>
-<th align="left">支持分区数量</th>
-<th align="left">Linux分区工具</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>主启动记录分区（MBR）</td>
-<td align="center">2TB</td>
-<td align="left"><li>4个主分区</li><li>3个主分区和1个扩展分区</li><br>说明：<br>MBR分区包含主分区和扩展分<br>区，其中扩展分区里面可以包<br>含若干个逻辑分区。以创建六<br>个分区为例，以下两种分区情<br>况供参考：<br><li>3个主分区，一个扩展分区，<br>其中扩展分区包含3个逻辑分<br>区。</li><li>1个主分区，1个扩展分区，<br>其中扩展分区中包含5个逻辑<br>分区。</li></td>
-<td align="left">以下两种工具均可以使用：<br><li>fdisk工具</li><li>parted工具</li></td>
-</tr>
-<tr>
-<td>全局分区表<br>(GPT, Guid Partition Table)</td>
-<td align="center">18EB<br>(1EB&#x3D;1048576TB)</td>
-<td align="left">不限制分区数量<br>说明：<br>GPT格式下没有主分区、扩展分区以及逻辑分区之分</td>
-<td align="left">parted工具</td>
-</tr>
-</tbody></table>
-<blockquote>
-<p>注意事项：<br>MBR格式分区最大支持的容量是2TB，如果硬盘的容量大于2TB，则必须选择GPT的分区形式，并且使用parted进行分区。当磁盘已经投入使用后，此时切换磁盘分区形式时，磁盘上的原有数据将会被清除，因此请在磁盘初始化时谨慎选择磁盘分区形式。</p>
-</blockquote>
-<h2 id="使用fdisk工具初始化磁盘（只支持小于2TB的硬盘）"><a href="#使用fdisk工具初始化磁盘（只支持小于2TB的硬盘）" class="headerlink" title="使用fdisk工具初始化磁盘（只支持小于2TB的硬盘）"></a>使用fdisk工具初始化磁盘（只支持小于2TB的硬盘）</h2><ol>
-<li><p><code>fdisk -l</code>查看新增数据盘的信息，一般可以看到例如<code>/dev/sdb</code>这样的新增盘，主要依据是根据显示的信息中显示的硬盘大小以及是否有分区。<br> 一般会显示如下信息（以下信息为分区后的情况，若新硬盘会看到一个没有分区的磁盘）：</p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">磁盘 /dev/sda：1000.2 GB, 1000204886016 字节，1953525168 个扇区</span><br><span class="line">Units = 扇区 of 1 * 512 = 512 bytes</span><br><span class="line">扇区大小(逻辑/物理)：512 字节 / 4096 字节</span><br><span class="line">I/O 大小(最小/最佳)：4096 字节 / 4096 字节</span><br><span class="line">磁盘标签类型：dos</span><br><span class="line">磁盘标识符：0x000c5dbf</span><br><span class="line"></span><br><span class="line">   设备 Boot      Start         End      Blocks   Id  System</span><br><span class="line">/dev/sda1            2048   125001727    62499840   82  Linux swap / Solaris</span><br><span class="line">/dev/sda2   *   125001728  1953523711   914260992   83  Linux</span><br><span class="line"></span><br><span class="line">磁盘 /dev/sdb：6001.2 GB, 6001175126016 字节，11721045168 个扇区</span><br><span class="line">Units = 扇区 of 1 * 512 = 512 bytes</span><br><span class="line">扇区大小(逻辑/物理)：512 字节 / 4096 字节</span><br><span class="line">I/O 大小(最小/最佳)：4096 字节 / 4096 字节</span><br><span class="line">磁盘标签类型：gpt</span><br><span class="line">Disk identifier: E9D9D767-8701-4230-BFAC-07F103EBB35A</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">\<span class="comment">#         Start          End    Size  Type            Name</span></span><br><span class="line"> 1         2048  11721043967    5.5T  Microsoft basic data</span><br></pre></td></tr></table></figure></li>
-<li><p><code>fdisk 新增数据盘</code>，例如<code>fdisk /dev/sdb</code></p>
-</li>
-<li><p>输入n，按Enter开始新建分区，这里n代表new</p>
-</li>
-<li><p>接下来会让我们选择p还是e，p代表主要分区，e代表延伸分区，对于新增加的硬盘一般选择p</p>
-</li>
-<li><p>选择分区号，对于新增硬盘，一般选择1</p>
-</li>
-<li><p>选择初始磁柱编号，新增硬盘选择默认的2048即可</p>
-</li>
-<li><p>选择截止磁柱区域，选择默认的最大的磁柱区域即可，表示只建立一个分区，这个分区使用了硬盘的所有容量</p>
-</li>
-<li><p>输入p，可以看到我们已经新建好的硬盘分区为<code>/dev/sdb1</code></p>
-</li>
-<li><p>输入w，按Enter将分区结果写入分区表</p>
-</li>
-<li><p>执行<code>partprobe</code>将新的分区表变更同步至操作系统</p>
-</li>
-</ol>
-<h2 id="使用parted工具初始化磁盘（可以支持大于2TB的硬盘）"><a href="#使用parted工具初始化磁盘（可以支持大于2TB的硬盘）" class="headerlink" title="使用parted工具初始化磁盘（可以支持大于2TB的硬盘）"></a>使用parted工具初始化磁盘（可以支持大于2TB的硬盘）</h2><ol>
-<li><p><code>lsblk</code>查看新增数据盘信息，和上一个介绍的工具的<code>fdisk -l</code>的效果是一样的，可以看到例如<code>/dev/sdb</code>这样的新增盘，并且这种方式显示出来的结果更加直观一点，冗余的信息比较少。<br> 一般会显示如下信息（以下信息为分区后的情况，若新硬盘会看到一个没有分区的磁盘）：</p>
- <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT</span><br><span class="line">sda      8:16   0 931.5G  0 disk</span><br><span class="line">├─sda1   8:17   0  59.6G  0 part</span><br><span class="line">└─sda2   8:18   0 871.9G  0 part /</span><br><span class="line">sdb      8:0    0   5.5T  0 disk</span><br><span class="line">└─sdb1   8:1    0   5.5T  0 part /mnt/data</span><br></pre></td></tr></table></figure></li>
-<li><p><code>parted 新增数据盘</code>，例如<code>parted /dev/sdb</code></p>
-</li>
-<li><p>输入p，按Enter查看当前磁盘的分区形式</p>
-</li>
-<li><p>输入以下命令，设置磁盘分区形式。<code>mklabel 磁盘分区形式</code>，这里磁盘分区形式可以选择GPT和MBR，当然，大于2TB的硬盘只能选择GPT</p>
-</li>
-<li><p>输入<code>unit s</code>，按Enter，设置磁盘的计量单位为磁柱</p>
-</li>
-<li><p>以为整个磁盘创建一个分区为例，输入<code>mkparted data 2048s 100%</code>，按Enter。这里data为分区名称，2048s表示初始磁柱位置，100%表示从初始磁柱位置开始，占用100%的磁盘容量进行新建分区</p>
-</li>
-<li><p>输入q，按Enter，退出parted</p>
-</li>
-</ol>
-<h2 id="格式化数据盘及挂载数据盘"><a href="#格式化数据盘及挂载数据盘" class="headerlink" title="格式化数据盘及挂载数据盘"></a>格式化数据盘及挂载数据盘</h2><p>数据盘分区好之后是不能直接挂载的，会显示unknown filesystem，需要进行格式化指定一个磁盘文件格式，以ext4格式为例，使用如下指令进行格式化:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkfs -t ext4 /dev/sdb1</span><br></pre></td></tr></table></figure>
-<p>之后便可以新建一个文件夹，例如<code>/mnt/data</code>将新硬盘挂载到该文件夹下，输入如下指令：</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mount /dev/sdb1 /mnt/data</span><br></pre></td></tr></table></figure>
-
-<p>这样做只能即使生效，重启后需要重新输入指令进行挂载，十分不方便，可以将磁盘挂载写入到<code>/etc/fstab</code>文件当中，这样就可以省去每次开机挂载的繁琐操作。首先使用<code>blkid /dev/sdb1</code>来查看新增分区的UUID号是多少，复制UUID，编辑<code>/etc/fstab</code>文件，在末尾加入一行:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">UUID=1851e23f-1c57-40ab-86bb-5fc5fc606ffa /mnt/data      ext4 defaults     0   2</span><br></pre></td></tr></table></figure>
-
-
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1051,7 +985,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">57</span>
+          <span class="site-state-item-count">58</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
