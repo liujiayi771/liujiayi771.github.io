@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"liujiayi771.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="最近需要运行一个基于OpenCL开发的软件，服务器上的NVIDIA 1080Ti和Intel CPU都支持OpenCL，安装OpenCL之前可以安装一个clinfo的软件可以看到服务器上目前支持的OpenCL设备。 1sudo apt install clinfo 一般安装NVIDIA的驱动的时候就会有选项选择是否安装OpenCL的驱动，若没有选择那个选项，clinfo是看不到有NVIDIA的cl">
+<meta property="og:type" content="article">
+<meta property="og:title" content="ubuntu安装OpenCL运行及编译环境">
+<meta property="og:url" content="http://liujiayi771.github.io/2019/01/18/ubuntu%E5%AE%89%E8%A3%85OpenCL%E8%BF%90%E8%A1%8C%E5%8F%8A%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/index.html">
+<meta property="og:site_name" content="Joey&#39;s Notes">
+<meta property="og:description" content="最近需要运行一个基于OpenCL开发的软件，服务器上的NVIDIA 1080Ti和Intel CPU都支持OpenCL，安装OpenCL之前可以安装一个clinfo的软件可以看到服务器上目前支持的OpenCL设备。 1sudo apt install clinfo 一般安装NVIDIA的驱动的时候就会有选项选择是否安装OpenCL的驱动，若没有选择那个选项，clinfo是看不到有NVIDIA的cl">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-01-18T01:19:46.000Z">
+<meta property="article:modified_time" content="2025-04-28T03:47:21.469Z">
+<meta property="article:author" content="Jiayi Liu">
+<meta property="article:tag" content="Linux">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://liujiayi771.github.io/2019/01/18/ubuntu%E5%AE%89%E8%A3%85OpenCL%E8%BF%90%E8%A1%8C%E5%8F%8A%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>ubuntu安装OpenCL运行及编译环境 | Joey's Notes</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Joey's Notes</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Joey</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">3</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">59</span></a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2019/01/18/ubuntu%E5%AE%89%E8%A3%85OpenCL%E8%BF%90%E8%A1%8C%E5%8F%8A%E7%BC%96%E8%AF%91%E7%8E%AF%E5%A2%83/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joey's Notes">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          ubuntu安装OpenCL运行及编译环境
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2019-01-18 09:19:46" itemprop="dateCreated datePublished" datetime="2019-01-18T09:19:46+08:00">2019-01-18</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-04-28 11:47:21" itemprop="dateModified" datetime="2025-04-28T11:47:21+08:00">2025-04-28</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近需要运行一个基于OpenCL开发的软件，服务器上的NVIDIA 1080Ti和Intel CPU都支持OpenCL，安装OpenCL之前可以安装一个clinfo的软件可以看到服务器上目前支持的OpenCL设备。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install clinfo</span><br></pre></td></tr></table></figure>
+<p>一般安装NVIDIA的驱动的时候就会有选项选择是否安装OpenCL的驱动，若没有选择那个选项，clinfo是看不到有NVIDIA的cl设备的，接下来安装的几个软件一般也会将没有选择OpenCL的NVIDIA缺失的库作为依赖安装上，使得基于NVIDIA的cl设备能够正常使用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install ocl-icd-libopencl1</span><br><span class="line">sudo apt install opencl-headers</span><br></pre></td></tr></table></figure>
+<p>若需要在服务器上编译或者调试OpenCL程序，还需要安装</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install ocl-icd-opencl-dev</span><br></pre></td></tr></table></figure>
+<p>要使得CPU也支持运行OpenCL程序，需要去intel官网下载opencl-sdk，地址是:</p>
+<p><a target="_blank" rel="noopener" href="http://software.intel.com/en-us/vcsource/tools/opencl-sdk">http://software.intel.com/en-us/vcsource/tools/opencl-sdk</a> </p>
+<p>选择runtime版本进行下载，目前最新的适合ubuntu的地址是： </p>
+<p><a target="_blank" rel="noopener" href="http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/12526/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz">http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/12526/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz</a> </p>
+<p>适合CentOS的地址是： </p>
+<p><a target="_blank" rel="noopener" href="http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/13454/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz">http://registrationcenter-download.intel.com/akdlm/irc_nas/vcp/13454/opencl_runtime_16.1.2_x64_rh_6.4.0.37.tgz</a> </p>
+<p>安装前需要先安装<code>lsb-core</code>，sdk依赖于这个库，版本必须大于4.0</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install lsb-core</span><br></pre></td></tr></table></figure>
+<p>CentOS系统为</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo yum install redhat-lsb-core</span><br></pre></td></tr></table></figure>
+<p>之后<code>sudo ./install</code>，检查操作系统版本时会提出ubuntu not support，这里可以忽略，这里说的只是不提供支持，而不是不能够使用，intel官方回复说对centos系统提供较好的支持，但ubuntu也是能使用的。</p>
+<blockquote>
+<ol>
+<li>The OpenCL™ implemenations themselves provided at the link are supported. Intel® CPU Runtime for OpenCL™ Applications on Ubuntu* OS is supported. This support is distinct from the 2017 SDK support.</li>
+</ol>
+</blockquote>
+<blockquote>
+<ol start="2">
+<li>The 2017 SDK is supported on CentOS*. It is expected compatible with Ubuntu* OS.</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>The semantic difference is that for supported there is an immediate paid path to get priority support and an intent to create service level agreements for CentOS* only. ‘supported’ is an overloaded word in the software industry… Hopefully the installer messaging will be more clear in the upcoming 2019 SDK.</p>
+</blockquote>
+<p>具体可以看 <a target="_blank" rel="noopener" href="https://software.intel.com/en-us/forums/opencl/topic/785262">https://software.intel.com/en-us/forums/opencl/topic/785262</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Linux/" rel="tag"># Linux</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/12/12/linux/Linux%E5%88%9D%E5%A7%8B%E5%8C%96%E5%8F%8A%E6%8C%82%E8%BD%BD%E6%95%B0%E6%8D%AE%E7%9B%98/" rel="prev" title="Linux初始化及挂载数据盘">
+      <i class="fa fa-chevron-left"></i> Linux初始化及挂载数据盘
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2019/01/18/linux%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%AE%89%E8%A3%85MATLAB/" rel="next" title="linux命令行安装MATLAB">
+      linux命令行安装MATLAB <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Jiayi Liu"
+      src="/assets/blogImg/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Jiayi Liu</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/liujiayi771" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;liujiayi771" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:liujiayi771@gmail.com" title="E-Mail → mailto:liujiayi771@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jiayi Liu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

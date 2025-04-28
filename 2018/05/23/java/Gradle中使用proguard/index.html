@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"liujiayi771.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="最近做了一个Java项目，老板让我们将核心部分的代码进行混淆，防止jar包被反编译出来。Java项目是基于Gradle进行构建的，使用了shadowJar这个插件将源码生成的jar包和所有的依赖的jar包打包到一起，称为一个fat-jar。我之前单独使用过proguard的gui，也使用过maven的proguard plugin以及sbt的plugin，都踩了很多坑最终混淆成功了，以为这次应该很">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Gradle中使用proguard">
+<meta property="og:url" content="http://liujiayi771.github.io/2018/05/23/java/Gradle%E4%B8%AD%E4%BD%BF%E7%94%A8proguard/index.html">
+<meta property="og:site_name" content="Joey&#39;s Notes">
+<meta property="og:description" content="最近做了一个Java项目，老板让我们将核心部分的代码进行混淆，防止jar包被反编译出来。Java项目是基于Gradle进行构建的，使用了shadowJar这个插件将源码生成的jar包和所有的依赖的jar包打包到一起，称为一个fat-jar。我之前单独使用过proguard的gui，也使用过maven的proguard plugin以及sbt的plugin，都踩了很多坑最终混淆成功了，以为这次应该很">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-05-23T13:04:45.000Z">
+<meta property="article:modified_time" content="2025-04-28T03:47:21.466Z">
+<meta property="article:author" content="Jiayi Liu">
+<meta property="article:tag" content="Javai">
+<meta property="article:tag" content="技术">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://liujiayi771.github.io/2018/05/23/java/Gradle%E4%B8%AD%E4%BD%BF%E7%94%A8proguard/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Gradle中使用proguard | Joey's Notes</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Joey's Notes</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Joey</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">3</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">59</span></a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2018/05/23/java/Gradle%E4%B8%AD%E4%BD%BF%E7%94%A8proguard/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joey's Notes">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Gradle中使用proguard
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-05-23 21:04:45" itemprop="dateCreated datePublished" datetime="2018-05-23T21:04:45+08:00">2018-05-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-04-28 11:47:21" itemprop="dateModified" datetime="2025-04-28T11:47:21+08:00">2025-04-28</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近做了一个Java项目，老板让我们将核心部分的代码进行混淆，防止jar包被反编译出来。Java项目是基于Gradle进行构建的，使用了shadowJar这个插件将源码生成的jar包和所有的依赖的jar包打包到一起，称为一个fat-jar。我之前单独使用过proguard的gui，也使用过maven的proguard plugin以及sbt的plugin，都踩了很多坑最终混淆成功了，以为这次应该很轻松能完成任务，但事实上我遇到了很多之前没有遇到过的问题，现在将我解决这个问题的每个阶段记录下来。</p>
+<h4 id="阶段一"><a href="#阶段一" class="headerlink" title="阶段一"></a>阶段一</h4><p>下载了最新的proguard6.0.3，执行proguardgui.sh，图形界面出来之后，写好一个配置文件并load进去，配置文件中将包含依赖的fat-jar作为输入，libraryjars只添加了<code>jre/lib/rt.jar</code>，因为其他库文件都包含在了fat-jar包当中，这样混淆有一个问题就是会去混淆依赖的库，虽然可以通过<code>keep class</code>来保持依赖的库不被混淆，但是proguard还是会去遍历所有的依赖库中的内容，导致混淆的时间非常长。这对于我来说是不能接受的，我现在都还不知道我写的混淆配置文件能不能让混淆后的jar包正常运行，如果测试一次要花这么长时间，肯定是不能按时完成任务的，而且整个调试的过程会非常痛苦。我看了一下jar包有200M左右，但实际上我们源码对应的jar包只有5M左右，其他的内容都是依赖的库，实际上我是不需要去混淆这些依赖，proguard花费时间去遍历这些依赖是没有意义的。</p>
+<h4 id="阶段二"><a href="#阶段二" class="headerlink" title="阶段二"></a>阶段二</h4><p>我先不用shadowJar进行打包，只使用jar任务编译出一个不包含依赖的jar包，只对这个不包含依赖的jar包进行混淆，把其依赖的库通过proguard配置文件中的<code>-libraryjars</code>参数添加进去（不添加进去会出现找不到依赖的库的问题）。这样proguard就只会混淆我们所写的代码，不会涉及到依赖的库，代码很快就混淆完了。混淆后的库文件中包含有<code>MAINIFEST.MF</code>文件，<code>Class-Path</code>中记录了所依赖的库文件的路径，使得独立的jar包也能正常运行。我写的混淆配置文件混淆的力度并不是很大，我以为程序能够正常运行，但是却并没有如我所愿。</p>
+<h4 id="阶段三"><a href="#阶段三" class="headerlink" title="阶段三"></a>阶段三</h4><p>独立混淆的jar包在混淆环节并没有出错，但是执行的时候却遇到了一个很奇怪的问题，我追踪代码发现在某一个地方使用了<code>ClassLoader.getResource(packageName)</code>方法去获取在packageName包下的所有资源，这个方法在jar包没有混淆之前是能正确找到packageName下的所有资源，但是混淆之后这个方法就什么都获取不到了。为了探究原因，我关闭了proguard的所有功能，包括optimize、obfuscate、shrink，相当于不对输入的jar包做任何处理，最后输出的jar包还是会有这个问题。同时，我把混淆前的jar包和不开启proguard任何功能输出的jar包使用JAPICC进行比较，发现里面的内容是完全一致的。查找资料发现proguard会对jar包进行优化，以期减少其大小。默认情况下，proguard会删除jar中的目录元素，导致ClassLoader().getResource（）方法找不到对应的资源，只需要在使用时加上<code>-keepdirectories</code>选项即可。附上官方文档的说明：</p>
+<blockquote>
+<p><strong>-keepdirectories</strong> [<em>directory_filter</em>]<br>Specifies the directories to be kept in the output jars (or aars, wars, ears, zips, apks, or directories). By default, directory entries are removed. This reduces the jar size, but it may break your program if the code tries to find them with constructs like “com.example.MyClass.class.getResource(“”)”. You’ll then want to keep the directory corresponding to the package, “-keepdirectories com.example”. If the option is specified without a filter, all directories are kept. With a filter, only matching directories are kept. For instance, “-keepdirectories mydirectory” matches the specified directory, “-keepdirectories mydirectory&#x2F;*” matches its immediate subdirectories, and “-keepdirectories mydirectory&#x2F;**” matches all of its subdirectories.</p>
+</blockquote>
+<h4 id="阶段四"><a href="#阶段四" class="headerlink" title="阶段四"></a>阶段四</h4><p>最后的要求还是需要将源码和依赖的库打包到一起，需要在shadowJar打包之前先将源码产生的jar包进行混淆，shadowJar任务的输入改成这个混淆后的jar包即可。proguard实际上也能作为gradle的一个插件进行使用，可以在<code>build.gradle</code>当中加入一个proguard的task进行混淆，proguard官网提供了一种使用方法：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">buildscript &#123;</span><br><span class="line">  repositories &#123;</span><br><span class="line">    flatDir <span class="attr">dirs:</span> <span class="string">&#x27;/usr/local/java/proguard/lib&#x27;</span></span><br><span class="line">  &#125;</span><br><span class="line">  dependencies &#123;</span><br><span class="line">    classpath <span class="string">&#x27;:proguard:&#x27;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>定义task的方式如下：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">task myProguardTask(<span class="attr">type:</span> proguard.gradle.ProGuardTask) &#123;</span><br><span class="line">  .....</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>但这样需要自己手动下载proguard，并存放在编译gradle的服务器上，十分不方便。还有一种方式比较方便，每次会自动下载需要的jar包：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">buildscript &#123;</span><br><span class="line">  repositories &#123;</span><br><span class="line">    mavenCentral()</span><br><span class="line">    jcenter() <span class="comment">// for shadow plugin</span></span><br><span class="line">  &#125;</span><br><span class="line">  dependencies &#123;</span><br><span class="line">    classpath <span class="string">&#x27;net.sf.proguard:proguard-gradle:6.0.3&#x27;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我所定义的proguard的混淆任务如下：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">task obfuscate(<span class="attr">type:</span> proguard.gradle.ProGuardTask) &#123;</span><br><span class="line">  injars jar</span><br><span class="line">  outjars <span class="string">&quot;$buildDir/libs/$&#123;project.name&#125;-pg.jar&quot;</span></span><br><span class="line">  libraryjars <span class="string">&quot;$&#123;System.getProperty(&#x27;java.home&#x27;)&#125;/lib/rt.jar&quot;</span></span><br><span class="line">  libraryjars files(configurations.compile.collect())</span><br><span class="line"></span><br><span class="line">  useuniqueclassmembernames</span><br><span class="line"></span><br><span class="line">  dontshrink</span><br><span class="line">  dontoptimize</span><br><span class="line">  dontnote</span><br><span class="line">  dontwarn</span><br><span class="line"></span><br><span class="line">  <span class="comment">//keepnames &#x27;class ** &#123; *; &#125;&#x27;</span></span><br><span class="line">  configuration <span class="string">&#x27;proguard.pro&#x27;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里<code>injars</code>直接写jar即可，会得到jar任务的输出（即源码编译产生的jar），<code>outjars</code>输出到<code>build/libs</code>路径下，<code>rt.jar</code>也许要添加，jre的路径可以使用<code>$&#123;System.getProperty(&#39;java.home&#39;)&#125;</code>获得。另外，依赖的所有库可以通过一种很简洁的方式表述出来，不需要一个依赖一个依赖的添加，<code>libraryjars files(configurations.compile.collect())</code>，这句话会把compile环节所依赖的所有库文件的获取到，并添加到libraryjar当中。proguard的配置参数可以直接在gradle的task中写，一般来说是将普通的proguard参数去掉前面的-，参数的值需要写到一个字符串当中，遇到配置字符串需要换行的配置情况需要在最后加上一个\。<br>同时，还需要将混淆产生的jar包作为shadowJar任务的输入才能将这个混淆的jar包和依赖打包到一起，具体写法如下：</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">task myShadow(<span class="attr">type:</span> ShadowJar) &#123;</span><br><span class="line">  baseName = jar.baseName</span><br><span class="line">  from obfuscate</span><br><span class="line">  configurations = [project.configurations.runtime]</span><br><span class="line">  classifier = <span class="string">&#x27;shadow&#x27;</span></span><br><span class="line">  ...</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+<p>from指明了需要打包的jar的来源，这里指定obfuscate就是之前写的obfuscate任务的输出，configurations指定了配置文件，指定之后会根据这个配置文件找到所有的依赖库文件，这里指定的是打包compile环节依赖的库文件，并且<code>[project.configurations.runtime]</code>实际上是default <code>shadowJar</code> task的默认配置。</p>
+<p>这里有一个坑需要注意，如果你使用了默认的shadowJar任务（shadowJar），最后生成的fat-jar会包含有依赖库、没混淆的代码、混淆的代码三部分，正如Stack Overflow上这个问题所描述的一样：<a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/43643609/gradle-shadowjar-output-contains-obfuscated-and-non-obfuscated-classes?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa">https://stackoverflow.com/questions/43643609/gradle-shadowjar-output-contains-obfuscated-and-non-obfuscated-classes?utm_medium=organic&amp;utm_source=google_rich_qa&amp;utm_campaign=google_rich_qa</a><br>这里产生这种情况的原因是，默认的shadowJar任务总会将main文件夹中的源文件添加到输入当中，要解决这个问题就是自己定义一个type为shadowJar的task，不要去使用默认的shadowJar任务，其实这个问题在shadowJar官方说明文档当中也写到了：</p>
+<blockquote>
+<p>The built in shadowJar task only provides an output for the main source set of the project. It is possible to add arbitrary ShadowJar tasks to a project. When doing so, ensure that the configurations property is specified to inform Shadow which dependencies to merge into the output.</p>
+</blockquote>
+<p>官方提供了一个例子可以将test中的源文件与testRuntime中依赖的库文件进行打包的方法，也说到了默认的shadowJar任务只能将main中的源文件进行打包，也提示了我们如果要用proguard混淆之后的jar作为输入需要自己定义shadowJar任务，不能使用默认的shadowJar任务。</p>
+<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">task testJar(<span class="attr">type:</span> ShadowJar) &#123;</span><br><span class="line">  classifier = <span class="string">&#x27;tests&#x27;</span></span><br><span class="line">  from sourceSets.test.output</span><br><span class="line">  configurations = [project.configurations.testRuntime]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.guardsquare.com/en/proguard/manual/usage">https://www.guardsquare.com/en/proguard/manual/usage</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.oschina.net/question/237480_166440">https://www.oschina.net/question/237480_166440</a></li>
+<li><a target="_blank" rel="noopener" href="https://stackoverflow.com/questions/43643609/gradle-shadowjar-output-contains-obfuscated-and-non-obfuscated-classes?utm_medium=organic&utm_source=google_rich_qa&utm_campaign=google_rich_qa">https://stackoverflow.com/questions/43643609/gradle-shadowjar-output-contains-obfuscated-and-non-obfuscated-classes?utm_medium=organic&amp;utm_source=google_rich_qa&amp;utm_campaign=google_rich_qa</a></li>
+<li><a target="_blank" rel="noopener" href="http://imperceptiblethoughts.com/shadow/">http://imperceptiblethoughts.com/shadow/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.huangyunkun.com/2013/12/23/gradle_with_proguard/">https://www.huangyunkun.com/2013/12/23/gradle_with_proguard/</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Javai/" rel="tag"># Javai</a>
+              <a href="/tags/%E6%8A%80%E6%9C%AF/" rel="tag"># 技术</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/04/16/linux/CentOS%E5%AE%89%E8%A3%85%E9%AB%98%E7%89%88%E6%9C%ACgcc/" rel="prev" title="CentOS安装高版本gcc">
+      <i class="fa fa-chevron-left"></i> CentOS安装高版本gcc
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/10/25/spark/spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/Spark%E8%BF%90%E8%A1%8C%E5%8E%9F%E7%90%86/" rel="next" title="Spark运行原理">
+      Spark运行原理 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5%E4%B8%80"><span class="nav-number">1.</span> <span class="nav-text">阶段一</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5%E4%BA%8C"><span class="nav-number">2.</span> <span class="nav-text">阶段二</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5%E4%B8%89"><span class="nav-number">3.</span> <span class="nav-text">阶段三</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%B6%E6%AE%B5%E5%9B%9B"><span class="nav-number">4.</span> <span class="nav-text">阶段四</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-number"></span> <span class="nav-text">参考资料</span></a></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Jiayi Liu"
+      src="/assets/blogImg/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Jiayi Liu</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/liujiayi771" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;liujiayi771" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:liujiayi771@gmail.com" title="E-Mail → mailto:liujiayi771@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jiayi Liu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

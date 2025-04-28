@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"liujiayi771.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="安装redis 下载地址： http:&#x2F;&#x2F;redis.io&#x2F;download 解压并进入解压目录，并进行编译安装。直接make &amp; make install 拷贝配置文件到 &#x2F;etc 目录，将其中的daemonize no改为daemonize yes1cp redis.conf &#x2F;etc&#x2F; 将解压目录中 src&#x2F; 中的redis-benchmark redis-cli">
+<meta property="og:type" content="article">
+<meta property="og:title" content="安装redis&amp;memcache及PHP扩展">
+<meta property="og:url" content="http://liujiayi771.github.io/2016/01/07/php/%E5%AE%89%E8%A3%85redis%E5%92%8Cmemcache%E5%8F%8APHP%E6%89%A9%E5%B1%95/index.html">
+<meta property="og:site_name" content="Joey&#39;s Notes">
+<meta property="og:description" content="安装redis 下载地址： http:&#x2F;&#x2F;redis.io&#x2F;download 解压并进入解压目录，并进行编译安装。直接make &amp; make install 拷贝配置文件到 &#x2F;etc 目录，将其中的daemonize no改为daemonize yes1cp redis.conf &#x2F;etc&#x2F; 将解压目录中 src&#x2F; 中的redis-benchmark redis-cli">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2016-01-07T12:18:47.000Z">
+<meta property="article:modified_time" content="2025-04-28T03:47:21.468Z">
+<meta property="article:author" content="Jiayi Liu">
+<meta property="article:tag" content="PHP">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://liujiayi771.github.io/2016/01/07/php/%E5%AE%89%E8%A3%85redis%E5%92%8Cmemcache%E5%8F%8APHP%E6%89%A9%E5%B1%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>安装redis&memcache及PHP扩展 | Joey's Notes</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Joey's Notes</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Joey</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">3</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">59</span></a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2016/01/07/php/%E5%AE%89%E8%A3%85redis%E5%92%8Cmemcache%E5%8F%8APHP%E6%89%A9%E5%B1%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joey's Notes">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          安装redis&memcache及PHP扩展
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2016-01-07 20:18:47" itemprop="dateCreated datePublished" datetime="2016-01-07T20:18:47+08:00">2016-01-07</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-04-28 11:47:21" itemprop="dateModified" datetime="2025-04-28T11:47:21+08:00">2025-04-28</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E6%8A%80%E6%9C%AF/" itemprop="url" rel="index"><span itemprop="name">技术</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="安装redis"><a href="#安装redis" class="headerlink" title="安装redis"></a>安装redis</h2><ul>
+<li>下载地址： <a target="_blank" rel="noopener" href="http://redis.io/download">http://redis.io/download</a></li>
+<li>解压并进入解压目录，并进行编译安装。直接make &amp; make install</li>
+<li>拷贝配置文件到 &#x2F;etc 目录，将其中的daemonize no改为daemonize yes<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> redis.conf /etc/</span><br></pre></td></tr></table></figure></li>
+<li>将解压目录中 src&#x2F; 中的redis-benchmark redis-cli redis-server 拷贝到 &#x2F;usr&#x2F;bin 中，方便之后启动<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cp</span> src/redis-benchmark redis-cli redis-server /usr/bin/</span><br></pre></td></tr></table></figure>
+<span id="more"></span></li>
+<li>启动redis<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-server /etc/redis.conf</span><br></pre></td></tr></table></figure></li>
+<li>进入redis<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli</span><br></pre></td></tr></table></figure></li>
+<li>关闭redis服务<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli shutdown</span><br></pre></td></tr></table></figure></li>
+</ul>
+<h2 id="安装redis的PHP扩展库"><a href="#安装redis的PHP扩展库" class="headerlink" title="安装redis的PHP扩展库"></a>安装redis的PHP扩展库</h2><ul>
+<li>下载地址： <a target="_blank" rel="noopener" href="http://pecl.php.net/package/redis">http://pecl.php.net/package/redis</a></li>
+<li>将phpize软链接到 &#x2F;usr&#x2F;bin<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">ln</span> -s /usr/local/php/bin/phpize /usr/bin</span><br></pre></td></tr></table></figure></li>
+<li>解压并进入解压目录，使用如下命令进行安装<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">phpize</span><br><span class="line">./configure --with-php-config=/usr/local/php/bin/php-config</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure></li>
+<li>查看输出信息，会告诉你redis.so放置在哪个文件夹下，并复制到PHP的扩展目录下，扩展目录一般为 &#x2F;usr&#x2F;local&#x2F;php&#x2F;lib&#x2F;php&#x2F;extensions&#x2F;no-debug-non-zts-20131226&#x2F;，在正常情况下，该文件已经被拷贝到正确的位置</li>
+<li>在php.ini中添加一句extension&#x3D;redis.so</li>
+<li>重启PHP，在phpinfo界面会有redis信息显示则说明安装成功</li>
+</ul>
+<h2 id="安装memcache"><a href="#安装memcache" class="headerlink" title="安装memcache"></a>安装memcache</h2><ul>
+<li>memcache需要使用libevent这个库用于socket的处理，需要安装libevent，下载地址： <a target="_blank" rel="noopener" href="http://libevent.org/">http://libevent.org/</a></li>
+<li>编译安装libevent<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./configure --prefix=/usr</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure></li>
+<li>memcache下载地址： <a target="_blank" rel="noopener" href="http://memcached.org/">http://memcached.org/</a></li>
+<li>编译安装memcache<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">./configure --with-libevent=/usr</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure></li>
+<li>启动memcache<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">memcached -d -m 2048 -u root -c 1024 -p 11211 -P /tmp/memcached1.pid</span><br></pre></td></tr></table></figure>
+-p 指定端口号（默认11211）<br>-m 指定最大使用内存大小（默认64MB）<br>-t 线程数（默认4）<br>-l 连接的IP地址, 默认是本机<br>-d start 启动memcached服务<br>-d restart 重起memcached服务<br>-d stop|shutdown 关闭正在运行的memcached服务<br>-m 最大内存使用，单位MB。默认64MB<br>-M 内存耗尽时返回错误，而不是删除项<br>-c 最大同时连接数，默认是1024<br>-f 块大小增长因子，默认是1.25<br>-n 最小分配空间，key+value+flags默认是48</li>
+</ul>
+<h2 id="安装memcache的PHP扩展库"><a href="#安装memcache的PHP扩展库" class="headerlink" title="安装memcache的PHP扩展库"></a>安装memcache的PHP扩展库</h2><ul>
+<li>下载地址： <a target="_blank" rel="noopener" href="http://pecl.php.net/package/memcache">http://pecl.php.net/package/memcache</a></li>
+<li>用如下指令进行安装<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">phpize</span><br><span class="line">./configure --enable-memcache --with-php-config=/usr/local/php/bin/php-config --with-zlib-dir</span><br><span class="line">make</span><br><span class="line">make install</span><br></pre></td></tr></table></figure></li>
+<li>在php.ini中增加一行：extension&#x3D;memcache.so</li>
+<li>查看phpinfo()的输出，观察memcache的扩展库是否存在</li>
+</ul>
+<h2 id="PHP7安装memcache的PHP扩展库的问题"><a href="#PHP7安装memcache的PHP扩展库的问题" class="headerlink" title="PHP7安装memcache的PHP扩展库的问题"></a>PHP7安装memcache的PHP扩展库的问题</h2><ul>
+<li><p>原生的memcache扩展库在PHP7中已经不能编译了，需要使用github上的pecl-memcache分支版本<br><a target="_blank" rel="noopener" href="https://github.com/websupport-sk/pecl-memcache">https://github.com/websupport-sk/pecl-memcache</a></p>
+</li>
+<li><p>此外，还有一个扩展库叫memcached，与memcache不同，功能更强大，可以在<a target="_blank" rel="noopener" href="https://github.com/rlerdorf/php-memcached">https://github.com/rlerdorf/php-memcached</a> 进行下载安装，编译需要安装libmemcached</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt install libmemcached-dev</span><br></pre></td></tr></table></figure></li>
+<li><p>再提供一个redis扩展库的github地址<a target="_blank" rel="noopener" href="https://github.com/phpredis/phpredis/">https://github.com/phpredis/phpredis/</a> ，后续redis扩展库对PHP7支持不好可以从该地址下载进行扩展库安装</p>
+</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/PHP/" rel="tag"># PHP</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2016/01/07/centos/CentOS%207.0%20%E5%AE%89%E8%A3%85MySQL%205.6/" rel="prev" title="CentOS 7.0 安装MySQL 5.6">
+      <i class="fa fa-chevron-left"></i> CentOS 7.0 安装MySQL 5.6
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2016/01/13/centos/CentOS%207.0%20%E7%BC%96%E8%AF%91%E5%AE%89%E8%A3%85VIPS%20dzsave/" rel="next" title="CentOS 7.0 编译安装VIPS dzsave">
+      CentOS 7.0 编译安装VIPS dzsave <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85redis"><span class="nav-number">1.</span> <span class="nav-text">安装redis</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85redis%E7%9A%84PHP%E6%89%A9%E5%B1%95%E5%BA%93"><span class="nav-number">2.</span> <span class="nav-text">安装redis的PHP扩展库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85memcache"><span class="nav-number">3.</span> <span class="nav-text">安装memcache</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%85memcache%E7%9A%84PHP%E6%89%A9%E5%B1%95%E5%BA%93"><span class="nav-number">4.</span> <span class="nav-text">安装memcache的PHP扩展库</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#PHP7%E5%AE%89%E8%A3%85memcache%E7%9A%84PHP%E6%89%A9%E5%B1%95%E5%BA%93%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-number">5.</span> <span class="nav-text">PHP7安装memcache的PHP扩展库的问题</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Jiayi Liu"
+      src="/assets/blogImg/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Jiayi Liu</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/liujiayi771" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;liujiayi771" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:liujiayi771@gmail.com" title="E-Mail → mailto:liujiayi771@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jiayi Liu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"liujiayi771.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Spark相对于Hadoop来说一个最大的优势就是可以支持迭代运算在内存当中进行，正如Spark官网首页上列出的第一个优势“Speed”，官方是这样描述的：  SpeedRun programs up to 100x faster than Hadoop MapReduce in memory, or 10x faster on disk. Apache Spark has an advanced">
+<meta property="og:type" content="article">
+<meta property="og:title" content="spark的内存管理">
+<meta property="og:url" content="http://liujiayi771.github.io/2018/04/04/spark/Spark%E7%9A%84%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/index.html">
+<meta property="og:site_name" content="Joey&#39;s Notes">
+<meta property="og:description" content="Spark相对于Hadoop来说一个最大的优势就是可以支持迭代运算在内存当中进行，正如Spark官网首页上列出的第一个优势“Speed”，官方是这样描述的：  SpeedRun programs up to 100x faster than Hadoop MapReduce in memory, or 10x faster on disk. Apache Spark has an advanced">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://spark.apache.org/images/logistic-regression.png">
+<meta property="og:image" content="https://www.ibm.com/developerworks/cn/analytics/library/ba-cn-apache-spark-memory-management/image002.png">
+<meta property="og:image" content="https://github.com/liujiayi771/liujiayi771.github.io/blob/master/assets/blogImg/Spark-Memory-Management-1.6.0.jpg?raw=true">
+<meta property="article:published_time" content="2018-04-04T03:30:04.000Z">
+<meta property="article:modified_time" content="2025-04-28T03:47:21.469Z">
+<meta property="article:author" content="Jiayi Liu">
+<meta property="article:tag" content="spark">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://spark.apache.org/images/logistic-regression.png">
+
+<link rel="canonical" href="http://liujiayi771.github.io/2018/04/04/spark/Spark%E7%9A%84%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>spark的内存管理 | Joey's Notes</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Joey's Notes</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Joey</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">3</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">59</span></a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2018/04/04/spark/Spark%E7%9A%84%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joey's Notes">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          spark的内存管理
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-04-04 11:30:04" itemprop="dateCreated datePublished" datetime="2018-04-04T11:30:04+08:00">2018-04-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-04-28 11:47:21" itemprop="dateModified" datetime="2025-04-28T11:47:21+08:00">2025-04-28</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/" itemprop="url" rel="index"><span itemprop="name">分布式</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Spark相对于Hadoop来说一个最大的优势就是可以支持迭代运算在内存当中进行，正如Spark官网首页上列出的第一个优势“Speed”，官方是这样描述的：</p>
+<blockquote>
+<p><strong>Speed</strong><br>Run programs up to 100x faster than Hadoop MapReduce in memory, or 10x faster on disk. Apache Spark has an advanced DAG<br>execution engine that support acyclic data flow and in-memory<br>computing.</p>
+</blockquote>
+<p>同时官方还给了这样一张图来说明对于迭代式计算的逻辑回归而言，Spark比Hadoop快了可不是一点半点。</p>
+<p> <img src="http://spark.apache.org/images/logistic-regression.png" alt="Logistic regression in Hadoop and Spark"></p>
+<p>对于in-memory的Spark来说，了解一下其内存管理还是十分重要的，因为Spark的in-memory的计算特性，其对内存的消耗还是很巨大的，如果对Spark的内存管理不够了解便不能充分利用所有的内存资源，并且很容易导致内存不够用时中间数据被缓存到了磁盘当中影响计算的速度。</p>
+<h2 id="Spark内存管理接口"><a href="#Spark内存管理接口" class="headerlink" title="Spark内存管理接口"></a>Spark内存管理接口</h2><p>Spark为存储内存和执行内存的管理提供了统一的抽象类——<a target="_blank" rel="noopener" href="https://github.com/apache/spark/blob/branch-1.6/core/src/main/scala/org/apache/spark/memory/MemoryManager.scala">MemoryManager</a>，同一个Executor内的任务都调用这个抽象类的方法来申请或释放内存，几个关键的内存管理接口定义如下：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">acquireStorageMemory</span></span>(</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    numBytes: <span class="type">Long</span>,</span><br><span class="line">    evictedBlocks: mutable.<span class="type">Buffer</span>[(<span class="type">BlockId</span>, <span class="type">BlockStatus</span>)]): <span class="type">Boolean</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">acquireUnrollMemory</span></span>(</span><br><span class="line">    blockId: <span class="type">BlockId</span>,</span><br><span class="line">    numBytes: <span class="type">Long</span>,</span><br><span class="line">    evictedBlocks: mutable.<span class="type">Buffer</span>[(<span class="type">BlockId</span>, <span class="type">BlockStatus</span>)]): <span class="type">Boolean</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>[memory]</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">acquireExecutionMemory</span></span>(</span><br><span class="line">    numBytes: <span class="type">Long</span>,</span><br><span class="line">    taskAttemptId: <span class="type">Long</span>,</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Long</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>[memory]</span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">releaseExecutionMemory</span></span>(</span><br><span class="line">    numBytes: <span class="type">Long</span>,</span><br><span class="line">    taskAttemptId: <span class="type">Long</span>,</span><br><span class="line">    memoryMode: <span class="type">MemoryMode</span>): <span class="type">Unit</span> = synchronized &#123;</span><br><span class="line">  memoryMode <span class="keyword">match</span> &#123;</span><br><span class="line">    <span class="keyword">case</span> <span class="type">MemoryMode</span>.<span class="type">ON_HEAP</span> =&gt; onHeapExecutionMemoryPool.releaseMemory(numBytes, taskAttemptId)</span><br><span class="line">    <span class="keyword">case</span> <span class="type">MemoryMode</span>.<span class="type">OFF_HEAP</span> =&gt; offHeapExecutionMemoryPool.releaseMemory(numBytes, taskAttemptId)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span>[memory] <span class="function"><span class="keyword">def</span> <span class="title">releaseAllExecutionMemoryForTask</span></span>(taskAttemptId: <span class="type">Long</span>): <span class="type">Long</span> = synchronized &#123;</span><br><span class="line">  onHeapExecutionMemoryPool.releaseAllMemoryForTask(taskAttemptId) +</span><br><span class="line">    offHeapExecutionMemoryPool.releaseAllMemoryForTask(taskAttemptId)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">releaseStorageMemory</span></span>(numBytes: <span class="type">Long</span>): <span class="type">Unit</span> = synchronized &#123;</span><br><span class="line">  storageMemoryPool.releaseMemory(numBytes)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">final</span> <span class="function"><span class="keyword">def</span> <span class="title">releaseAllStorageMemory</span></span>(): <span class="type">Unit</span> = synchronized &#123;</span><br><span class="line">  storageMemoryPool.releaseAllMemory()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">final</span> <span class="function"><span class="keyword">def</span> <span class="title">releaseUnrollMemory</span></span>(numBytes: <span class="type">Long</span>): <span class="type">Unit</span> = synchronized &#123;</span><br><span class="line">  releaseStorageMemory(numBytes)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Spark的内存系统随着Spark版本的发展具有非常多的变化，1.6.0版本之后新的内存管理模块的实现类为<a target="_blank" rel="noopener" href="https://github.com/apache/spark/blob/branch-1.6/core/src/main/scala/org/apache/spark/memory/UnifiedMemoryManager.scala">UnifiedMemoryManager</a>，1.6.0版本之前采用的静态管理<a target="_blank" rel="noopener" href="https://github.com/apache/spark/blob/branch-1.6/core/src/main/scala/org/apache/spark/memory/StaticMemoryManager.scala">StaticMemoryManager</a>方式仍被保留，称为Legacy模式。Legacy模式默认是关闭的，需要通过增加一个配置参数<code>spark.memory.useLegacyMode=true</code>来开启。</p>
+<h1 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h1><h2 id="静态内存管理"><a href="#静态内存管理" class="headerlink" title="静态内存管理"></a>静态内存管理</h2><p>首先来简略地了解一下Spark 1.6.0版本之前的内存管理模型，对于一个Executor，内存一般由3个部分构成：</p>
+<ol>
+<li>Executor Memory，这片内存区域是为了解决shuffle、joins、sorts以及aggregations过程中为了避免繁琐的IO需要的buffer，可以通过参数<code>spark.shuffle.memoryFraction</code>配置，其默认值为0.2。</li>
+<li>Storage Memory，这片内存区域是用于RDD的cache、persist以及broadcasts和task results的存储，可以通过参数<code>spark.storage.memoryFraction</code>配置，默认值为0.6.</li>
+<li>Other Memory，给系统预留的，因为程序本身运行也是需要内存的，其默认比例为0.2。<br>除此之外，为了防止OOM，一般都会有个safetyFraction，这种内存分配机制最大的问题就是其静态性，每个部分都不能超过自己的上限，规定了多少就是多少，这在Storage Memory和Executor Memory当中尤为严重。借用别人的一张图片能够很清楚的说明静态内存的分配方式：<span id="more"></span>
+<img src="https://www.ibm.com/developerworks/cn/analytics/library/ba-cn-apache-spark-memory-management/image002.png" alt="static-memory"></li>
+</ol>
+<h2 id="统一内存管理"><a href="#统一内存管理" class="headerlink" title="统一内存管理"></a>统一内存管理</h2><p>首先来看一张图片，这张图片很清晰地展示了1.6.0版本之后Spark在堆内存当中的使用情况。</p>
+<p><img src="https://github.com/liujiayi771/liujiayi771.github.io/blob/master/assets/blogImg/Spark-Memory-Management-1.6.0.jpg?raw=true" alt="unified-memory"></p>
+<p>从图片当中可以看到，在这种方式的内存管理下，一共有3个主要的内存区域，分别为Reserved Memory、User Memory和Spark Memory，接下来分别对这3块内存区域进行说明：</p>
+<ol>
+<li><strong>Reserved Memory</strong>，这块内存区域是Spark系统预留的内存区域，用于存储Spark的内部对象，它的大小是在源码当中固定死的，为300MB，我们可以从源码中看到这段对Reserved Memory限定的代码：</li>
+</ol>
+ <figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// Set aside a fixed amount of memory for non-storage, non-execution purposes.</span></span><br><span class="line"><span class="comment">// This serves a function similar to `spark.memory.fraction`, but guarantees that we reserve</span></span><br><span class="line"><span class="comment">// sufficient memory for the system even for small heaps. E.g. if we have a 1GB JVM, then</span></span><br><span class="line"><span class="comment">// the memory used for execution and storage will be (1024 - 300) * 0.75 = 434MB by default.</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">val</span> <span class="type">RESERVED_SYSTEM_MEMORY_BYTES</span> = <span class="number">300</span> * <span class="number">1024</span> * <span class="number">1024</span></span><br></pre></td></tr></table></figure>
+<p> Reserved Memory的大小只能通过自己编译修改过的Spark源码来实现更改，还有一点需要说明的是，如果给每个Executor设定的内存值小于<code>1.5 * Reserved Memory = 450MB</code>，Executor将不会被正常启动，会报一个错误信息“please use larger heap size”。我们也可以从源码的注释信息中看到，用于execution和storage的内存大小为<code>(Java Heap Memory - Reserved Memory) * 0.75</code>，即Spark 1.6.0中<code>spark.memory.fraction</code>的默认值为0.75，但是目前版本的Spark，其默认值为0.6。</p>
+<ol start="2">
+<li><p><strong>User Memory</strong>，这块内存区域为用户内存，用于用户保存在RDD转换操作中需要使用的自己的数据结构。这块区域的大小为<code>(Java Heap Memory - Reserved Memory) * (1 - spark.memory.fraction)</code>，对于这块区域的使用，Spark对于用户使用这块内存区域做什么以及使用的内存是否会超出这个区域的限制都不加管束，因此用户在使用时如果不加注意，很容易产生OOM的问题。</p>
+</li>
+<li><p><strong>Spark Memory</strong>，这块内存区域由Spark来管理和使用，其大小为<code>(Java Heap Memory - Reserved Memory) * spark.memory.fraction</code>。这块内存区域又会被分为两部分，分别为<strong>Storage Memory</strong>和<strong>Execution Memory</strong>，这两块区域的大小通过一个参数<code>spark.memory.storageFraction</code>来控制，其默认值为0.5。Legacy内存管理方式下，对于这两块区域的限定有一个非常好的优点就是这两块区域内存大小的限定并不是静态的，根据两块内存区域的内存压力这个划分边界会随之改变，一片区域的内存大小会通过向另一片区域“借”内存来增加，一方空闲而另一方内存不足的时候，内存不足的一方可以借用另一方的内存。这种内存借用的机制会导致在内存“归还”的时候需要释放借用的那部分内存，对于Storage Memory占用了Executor Memory的情况，当Executor Memory不够用需要Storage Memory归还占用的内存的时候，这时会强制释放Storage Memory中属于Executor Memory的那部分内存，Storage Memory丢失的那部分数据会在下次使用的时候被重新计算；对于Executor Memory占用Storage Memory的情况，当Storage Memory内存不够用的时候，不会强制释放被Executor Memory占用的那部分属于Storage Memory的内存，Storage Memory会一直等待，直到Executor Memory主动释放其占用的那部分属于Storage Memory的内存，因为强制释放Executor Memory会导致任务失败。接下来再详细说一下Storage Memory和Executor Memory。</p>
+</li>
+</ol>
+<ul>
+<li>Storage Memory<br> 用来存储Spark缓存的数据（RDD的cache或者说是persist）、unroll数据以及广播变量。unroll指的是将序列化的数据反序列化为可以直接被访问的数据，Storage Memory中有一部分被称为Unroll Memory，在Spark中数据可以以序列化和反序列化的形式存储，序列化后的数据是无法直接被访问的，只有反序列化之后才可以被使用，反序列化过程中用到的内存就是Unroll Memory，Spark中大部分数据都是以序列化的方式进行传输的。</li>
+<li>Executor Memory<br> 这部分内存用来存储Spark执行task过程中需要用到的对象，例如shuffle过程中mapper的输出，这部分的内存区域不够用时，也支持将数据写到磁盘上。Execution Memory当中有一部分为Shuffle Memory，是shuffle阶段使用的内存，主要用在sort上，如果这一块没有足够的内存来做shuffle，将会出现OOM。</li>
+</ul>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li><a target="_blank" rel="noopener" href="http://www.leocook.org/2016/10/13/spark%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/">http://www.leocook.org/2016/10/13/spark%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86/</a></li>
+<li><a target="_blank" rel="noopener" href="https://0x0fff.com/spark-memory-management/">https://0x0fff.com/spark-memory-management/</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.ibm.com/developerworks/cn/analytics/library/ba-cn-apache-spark-memory-management/index.html">https://www.ibm.com/developerworks/cn/analytics/library/ba-cn-apache-spark-memory-management/index.html</a></li>
+<li><a target="_blank" rel="noopener" href="http://spark.apache.org/docs/1.6.0/configuration.html#memory-management">http://spark.apache.org/docs/1.6.0/configuration.html#memory-management</a></li>
+<li><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/26905029">https://zhuanlan.zhihu.com/p/26905029</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/b250797b452a">https://www.jianshu.com/p/b250797b452a</a></li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/spark/" rel="tag"># spark</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/03/17/spark/Spark%E5%AF%B9%E5%A4%A7%E8%A7%84%E6%A8%A1%E6%95%B0%E6%8D%AE%E8%BF%9B%E8%A1%8C%E5%88%86%E5%8C%BA/" rel="prev" title="Spark对大规模数据进行分区">
+      <i class="fa fa-chevron-left"></i> Spark对大规模数据进行分区
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/04/05/spark/spark%E6%BA%90%E7%A0%81%E9%98%85%E8%AF%BB/Spark%E6%BA%90%E7%A0%81%E5%88%86%E6%9E%90RDD%E7%BC%93%E5%AD%98%E8%BF%87%E7%A8%8B/" rel="next" title="Spark源码分析RDD缓存过程">
+      Spark源码分析RDD缓存过程 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Spark%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%E6%8E%A5%E5%8F%A3"><span class="nav-number">1.</span> <span class="nav-text">Spark内存管理接口</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number"></span> <span class="nav-text">内存管理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%99%E6%80%81%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number">1.</span> <span class="nav-text">静态内存管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BB%9F%E4%B8%80%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86"><span class="nav-number">2.</span> <span class="nav-text">统一内存管理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E6%96%87%E7%8C%AE"><span class="nav-number">3.</span> <span class="nav-text">参考文献</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Jiayi Liu"
+      src="/assets/blogImg/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Jiayi Liu</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/liujiayi771" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;liujiayi771" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:liujiayi771@gmail.com" title="E-Mail → mailto:liujiayi771@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jiayi Liu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>

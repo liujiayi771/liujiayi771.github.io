@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"liujiayi771.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="在windows上制作Linux的U盘启动盘非常容易，有很多工具，比如软碟通UltralISO、deepin深度启动盘制作工具等，只要正确使用这些工具就能很容易地制作一个U盘启动盘。 换了Mac电脑后，有时候要给服务器装Linux操作系统，还是找一台windows电脑来制作U盘启动盘，十分不方便。其实用Mac也能很容易地制作U盘启动盘，并且不需要借助什么工具，用dd命令就能完成U盘启动盘的制作。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Mac上制作Linux的U盘启动盘">
+<meta property="og:url" content="http://liujiayi771.github.io/2018/10/31/Mac%E4%B8%8A%E5%88%B6%E4%BD%9CLinux%E7%9A%84U%E7%9B%98%E5%90%AF%E5%8A%A8%E7%9B%98/index.html">
+<meta property="og:site_name" content="Joey&#39;s Notes">
+<meta property="og:description" content="在windows上制作Linux的U盘启动盘非常容易，有很多工具，比如软碟通UltralISO、deepin深度启动盘制作工具等，只要正确使用这些工具就能很容易地制作一个U盘启动盘。 换了Mac电脑后，有时候要给服务器装Linux操作系统，还是找一台windows电脑来制作U盘启动盘，十分不方便。其实用Mac也能很容易地制作U盘启动盘，并且不需要借助什么工具，用dd命令就能完成U盘启动盘的制作。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2018-10-31T02:05:33.000Z">
+<meta property="article:modified_time" content="2025-04-28T03:47:21.465Z">
+<meta property="article:author" content="Jiayi Liu">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://liujiayi771.github.io/2018/10/31/Mac%E4%B8%8A%E5%88%B6%E4%BD%9CLinux%E7%9A%84U%E7%9B%98%E5%90%AF%E5%8A%A8%E7%9B%98/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>Mac上制作Linux的U盘启动盘 | Joey's Notes</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Joey's Notes</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Joey</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">22</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">3</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">59</span></a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://liujiayi771.github.io/2018/10/31/Mac%E4%B8%8A%E5%88%B6%E4%BD%9CLinux%E7%9A%84U%E7%9B%98%E5%90%AF%E5%8A%A8%E7%9B%98/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/assets/blogImg/avatar.jpg">
+      <meta itemprop="name" content="Jiayi Liu">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Joey's Notes">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Mac上制作Linux的U盘启动盘
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2018-10-31 10:05:33" itemprop="dateCreated datePublished" datetime="2018-10-31T10:05:33+08:00">2018-10-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2025-04-28 11:47:21" itemprop="dateModified" datetime="2025-04-28T11:47:21+08:00">2025-04-28</time>
+              </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>在windows上制作Linux的U盘启动盘非常容易，有很多工具，比如软碟通UltralISO、deepin深度启动盘制作工具等，只要正确使用这些工具就能很容易地制作一个U盘启动盘。</p>
+<p>换了Mac电脑后，有时候要给服务器装Linux操作系统，还是找一台windows电脑来制作U盘启动盘，十分不方便。其实用Mac也能很容易地制作U盘启动盘，并且不需要借助什么工具，用dd命令就能完成U盘启动盘的制作。</p>
+<h4 id="步骤"><a href="#步骤" class="headerlink" title="步骤"></a>步骤</h4><ol>
+<li><p>插入U盘，使用diskutil指令来查看U盘的挂载点</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ diskutil list</span><br></pre></td></tr></table></figure>
+<p> 系统输出类似如下的内容</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># joey @ joey-Mac in ~ [9:45:27]</span></span><br><span class="line">$ diskutil list</span><br><span class="line">/dev/disk0 (internal):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:      GUID_partition_scheme                         24.0 GB    disk0</span><br><span class="line">   1:                        EFI EFI                     314.6 MB   disk0s1</span><br><span class="line">   2:                 Apple_APFS                         23.6 GB    disk0s2</span><br><span class="line"></span><br><span class="line">/dev/disk1 (internal, physical):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:      GUID_partition_scheme                        *1.0 TB     disk1</span><br><span class="line">   1:                        EFI EFI                     209.7 MB   disk1s1</span><br><span class="line">   2:                 Apple_APFS Container disk2         900.7 GB   disk1s2</span><br><span class="line">   3:       Microsoft Basic Data BOOTCAMP                99.3 GB    disk1s3</span><br><span class="line"></span><br><span class="line">/dev/disk2 (synthesized):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:      APFS Container Scheme -                      +900.7 GB   disk2</span><br><span class="line">                                 Physical Store disk1s2</span><br><span class="line">   1:                APFS Volume CoreStorage Fusion      576.8 GB   disk2s1</span><br><span class="line">   2:                APFS Volume Preboot                 44.0 MB    disk2s2</span><br><span class="line">   3:                APFS Volume Recovery                512.4 MB   disk2s3</span><br><span class="line">   4:                APFS Volume VM                      6.4 GB     disk2s4</span><br><span class="line"></span><br><span class="line">/dev/disk3 (external, physical):</span><br><span class="line">   <span class="comment">#:                       TYPE NAME                    SIZE       IDENTIFIER</span></span><br><span class="line">   0:     FDisk_partition_scheme                        *15.7 GB    disk3</span><br><span class="line">   1:               Windows_NTFS joey                    15.7 GB    disk3s1</span><br></pre></td></tr></table></figure>
+<p> 可以看到，我的U盘大小是16GB，对应上面输出的挂载点应该是位于<code>/dev/disk3</code></p>
+</li>
+<li><p>在写入系统镜像前，首先需要umount这个U盘，使用如下指令</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ diskutil unmountDisk /dev/disk3</span><br></pre></td></tr></table></figure>
+<p> 会输出如下内容表示正确unmount</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># joey @ joey-Mac in ~ [9:45:34]</span></span><br><span class="line">$ diskutil unmountDisk /dev/disk3</span><br><span class="line">Unmount of all volumes on disk3 was successful</span><br></pre></td></tr></table></figure>
+<p> 此时，Mac的Finder中已经看不到之前挂载上的U盘了，但是使用<code>diskutil list</code>命令还是能够看到U盘的信息</p>
+</li>
+<li><p>使用dd指令写入Linux系统镜像到U盘 </p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo <span class="built_in">dd</span> <span class="keyword">if</span>=/Users/joey/Downloads/CentOS-7-x86_64-DVD-1804.iso of=/dev/disk3 bs=1M</span><br></pre></td></tr></table></figure>
+<p> 这里有一点需要注意，有些教程可能写的<code>bs=1m</code>，这里如果你的电脑装了GNU Coreutils，就是那个让<code>ls</code>能够彩色化输出的软件，这里用1m就会报错，报错内容为<code>dd: invalid number: ‘1m’</code>，这里把m大写就能很容易解决这个问题，但是究竟是什么原因造成1m不行的我也不是很清楚，只知道一个解决的办法。</p>
+<p> 之后会输出如下，表示写入完成，大概要等几分钟</p>
+ <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># joey @ joey-Mac in ~ [9:49:37] C:1</span></span><br><span class="line">$ sudo <span class="built_in">dd</span> <span class="keyword">if</span>=/Users/joey/Downloads/CentOS-7-x86_64-DVD-1804.iso of=/dev/disk3 bs=1M</span><br><span class="line">Password:</span><br><span class="line">4263+0 records <span class="keyword">in</span></span><br><span class="line">4263+0 records out</span><br><span class="line">4470079488 bytes (4.5 GB, 4.2 GiB) copied, 446.25 s, 10.0 MB/s</span><br></pre></td></tr></table></figure>
+<p> 经过如上几个步骤，用Mac制作的U盘启动盘就制作完成了。</p>
+</li>
+</ol>
+<h4 id="一些问题"><a href="#一些问题" class="headerlink" title="一些问题"></a>一些问题</h4><p>U盘制作启动盘之后U盘的可能无法被Mac系统读取了，会报一个错误，可见空间也会变的很小，这时候可以重新格式化U盘来进行恢复</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2018/10/29/sed%E4%B8%AD%E5%8F%8D%E6%96%9C%E6%9D%A01%E7%9A%84%E7%94%A8%E6%B3%95/" rel="prev" title="sed中\1的用法">
+      <i class="fa fa-chevron-left"></i> sed中\1的用法
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2018/11/13/ansible%E6%95%99%E7%A8%8B%E4%B9%8Bfile%E6%A8%A1%E5%9D%97%E7%9A%84%E4%BD%BF%E7%94%A8/" rel="next" title="ansible教程之file模块的使用">
+      ansible教程之file模块的使用 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.</span> <span class="nav-text">步骤</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%80%E4%BA%9B%E9%97%AE%E9%A2%98"><span class="nav-number">2.</span> <span class="nav-text">一些问题</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Jiayi Liu"
+      src="/assets/blogImg/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Jiayi Liu</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">分类</span>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">22</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/liujiayi771" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;liujiayi771" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:liujiayi771@gmail.com" title="E-Mail → mailto:liujiayi771@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2025</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jiayi Liu</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+</body>
+</html>
