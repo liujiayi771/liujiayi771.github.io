@@ -322,7 +322,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-04-28 11:47:21" itemprop="dateModified" datetime="2025-04-28T11:47:21+08:00">2025-04-28</time>
+                <time title="修改时间：2025-06-17 11:26:00" itemprop="dateModified" datetime="2025-06-17T11:26:00+08:00">2025-06-17</time>
               </span>
 
           
@@ -341,9 +341,10 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">LD_PRELOAD=/usr/lib64/libasan.so.6</span><br></pre></td></tr></table></figure>
 
 <p>这种运行方式无法进行交互式输入，因此我们需要直接加入需要执行的query，例如：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-c</span><br><span class="line">&quot;select * from parquet_scan(&#x27;test.parquet&#x27;)</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-c</span><br><span class="line">&quot;select * from parquet_scan(&#x27;test.parquet&#x27;)&quot;</span><br></pre></td></tr></table></figure>
 
 <p>这样在代码中打断点后执行就可以进行debug了，可以学习duckdb优秀的代码。</p>
+<p>也可以增加cmake编译参数-DENABLE_SANITIZER&#x3D;OFF -DENABLE_UBSAN&#x3D;OFF来关闭sanitizer、ubsan（检测内存泄露的工具），这样就不需要加LD_PRELOAD的环境变量了。</p>
 
       
     </div>

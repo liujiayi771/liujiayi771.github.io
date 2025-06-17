@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://liujiayi771.github.io/2024/07/18/duckdb/%E4%BD%BF%E7%94%A8clion%20debug%20duckdb/</loc>
+    <lastmod>2025-06-17</lastmod>
+  </url>
+  <url>
     <loc>http://liujiayi771.github.io/2025/04/28/vscode-remote-ssh-timeout/</loc>
     <lastmod>2025-04-28</lastmod>
   </url>
@@ -202,10 +206,6 @@
   </url>
   <url>
     <loc>http://liujiayi771.github.io/2016/01/07/centos/CentOS%207.0%20%E5%AE%89%E8%A3%85Nginx/</loc>
-    <lastmod>2025-04-28</lastmod>
-  </url>
-  <url>
-    <loc>http://liujiayi771.github.io/2024/07/18/duckdb/%E4%BD%BF%E7%94%A8clion%20debug%20duckdb/</loc>
     <lastmod>2025-04-28</lastmod>
   </url>
   <url>
